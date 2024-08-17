@@ -1,0 +1,3 @@
+input[type="radio"]:checked + span {
+  display: block;
+}
