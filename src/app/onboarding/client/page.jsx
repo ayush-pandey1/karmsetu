@@ -25,39 +25,39 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { skills } from "./skills";
 
 const formSchema = z.object({
   phoneNumber: z
-    .string().min(10,{ message: "Phone number should be ten digits" })
+    .string()
+    .min(10, { message: "Phone number should be ten digits" })
     .transform((val) => parseInt(val, 10)),
   age: z
     .string({ required_error: "Please enter your age" })
     .transform((val) => parseInt(val, 10)),
   gender: z.enum(["male", "female"], { message: "Please select a gender" }),
   address: z.string(),
-  professionalTitle: z.string(),
+  industry: z.string(),
   skills: z
     .array(z.string())
     .min(1, { message: "You have to select at least one skill." }),
-  portfolioLink: z.string(),
+  companyName: z.string(),
   bio: z.string().min(10, { message: "Bio should be atleast 10 words" }),
   //   language: z.string(),
   socialMedia: z.string(),
 });
 
-const OnboardingFreelancer = () => {
+const OnboardingClient = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       address: "",
-      portfolioLink: "",
+      companyName: "",
       bio: "",
       socialMedia: "",
       phoneNumber: "",
       age: "",
       gender: "",
-      professionalTitle: "",
+      industry: "",
       skills: [],
     },
   });
@@ -71,9 +71,9 @@ const OnboardingFreelancer = () => {
   return (
     <div className="flex justify-center w-full h-full pt-0 md:pt-20 pb-10 font-inter">
       <div className="flex flex-col h-full w-[40rem] border border-stroke  py-4">
-        <div className="flex flex-col items-center justify-center mb-4">
+        <div className="flex flex-col justify-center items-center mb-4">
           <p className="text-5xl text-black dark:text-white font-semibold">
-            Freelancer Details
+            Client Details
           </p>
           <p className="text-sm">
             Fill your details to create your profile
@@ -178,47 +178,21 @@ const OnboardingFreelancer = () => {
 
               <FormField
                 control={form.control}
-                name="professionalTitle"
+                name="companyName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-semibold text-black ">
-                      Professional title
+                      Company Name
                     </FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            className="placeholder:text-black"
-                            placeholder="Select your professional title"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="overflow-hidden">
-                        <SelectItem value="Web Developer">
-                          Web Developer
-                        </SelectItem>
-                        <SelectItem value="Graphic Designer">
-                          Graphic Designer
-                        </SelectItem>
-                        <SelectItem value="Consultant">Consultant</SelectItem>
-                        <SelectItem value="Content Writer">
-                          Content Writer
-                        </SelectItem>
-                        <SelectItem value="Software Engineer">
-                          Software Engineer
-                        </SelectItem>
-                        <SelectItem value="Videographer">
-                          Videographer
-                        </SelectItem>
-                        <SelectItem value="Legal Advisor">
-                          Legal Advisor
-                        </SelectItem>
-                        <SelectItem value="Copywriter">Copywriter</SelectItem>
-                        <SelectItem value="Social Media Manager">
-                          Social Media Manager
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter your company/org name"
+                        {...field}
+                      />
+                    </FormControl>
+                    {/* <FormDescription>
+                      This is your public display name.
+                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -226,64 +200,47 @@ const OnboardingFreelancer = () => {
 
               <FormField
                 control={form.control}
-                name="skills"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <div className="mb-4">
-                        <FormLabel className="font-semibold text-black ">
-                          Skills
-                        </FormLabel>
-                        <FormDescription>
-                          Select the skills you want to add to your profile.
-                        </FormDescription>
-                      </div>
-                      <div className="flex flex-wrap gap-4">
-                        {skills.map((skill) => (
-                          <FormItem
-                            key={skill.id}
-                            className="flex flex-row items-center space-x-3"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value.includes(skill.id)}
-                                onCheckedChange={(checked) => {
-                                  const newSkills = checked
-                                    ? [...field.value, skill.id]
-                                    : field.value.filter((s) => s !== skill.id);
-                                  field.onChange(newSkills);
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="text-sm font-normal">
-                              {skill.label}
-                            </FormLabel>
-                          </FormItem>
-                        ))}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-
-              <FormField
-                control={form.control}
-                name="portfolioLink"
+                name="industry"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="font-semibold text-black ">
-                      Portfolio
+                      Industry
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your portfolio url"
-                        {...field}
-                      />
-                    </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            className="placeholder:text-black"
+                            placeholder="Select your industry."
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="overflow-hidden">
+                        <SelectItem value="Information Technology">
+                        Information Technology (IT)
+                        </SelectItem>
+                        <SelectItem value="Marketing">
+                        Marketing
+                        </SelectItem>
+                        <SelectItem value="Finance">Finance</SelectItem>
+                        <SelectItem value="Design">
+                        Design
+                        </SelectItem>
+                        <SelectItem value="Healthcare">
+                          Healthcare
+                        </SelectItem>
+                        <SelectItem value="Legal">
+                        Legal
+                        </SelectItem>
+                        <SelectItem value="Education">
+                        Education
+                        </SelectItem>
+                        <SelectItem value="Consulting">Consulting</SelectItem>
+                        <SelectItem value="Transportation & Logistics">
+                        Transportation & Logistics
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -333,7 +290,7 @@ const OnboardingFreelancer = () => {
                   </FormItem>
                 )}
               />
-              <div className="flex justify-center ">
+              <div className="flex justify-center">
                 <Button
                   className="bg-primary hover:bg-primary active:bg-primaryho  text-white"
                   type="submit"
@@ -349,4 +306,4 @@ const OnboardingFreelancer = () => {
   );
 };
 
-export default OnboardingFreelancer;
+export default OnboardingClient;
