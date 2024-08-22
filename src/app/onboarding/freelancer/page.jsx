@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as z from "zod";
 import {
   Form,
@@ -26,10 +26,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { skills } from "./skills";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
 
 const formSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
   phoneNumber: z
-    .string().min(10,{ message: "Phone number should be ten digits" })
+    .string().min(10, { message: "Phone number should be ten digits" })
     .transform((val) => parseInt(val, 10)),
   age: z
     .string({ required_error: "Please enter your age" })
@@ -44,12 +48,33 @@ const formSchema = z.object({
   bio: z.string().min(10, { message: "Bio should be atleast 10 words" }),
   //   language: z.string(),
   socialMedia: z.string(),
+  role: z.string(),
 });
 
 const OnboardingFreelancer = () => {
+  const { data: session, status } = useSession();
+  const [userEmail, setUserEmail] = useState("");
+  const [role, setRole] = useState("");
+  const router = useRouter();
+
+  useEffect(() => {
+    const path = window.location.pathname;
+    const segments = path.split('/');
+    const extractedRole = segments[segments.length - 1];
+    setRole(extractedRole);
+    console.log("Extracted role:", extractedRole);
+  }, []);
+
+  useEffect(() => {
+    if (session?.user?.email) {
+      setUserEmail(session.user.email);
+    }
+  }, [session]);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      email: userEmail,
       address: "",
       portfolioLink: "",
       bio: "",
@@ -59,14 +84,48 @@ const OnboardingFreelancer = () => {
       gender: "",
       professionalTitle: "",
       skills: [],
+      role: role,
     },
   });
 
-  const onSubmit = (values) => {
-    // Do something with the form values.
+  useEffect(() => {
+    if (role) {
+      form.setValue("role", role);
+    }
+  }, [role]);
 
-    console.log(values);
+  useEffect(() => {
+    if (userEmail) {
+      form.setValue("email", userEmail);
+    }
+  }, [userEmail, form]);
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    console.log("sdasda", role);
+    try {
+      const response = await fetch("/api/FpersonalDetails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log("User updated successfully");
+        router.push("/");
+
+      } else {
+        console.log(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error submitting form", error);
+      console.log("Something went wrong");
+    }
   };
+
 
   return (
     <div className="flex justify-center w-full h-full pt-0 md:pt-20 pb-10 font-inter">
@@ -83,6 +142,7 @@ const OnboardingFreelancer = () => {
         <div className=" h-full flex flex-col px-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
               <FormField
                 control={form.control}
                 name="phoneNumber"
@@ -98,9 +158,6 @@ const OnboardingFreelancer = () => {
                         {...field}
                       />
                     </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -121,9 +178,6 @@ const OnboardingFreelancer = () => {
                         {...field}
                       />
                     </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -168,9 +222,6 @@ const OnboardingFreelancer = () => {
                     <FormControl>
                       <Input placeholder="Enter your address" {...field} />
                     </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -281,9 +332,6 @@ const OnboardingFreelancer = () => {
                         {...field}
                       />
                     </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -304,9 +352,6 @@ const OnboardingFreelancer = () => {
                         {...field}
                       />
                     </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}
@@ -326,9 +371,6 @@ const OnboardingFreelancer = () => {
                         {...field}
                       />
                     </FormControl>
-                    {/* <FormDescription>
-                      This is your public display name.
-                    </FormDescription> */}
                     <FormMessage />
                   </FormItem>
                 )}

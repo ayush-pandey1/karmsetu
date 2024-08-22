@@ -8,16 +8,19 @@ const inter = Inter({ subsets: ["latin"] });
 import ToasterContext from "../context/ToastContext";
 import ScrollToTop from "@/components/ScrollToTop";
 
+import { SessionProvider } from "next-auth/react";
+
 
 export default function RootLayout({ children, }) {
-    return (<html lang="en" suppressHydrationWarning className="no-scrollbar">
-      <body className={`dark:bg-black ${inter.className}`}>
-        <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
-        
+  return (<html lang="en" suppressHydrationWarning className="no-scrollbar">
+    <body className={`dark:bg-black ${inter.className}`}>
+      <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
+        <SessionProvider>
           <ToasterContext />
           {children}
           <ScrollToTop />
-        </ThemeProvider>
-      </body>
-    </html>);
+        </SessionProvider>
+      </ThemeProvider>
+    </body>
+  </html>);
 }
