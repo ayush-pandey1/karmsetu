@@ -30,7 +30,7 @@ module.exports = {
         blackho: "#2C3149",
         blacksection: "#1C2136",
         primary: "#8b5cf6",
-        primaryho: "#7913b6",
+        primaryho: "#7c3aed",
         secondary: "#fece25",
         secondaryho: "#eeb004",
         meta: "#20C5A8",
@@ -146,5 +146,5 @@ module.exports = {
       
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate"),],
 };

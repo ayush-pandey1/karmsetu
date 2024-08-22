@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SIDENAV_ITEMS } from "@/constants";
+import { SIDENAV_ITEMS } from "@/constants/client/constants";
 import { Icon } from "@iconify/react";
 const SideNav = () => {
   return (
@@ -44,7 +44,7 @@ const MenuItem = ({ item }) => {
             onClick={toggleSubMenu}
             className={`flex transition-all ease-in-out flex-row items-center p-2 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
               pathname.includes(item.path)
-                ? "bg-primary drop-shadow-sm  text-white hover:bg-violet-600"
+                ? "bg-primary drop-shadow-sm  text-white hover:bg-violet-700"
                 : ""
             }`}
           >
@@ -83,7 +83,7 @@ const MenuItem = ({ item }) => {
           href={item.path}
           className={`flex flex-row transition-all ease-in-out space-x-4 items-center p-2  rounded-lg hover:bg-zinc-100 ${
             item.path === pathname
-              ? "bg-primary drop-shadow text-white hover:bg-violet-600"
+              ? "bg-primary drop-shadow text-white hover:bg-violet-700"
               : ""
           }`}
         >
