@@ -30,7 +30,7 @@ const formSchema = z.object({
   phoneNumber: z
     .string()
     .min(10, { message: "Phone number should be ten digits" })
-    .transform((val) => parseInt(val, 10)),
+    .transform((val) => parseInt(val, 10)), 
   age: z
     .string({ required_error: "Please enter your age" })
     .transform((val) => parseInt(val, 10)),
