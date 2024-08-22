@@ -1,10 +1,10 @@
 import '@/app/globals.css';
 import { Inter } from 'next/font/google';
-import Header from '@/components/mainClient/header';
-import HeaderMobile from '@/components/mainClient/header-mobile';
-import MarginWidthWrapper from '@/components/mainClient/margin-width-wrapper';
-import PageWrapper from '@/components/mainClient/page-wrapper';
-import SideNav from '@/components/mainClient/side-nav';
+import Header from '@/components/mainFreelancer/header';
+import HeaderMobile from '@/components/mainFreelancer/header-mobile';
+import MarginWidthWrapper from '@/components/mainFreelancer/margin-width-wrapper';
+import PageWrapper from '@/components/mainFreelancer/page-wrapper';
+import SideNav from '@/components/mainFreelancer/side-nav';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({ children, }) {
