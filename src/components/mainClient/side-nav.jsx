@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SIDENAV_ITEMS } from "@/constants/client/constants";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 const SideNav = () => {
   return (
     <div className="fixed flex-1 hidden h-screen bg-white border-r md:w-60 border-zinc-200 md:flex">
@@ -12,9 +13,9 @@ const SideNav = () => {
           href="/cl"
           className="flex flex-row items-center justify-center w-full h-12 space-x-3 border-b md:justify-start md:px-6 border-zinc-200"
         >
-          <span className="rounded-lg h-7 w-7 bg-zinc-300" />
-          {/* <span className="hidden text-xl font-bold md:flex">Karmsetu</span> */}
-          <p className="hidden text-xl font-bold text-black md:flex dark:text-white">
+          <span className="rounded-lg"> <Image src="/karmsetu.png" className="" width="34" height="34"/> </span>
+    
+          <p className="hidden text-2xl font-bold text-black md:flex dark:text-white">
             Karm<span className="text-primary">Setu</span>
           </p>
         </Link>

@@ -125,3 +125,7 @@ pre {
 .active-tab {
   @apply bg-stroke text-black dark:bg-blackho dark:text-white;
 }
+
+html::-webkit-scrollbar{
+  display: none;
+}
