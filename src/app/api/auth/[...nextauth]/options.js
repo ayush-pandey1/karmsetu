@@ -2,6 +2,7 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import User from "@/app/(models)/User";
+//import User from "../../../(models)/User";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 

@@ -9,22 +9,23 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "../ui/form.jsx";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select.jsx";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea.jsx";
+import { Input } from "../ui/input.jsx";
+import { Button } from "../ui/button.jsx";
 import { TagInput } from "emblor";
 import { projectCategories } from "./projectCategory.js";
 import { useState } from "react";
+import axios from "axios";
 
 const createJobSchema = z.object({
   title: z
@@ -52,13 +53,20 @@ const CreateJobForm = () => {
       duration: "",
     },
   });
+  const { reset } = form; // Destructure reset from useForm
 
-  const onSubmitForm = (values) => {
-    console.log("Form submitted with values:", values);
-    // alert("Form submitted successfully!");
-    console.log(tags);
+
+  const onSubmitForm = async (values) => {
+    try {
+      const response = await axios.post("/api/projects/createProject", { values, tags });
+        setTags([]);
+      reset();
+    } catch (error) {
+      console.error("Error occurred:", error.response ? error.response.data : error.message);
+      // Optionally set an error message state or notify the user
+    }
   };
-
+  
   return (
     <div className="flex flex-col ">
       <Form {...form}>
@@ -106,7 +114,6 @@ const CreateJobForm = () => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="projectCategory"

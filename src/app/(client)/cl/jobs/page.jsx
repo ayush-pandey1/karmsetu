@@ -1,14 +1,16 @@
-import { Button } from "@/components/ui/button";
 import { GoPlus } from "react-icons/go";
 
 import React from "react";
 import Link from "next/link";
-import JobCardClient from "@/components/JobCardClient";
-
+import JobCardClient from '@/components/JobCardClient';
+import { Button } from '@/components/ui/button';
+// import JobCardClient from '../../../../components/JobCardClient';
+// import {Button} from "../../../../components/ui/button";
 
 
 
 const JobPage = () => {
+  const apiUrl = "/api/projects/createProject";
   return (
     <> 
       <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
@@ -34,13 +36,7 @@ const JobPage = () => {
         
       
         <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
-          <JobCardClient/>
-          <JobCardClient/>
-          <JobCardClient/>
-          <JobCardClient/>
-          <JobCardClient/>
-          <JobCardClient/>
-         
+          <JobCardClient apiUrl={apiUrl}/>          
         </div>
       
       </div>
