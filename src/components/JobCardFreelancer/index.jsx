@@ -14,7 +14,7 @@ const JobCardFreelancer = ({ jobData }) => {
     const date = "April 27"
   return (
     <div>
-      <div className="p-4 border border-slate-300 max-w-72 sm:max-w-90 rounded-xl">
+      <div className="p-4 border border-slate-300 shadow-md bg-white max-w-72 sm:max-w-90 rounded-xl">
         <div className="flex flex-col gap-4">
           <div className="flex flex-row gap-4">
             <div>

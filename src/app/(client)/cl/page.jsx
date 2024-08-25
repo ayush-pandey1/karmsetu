@@ -1,6 +1,8 @@
 "use client";
 
 import FreelancerCard from "@/components/FreelancerCard";
+import JobCardClient from "@/components/JobCardClient";
+import JobCardFreelancer from "@/components/JobCardFreelancer";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -137,19 +139,26 @@ const Home = () => {
             </Card>
           </div>
         </div>
-        <div className="flex flex-col gap-2 border-dashed border border-zinc-500 w-full  rounded-lg">
+        <div className="flex flex-col gap-2   w-full  rounded-lg">
           <div className="md:text-4xl text-3xl text-black font-semibold">
             Freelancers
           </div>
-          <div className=" gap-4">
+          <div className="flex flex-row flex-wrap justify-start   gap-4">
+            <FreelancerCard/>
+            <FreelancerCard/>
+            <FreelancerCard/>
+            <FreelancerCard/>
+            <FreelancerCard/>
             <FreelancerCard/>
            
+            <FreelancerCard/>
+            <JobCardFreelancer/>
           </div>
         </div>
+        {/* <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
         <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
         <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-        <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-        <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
+        <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div> */}
       </div>
     </>
   );

@@ -10,4 +10,3 @@ const AnalyticsPage = () => {
     </>);
 };
 export default AnalyticsPage;
-s
