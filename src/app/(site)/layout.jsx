@@ -1,15 +1,19 @@
 "use client";
-
+// import Footer from "../../components/Footer/index";
+// import Header from "../../components/Header/index";
+// import Lines from "../../components/Lines/index";
+// import ScrollToTop from "../../components/ScrollToTop/index";
+//import { store } from '../(redux)/store/store'
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Lines from "@/components/Lines";
 import ScrollToTop from "@/components/ScrollToTop";
+import { store } from '@/app/(redux)/store/store.js'
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { SessionProvider } from "next-auth/react";
 import ToasterContext from "../context/ToastContext";
-import { store } from '@/app/(redux)/store/store.js'
 import { Provider } from 'react-redux'
 
 const inter = Inter({ subsets: ["latin"] });

@@ -1,4 +1,5 @@
 import User from "@/app/(models)/User";
+// import User from "../../(models)/User";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
