@@ -13,7 +13,15 @@ const SideNav = () => {
           href="/cl"
           className="flex flex-row items-center justify-center w-full h-12 space-x-3 border-b md:justify-start md:px-6 border-zinc-200"
         >
-          <span className="rounded-lg"> <Image src="/karmsetu.png" className="" width="34" height="34"/> </span>
+          <span className="rounded-lg">
+            {" "}
+            <Image
+              src="/karmsetu.png"
+              className=""
+              width="34"
+              height="34"
+            />{" "}
+          </span>
           {/* <span className="hidden text-xl font-bold md:flex">Karmsetu</span> */}
           <p className="hidden text-2xl font-bold text-black md:flex dark:text-white">
             Karm<span className="text-primary">Setu</span>
@@ -25,7 +33,6 @@ const SideNav = () => {
             return <MenuItem key={idx} item={item} />;
           })}
         </div>
-        
       </div>
     </div>
   );
@@ -45,7 +52,7 @@ const MenuItem = ({ item }) => {
             onClick={toggleSubMenu}
             className={`flex  flex-row items-center p-2 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
               pathname.includes(item.path)
-                ? "bg-primary drop-shadow-sm  text-white hover:bg-violet-700"
+                ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
                 : ""
             }`}
           >
@@ -84,7 +91,7 @@ const MenuItem = ({ item }) => {
           href={item.path}
           className={`flex flex-row  space-x-4 items-center p-2  rounded-lg hover:bg-zinc-100 ${
             item.path === pathname
-              ? "bg-primary drop-shadow text-white hover:bg-violet-700"
+              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
               : ""
           }`}
         >

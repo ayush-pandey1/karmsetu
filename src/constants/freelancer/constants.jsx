@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react';
+const userid="291712b4k2j1bn412k4814nkjk"
 export const SIDENAV_ITEMS = [
     {
         title: 'Home',
@@ -44,15 +45,20 @@ export const SIDENAV_ITEMS = [
         icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24"/>,
         
     },
+    // {
+    //     title: 'Settings',
+    //     path: '/fl/settings',
+    //     icon: <Icon icon="lucide:settings" width="24" height="24"/>,
+    //     submenu: true,
+    //     subMenuItems: [
+    //         { title: 'Profile', path: `/user/${userid}` },
+    //         { title: 'Privacy', path: '/fl/settings/privacy' },
+    //     ],
+    // },
     {
-        title: 'Settings',
-        path: '/fl/settings',
+        title: 'Profile',
+        path: `/fl/user/${userid}`,
         icon: <Icon icon="lucide:settings" width="24" height="24"/>,
-        submenu: true,
-        subMenuItems: [
-            { title: 'Profile', path: '/fl/settings/profile' },
-            { title: 'Privacy', path: '/fl/settings/privacy' },
-        ],
     },
     {
         title: 'Help',
