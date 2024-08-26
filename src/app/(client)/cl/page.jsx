@@ -17,7 +17,7 @@ const Home = () => {
   const user = "Ayush";
   return (
     <>
-      <div className="flex flex-col gap-12 mx-0 sm:mx-15 mt-5">
+      <div className="flex flex-col gap-12 mx-0 sm:mx-8 mt-5">
         <div className="flex  flex-col sm:flex-row gap-4 sm:gap-0  sm:justify-between sm:items-center">
           <span className="font-semibold text-black text-4xl">
             Welcome Back, <span className="text-primary">{user}</span> 👋
@@ -33,10 +33,10 @@ const Home = () => {
         </div>
 
         <div className=" w-full rounded-lg "> {/* Quick Stats Section */}
-          <div className="grid gap-4  sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-xl md:text-2xl  font-semibold">
                   Total Projects Posted
                 </CardTitle>
                 <svg
@@ -47,21 +47,21 @@ const Home = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-primary"
+                  className="h-5 w-5  text-primary"
                 >
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">12</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs pt-2 text-gray-400">
                   last posted on 27 July
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-xl md:text-2xl  font-semibold">
                   Active Projects
                 </CardTitle>
                 <svg
@@ -72,7 +72,7 @@ const Home = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-primary"
+                  className="h-5 w-5 text-primary"
                 >
                   <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
                   <circle cx="9" cy="7" r="4" />
@@ -81,14 +81,14 @@ const Home = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">5</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
               </CardContent>
             </Card>
-            <Card className="hidden sm:block">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="hidden lg:block">
+              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-xl md:text-2xl  font-semibold">
                   Completed Projects
                 </CardTitle>
                 <svg
@@ -99,7 +99,7 @@ const Home = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-primary"
+                  className="h-5 w-5 text-primary"
                 >
                   <rect width="20" height="14" x="2" y="5" rx="2" />
                   <path d="M2 10h20" />
@@ -107,14 +107,14 @@ const Home = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">7</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
               </CardContent>
             </Card>
-            <Card className="hidden sm:block">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="hidden lg:block">
+              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-xl md:text-2xl  font-semibold">
                   Total Hired Freelancers
                 </CardTitle>
                 <svg
@@ -125,14 +125,14 @@ const Home = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  className="h-4 w-4 text-primary"
+                  className="h-5 w-5 text-primary"
                 >
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-primary">8</div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs pt-2 text-gray-400">
                   Last hire on 20 July
                 </p>
               </CardContent>
@@ -143,7 +143,7 @@ const Home = () => {
           <div className="md:text-4xl text-3xl text-black font-semibold">
             Freelancers
           </div>
-          <div className="flex flex-row flex-wrap justify-start   gap-4">
+          <div className=" inline-flex flex-row flex-wrap  justify-start   gap-4">
             <FreelancerCard/>
             <FreelancerCard/>
             <FreelancerCard/>
@@ -152,7 +152,6 @@ const Home = () => {
             <FreelancerCard/>
            
             <FreelancerCard/>
-            <JobCardFreelancer/>
           </div>
         </div>
         {/* <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
