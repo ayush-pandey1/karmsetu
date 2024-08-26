@@ -1,4 +1,4 @@
-import JobCardClient from '@/compon  const apiUrl = "/api/projects/createProject?status=Completed";ents/JobCardClient';
+import JobCardClient from '@/components/JobCardClient';
 import { Button } from '@/components/ui/button';
 
 // import JobCardClient from '../../../../../components/JobCardClient';
