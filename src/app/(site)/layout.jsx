@@ -3,12 +3,12 @@
 // import Header from "../../components/Header/index";
 // import Lines from "../../components/Lines/index";
 // import ScrollToTop from "../../components/ScrollToTop/index";
-//import { store } from '../(redux)/store/store'
+import store from '../(redux)/store/store'
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Lines from "@/components/Lines";
 import ScrollToTop from "@/components/ScrollToTop";
-import { store } from '@/app/(redux)/store/store.js'
+//import { store } from '@/app/(redux)/store/store.js'
 import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import "../globals.css";
@@ -22,7 +22,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`dark:bg-black ${inter.className}`}>
-        <Provider store={store}>
+        {/* <Provider store={store}> */}
           <SessionProvider>
             <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
               <Lines />
@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
               <ScrollToTop />
             </ThemeProvider>
           </SessionProvider>
-        </Provider>
+        {/* </Provider> */}
       </body>
     </html>
   );

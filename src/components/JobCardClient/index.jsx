@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { IoIosArrowForward } from "react-icons/io";
 import {
@@ -14,27 +14,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import axios from "axios";
 
-const JobCardClient = ({ apiUrl }) => {
-  const [projects, setProjects] = useState([]);
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await axios.get(apiUrl);
-        setProjects(response.data.data);
-      } catch (error) {
-        console.error("Error occurred:", error.response ? error.response.data : error.message);
-      }
-    };
-
-    fetchProjects();
-  }, [apiUrl]);
-
+const JobCardClient = ({length, projects}) => {
+  console.log(length,projects);
   return (
     <>
-      {projects.map((project) => (
+      {length && projects.map((project) => (
         <div key={project.id}>
           <div className="p-4 border border-slate-300 max-w-72 sm:max-w-90 rounded-lg">
             <div className="flex flex-col gap-4">
@@ -102,6 +88,7 @@ const JobCardClient = ({ apiUrl }) => {
           </div>
         </div>
       ))}
+      {!length && <div>No Projects</div>}
     </>
   );
 };

@@ -14,16 +14,27 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
-const Home = () => {
+import { useSelector } from "react-redux";
+
+const Home =  () => {
   const [userData, setUserData] = useState();
-  useEffect(() => {
+  const completedProjects = useSelector((state) => state.projects.completedProjects);
+  const ongoingProjects = useSelector((state) => state.projects.ongoingProjects);
+  const projects = useSelector((state)=> state.projects.allProjects);
+  const [projectCount, setProjectCount] = useState({
+    completedProjects : completedProjects,
+    ongoingProjects : ongoingProjects,
+    allProjects : projects
+  })
+  console.log(projectCount);
+  
+  useEffect( () => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
-
   }, [])
   const user = userData?.name;
-  const userId = userData?.id;
-  // console.log(userId);
+  const clientId = userData?.id;
+  console.log(clientId, user);
   return (
     <>
       <div className="flex flex-col gap-12 mx-0 sm:mx-8 mt-5">
@@ -62,7 +73,7 @@ const Home = () => {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">12</div>
+                <div className="text-2xl font-bold text-primary">{projectCount.allProjects}</div>
                 <p className="text-xs pt-2 text-gray-400">
                   last posted on 27 July
                 </p>
@@ -89,7 +100,7 @@ const Home = () => {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">5</div>
+                <div className="text-2xl font-bold text-primary">{projectCount.ongoingProjects}</div>
                 <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
@@ -115,7 +126,7 @@ const Home = () => {
                 </svg>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-primary">7</div>
+                <div className="text-2xl font-bold text-primary">{projectCount.completedProjects}</div>
                 <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
