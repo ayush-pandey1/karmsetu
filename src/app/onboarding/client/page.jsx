@@ -127,16 +127,19 @@ const OnboardingClient = () => {
   }, [userEmail, form]);
 
   const onSubmit = async (values) => {
-    const formData = new FormData();
+    // const formData = new FormData();
 
-    for (const key in values) {
-      formData.append(key, values[key]);
-    }
+    // for (const key in values) {
+    //   formData.append(key, values[key]);
+    // }
 
     try {
       const response = await fetch("/api/CpersonalDetails", {
         method: "PUT",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
       });
 
       const result = await response.json();

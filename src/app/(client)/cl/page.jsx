@@ -14,27 +14,77 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setAllProjects, setCompleted, setCompletedProjects, setOngoing, setOngoingProjects, setProjects } from "@/app/(redux)/features/projectDataSlice";
+// import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
 
-const Home =  () => {
+const Home = () => {
+  const dispatch = useDispatch();
   const [userData, setUserData] = useState();
   const completedProjects = useSelector((state) => state.projects.completedProjects);
   const ongoingProjects = useSelector((state) => state.projects.ongoingProjects);
-  const projects = useSelector((state)=> state.projects.allProjects);
+  const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
-    completedProjects : completedProjects,
-    ongoingProjects : ongoingProjects,
-    allProjects : projects
+    completedProjects: completedProjects,
+    ongoingProjects: ongoingProjects,
+    allProjects: projects
   })
+  useEffect(() => {
+    setProjectCount({
+      completedProjects: completedProjects,
+      ongoingProjects: ongoingProjects,
+      allProjects: projects
+    })
+  }, [completedProjects, ongoingProjects, projects])
   console.log(projectCount);
-  
-  useEffect( () => {
+
+  useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
   }, [])
   const user = userData?.name;
   const clientId = userData?.id;
   console.log(clientId, user);
+  // const dispatch = useDispatch();
+  // const [userData, setUserData] = useState();
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
+  // const user = userData?.name;
+  // const clientId = userData?.id;
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const apiUrl = `/api/projects/Project?clientId=${clientId}`;
+        const response = await axios.get(apiUrl);
+
+        const projectsData = response.data.data;
+        console.log(projectsData);
+
+        dispatch(setProjects(projectsData));
+
+        const completed = projectsData.filter(project => project.status === "Completed");
+        const ongoing = projectsData.filter(project => project.status === "In Progress");
+        console.log(completed);
+        console.log(ongoing);
+
+        dispatch(setCompleted(completed));
+        dispatch(setOngoing(ongoing));
+        dispatch(setAllProjects(projectsData.length));
+        dispatch(setCompletedProjects(completed.length));
+        dispatch(setOngoingProjects(ongoing.length));
+      } catch (error) {
+        console.error("Error occurred:", error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchProjects();
+  }, [clientId, dispatch]);
+
+  // const projects = useSelector((state) => state.projects.projects);
+  const length = useSelector((state) => state.projects.allProjects);
   return (
     <>
       <div className="flex flex-col gap-12 mx-0 sm:mx-8 mt-5">

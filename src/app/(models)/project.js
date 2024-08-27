@@ -14,6 +14,8 @@ const ProjectSchema = new Schema({
   freelancerId:{type:String,default:"none"},
   // clientId: {type : string},
   status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
+},{
+  timestamps: true,
 });
 
 const Project = mongoose.models.Project|| mongoose.model('Project', ProjectSchema);

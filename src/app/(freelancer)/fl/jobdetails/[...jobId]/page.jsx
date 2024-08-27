@@ -6,10 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { MdCurrencyRupee, MdAccessTime } from "react-icons/md";
 import { FaClipboardList } from "react-icons/fa";
 import { GiSkills } from "react-icons/gi";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
 import {
   Dialog,
   DialogClose,
@@ -23,7 +21,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FaEnvelopeOpenText } from "react-icons/fa";
-
 
 const JobDetails = () => {
   const [jobData, setJobData] = useState(null);
@@ -64,7 +61,7 @@ const JobDetails = () => {
 
   if (loading) return <p>Loading...</p>;
 
-  const role = "client";
+  const role = "freelancer";
   const isApplied = false;
   console.log("DATA", jobData);
 

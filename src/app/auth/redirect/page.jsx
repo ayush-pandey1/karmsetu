@@ -10,6 +10,12 @@ const redirect = () => {
     const [userData, setUserData] = useState();
     const [user, setUser] = useState();
     const router = useRouter();
+    if (userData?.role === "client") {
+        router.push("/cl");
+    }
+    else if (userData?.role === "freelancer") {
+        router.push("/fl");
+    }
     useEffect(() => {
         // const data = JSON.parse(sessionStorage.getItem('karmsetu'));
         // setUserData(data);
@@ -76,6 +82,7 @@ const redirect = () => {
     }, [session, role, user, userData]);
     useEffect(() => {
         const userData = JSON.parse(sessionStorage.getItem('karmsetu'));
+        setUserData(userData);
         if (userData?.role === "client") {
             router.push("/cl");
         }
