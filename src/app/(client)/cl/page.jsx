@@ -12,9 +12,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 const Home = () => {
-  const user = "Ayush";
+  const [userData, setUserData] = useState();
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+
+  }, [])
+  const user = userData?.name;
+  const userId = userData?.id;
+  // console.log(userId);
   return (
     <>
       <div className="flex flex-col gap-12 mx-0 sm:mx-8 mt-5">
@@ -144,14 +153,14 @@ const Home = () => {
             Freelancers
           </div>
           <div className=" inline-flex flex-row flex-wrap  justify-start   gap-4">
-            <FreelancerCard/>
-            <FreelancerCard/>
-            <FreelancerCard/>
-            <FreelancerCard/>
-            <FreelancerCard/>
-            <FreelancerCard/>
-           
-            <FreelancerCard/>
+            <FreelancerCard />
+            <FreelancerCard />
+            <FreelancerCard />
+            <FreelancerCard />
+            <FreelancerCard />
+            <FreelancerCard />
+
+            <FreelancerCard />
           </div>
         </div>
         {/* <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>

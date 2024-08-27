@@ -24,8 +24,10 @@ import { Input } from "../ui/input.jsx";
 import { Button } from "../ui/button.jsx";
 import { TagInput } from "emblor";
 import { projectCategories } from "./projectCategory.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation.js";
+
 
 const createJobSchema = z.object({
   title: z
@@ -37,12 +39,25 @@ const createJobSchema = z.object({
   projectCategory: z.string().min(1, { message: "Catagory is required" }),
   budget: z.string({ message: "Budget  is required" }).transform((val) => parseInt(val)),
   duration: z.string().min(1, { message: "Duration is required" }),
+  clientId: z.string()
 });
 
 const CreateJobForm = () => {
   const [tags, setTags] = useState([]);
   const [activeTagIndex, setActiveTagIndex] = useState(null);
-
+  const [userData, setUserData] = useState();
+  useEffect(() => {
+    if (!userData) {
+      const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+      setUserData(data);
+      if (data?.id) {
+        form.reset({
+          ...form.getValues(),
+          clientId: data.id
+        });
+      }
+    }
+  }, [userData]);
   const form = useForm({
     resolver: zodResolver(createJobSchema),
     defaultValues: {
@@ -51,22 +66,25 @@ const CreateJobForm = () => {
       projectCategory: "",
       budget: "",
       duration: "",
+      clientId: userData?.id,
     },
   });
   const { reset } = form; // Destructure reset from useForm
-
+  const router = useRouter();
 
   const onSubmitForm = async (values) => {
     try {
       const response = await axios.post("/api/projects/createProject", { values, tags });
-        setTags([]);
+      // console.log(values);
+      setTags([]);
       reset();
+      router.push('/cl/jobs')
     } catch (error) {
       console.error("Error occurred:", error.response ? error.response.data : error.message);
       // Optionally set an error message state or notify the user
     }
   };
-  
+
   return (
     <div className="flex flex-col ">
       <Form {...form}>
@@ -89,7 +107,7 @@ const CreateJobForm = () => {
                 {/* <FormDescription>
                   This is your public display name.
                 </FormDescription> */}
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -110,7 +128,7 @@ const CreateJobForm = () => {
                   />
                 </FormControl>
 
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -176,7 +194,7 @@ const CreateJobForm = () => {
                 {/* <FormDescription>
                   This is your public display name.
                 </FormDescription> */}
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -196,7 +214,7 @@ const CreateJobForm = () => {
                   />
                 </FormControl>
 
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -216,7 +234,7 @@ const CreateJobForm = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />

@@ -43,7 +43,7 @@ const JobDetails = () => {
   };
 
   const role = "client";
-  const isApplied = true;
+  const isApplied = false;
   return (
     <div className="container mx-auto md:p-6">
       <Card className="shadow-lg">

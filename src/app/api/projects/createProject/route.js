@@ -9,7 +9,7 @@ export async function POST(NextRequest) {
   try {
     const reqBody = await NextRequest.json();
     const { values, tags } = reqBody;
-    const { description, budget, projectCategory, duration, title } = values;
+    const { description, budget, projectCategory, duration, title,clientId  } = values;
 
     // Convert tags to an array of strings
     const tagTexts = tags.map(tag => tag.text);
@@ -21,7 +21,8 @@ export async function POST(NextRequest) {
       budget,
       technologies: tagTexts,
       duration,
-      projectCategory
+      projectCategory,
+      clientId
     });
 
     const savedProject = await newProject.save();

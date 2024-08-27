@@ -10,6 +10,9 @@ const ProjectSchema = new Schema({
   deadline: { type: Number },
   // clientId: { type: Number},
   projectCategory : { type: String },
+  clientId :{type:String} ,
+  freelancerId:{type:String,default:"none"},
+  // clientId: {type : string},
   status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
 });
 

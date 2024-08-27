@@ -17,7 +17,8 @@ const userSchema = new Schema({
     socialMedia: String,
     professionalTitle: String,
     skill: [String], 
-    portfolio: String,  
+    portfolio: String, 
+    connection: {type:Number},
     role: { type: String, default: "freelancer" },
 }, {
     timestamps: true,
