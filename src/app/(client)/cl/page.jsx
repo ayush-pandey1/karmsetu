@@ -41,7 +41,9 @@ const Home = () => {
           </div>
         </div>
 
-        <div className=" w-full rounded-lg "> {/* Quick Stats Section */}
+        <div className=" w-full rounded-lg ">
+          {" "}
+          {/* Quick Stats Section */}
           <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">

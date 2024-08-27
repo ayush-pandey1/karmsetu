@@ -21,19 +21,29 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
+import {
+  FaCamera,
+  FaLink,
+  FaPhone,
+  FaUser,
+  FaMapMarkerAlt,
+  FaBiohazard,
+} from "react-icons/fa";
+import { AiOutlineMail } from "react-icons/ai";
+import { MdWork } from "react-icons/md";
 import { skills } from "./skills";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-
+// Define the schema using Zod
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   phoneNumber: z
-    .string().min(10, { message: "Phone number should be ten digits" })
+    .string()
+    .min(10, { message: "Phone number should be ten digits" })
     .transform((val) => parseInt(val, 10)),
   age: z
     .string({ required_error: "Please enter your age" })
@@ -45,8 +55,7 @@ const formSchema = z.object({
     .array(z.string())
     .min(1, { message: "You have to select at least one skill." }),
   portfolioLink: z.string(),
-  bio: z.string().min(10, { message: "Bio should be atleast 10 words" }),
-  //   language: z.string(),
+  bio: z.string().min(10, { message: "Bio should be at least 10 words" }),
   socialMedia: z.string(),
   role: z.string(),
 });
@@ -55,12 +64,16 @@ const OnboardingFreelancer = () => {
   const { data: session, status } = useSession();
   const [userEmail, setUserEmail] = useState("");
   const [role, setRole] = useState("");
+  const [photo, setPhoto] = useState(null);
   const [userData, setUserData] = useState();
+
+  
+
   const router = useRouter();
 
   useEffect(() => {
     const path = window.location.pathname;
-    const segments = path.split('/');
+    const segments = path.split("/");
     const extractedRole = segments[segments.length - 1];
     setRole(extractedRole);
     console.log("Extracted role:", extractedRole);
@@ -130,9 +143,9 @@ const OnboardingFreelancer = () => {
       const response = await fetch("/api/FpersonalDetails", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       });
 
       const result = await response.json();
@@ -140,7 +153,6 @@ const OnboardingFreelancer = () => {
         console.log("User updated successfully");
 
         router.push("/auth/redirect");
-
 
       } else {
         console.log(`Error: ${result.message}`);
@@ -151,29 +163,59 @@ const OnboardingFreelancer = () => {
     }
   };
 
+  const handlePhotoChange = (e) => {
+    setPhoto(URL.createObjectURL(e.target.files[0]));
+  };
 
   return (
     <div className="flex justify-center w-full h-full pt-0 md:pt-20 pb-10 font-inter">
-      <div className="flex flex-col h-full w-[40rem] border border-stroke  py-4">
+      <div className="flex flex-col h-full w-[40rem] border border-stroke py-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
         <div className="flex flex-col items-center justify-center mb-4">
           <p className="text-5xl text-black dark:text-white font-semibold">
             Freelancer Details
           </p>
-          <p className="text-sm">
+          <p className="text-sm text-gray-600 dark:text-gray-300">
             Fill your details to create your profile
           </p>
         </div>
         <hr className="my-4 h-px border-t-0 bg-transparent bg-gradient-to-r from-transparent via-neutral-500 to-transparent opacity-25 dark:via-neutral-400" />
-        <div className=" h-full flex flex-col px-4">
+        <div className="h-full flex flex-col px-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <div className="flex flex-col items-center mb-4">
+                <label
+                  htmlFor="photoUpload"
+                  className="flex items-center justify-center w-24 h-24 border border-dashed border-gray-400 rounded-full cursor-pointer relative"
+                >
+                  {photo ? (
+                    <img
+                      src={photo}
+                      alt="Profile"
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  ) : (
+                    <FaCamera className="text-gray-600 dark:text-gray-300 text-3xl" />
+                  )}
+                  <input
+                    id="photoUpload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                  />
+                </label>
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  Upload your photo
+                </p>
+              </div>
 
               <FormField
                 control={form.control}
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaPhone className="text-primary mr-2" />
                       Phone Number
                     </FormLabel>
                     <FormControl>
@@ -193,7 +235,8 @@ const OnboardingFreelancer = () => {
                 name="age"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaUser className="text-primary mr-2" />
                       Age
                     </FormLabel>
                     <FormControl>
@@ -213,14 +256,15 @@ const OnboardingFreelancer = () => {
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaBiohazard className="text-primary mr-2" />
                       Gender
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger className="outline-none">
                           <SelectValue
-                            className="placeholder:text-black"
+                            className="placeholder:text-black dark:placeholder:text-white"
                             placeholder="Select your gender"
                           />
                         </SelectTrigger>
@@ -241,7 +285,8 @@ const OnboardingFreelancer = () => {
                 name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaMapMarkerAlt className="text-primary mr-2" />
                       Address
                     </FormLabel>
                     <FormControl>
@@ -257,15 +302,16 @@ const OnboardingFreelancer = () => {
                 name="professionalTitle"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
-                      Professional title
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <MdWork className="text-primary mr-2" />
+                      Professional Title
                     </FormLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue
-                            className="placeholder:text-black"
-                            placeholder="Select your professional title"
+                            placeholder="Select your role"
+                            className="placeholder:text-black dark:placeholder:text-white"
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -307,7 +353,7 @@ const OnboardingFreelancer = () => {
                   return (
                     <FormItem>
                       <div className="mb-4">
-                        <FormLabel className="font-semibold text-black ">
+                        <FormLabel className="font-semibold text-black dark:text-white">
                           Skills
                         </FormLabel>
                         <FormDescription>
@@ -331,7 +377,7 @@ const OnboardingFreelancer = () => {
                                 }}
                               />
                             </FormControl>
-                            <FormLabel className="text-sm font-normal">
+                            <FormLabel className="text-sm font-normal dark:text-gray-300">
                               {skill.label}
                             </FormLabel>
                           </FormItem>
@@ -348,12 +394,13 @@ const OnboardingFreelancer = () => {
                 name="portfolioLink"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaLink className="text-primary mr-2" />
                       Portfolio
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your portfolio url"
+                        placeholder="Enter your portfolio URL"
                         {...field}
                       />
                     </FormControl>
@@ -367,7 +414,8 @@ const OnboardingFreelancer = () => {
                 name="bio"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaUser className="text-primary mr-2" />
                       Bio
                     </FormLabel>
                     <FormControl>
@@ -387,12 +435,13 @@ const OnboardingFreelancer = () => {
                 name="socialMedia"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-black ">
+                    <FormLabel className="font-semibold text-black dark:text-white flex items-center">
+                      <FaLink className="text-primary mr-2" />
                       Social Media
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your social media url"
+                        placeholder="Enter your social media URL"
                         {...field}
                       />
                     </FormControl>
@@ -400,10 +449,11 @@ const OnboardingFreelancer = () => {
                   </FormItem>
                 )}
               />
-              <div className="flex justify-center ">
+
+              <div className="flex justify-center">
                 <Button
-                  className="bg-primary hover:bg-primary active:bg-primaryho  text-white"
                   type="submit"
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 font-bold text-lg rounded-lg py-3 px-6 mt-4"
                 >
                   Submit
                 </Button>
