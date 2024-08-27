@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { SIDENAV_ITEMS } from "@/constants/client/constants";
+ import { SIDENAV_ITEMS } from "@/constants/client/constants";
+//import { SIDENAV_ITEMS } from '../../constants/client/constants';
 import { Icon } from "@iconify/react";
 import Image from "next/image";
 const SideNav = () => {

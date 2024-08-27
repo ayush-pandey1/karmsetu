@@ -1,8 +1,7 @@
 import User from "@/app/(models)/User";
+// import User from "../../(models)/User";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import cookie from 'cookie';
 
 export async function POST(req) {
     try {
@@ -27,22 +26,6 @@ export async function POST(req) {
 
         const newUser = await User.create(userData);
 
-        const token = jwt.sign(
-            { userId: newUser._id, email: newUser.email, role: newUser.role },
-            process.env.JWT_SECRET, 
-            { expiresIn: '1h' }
-        );
-
-        const cookieOptions = {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 60 * 60 * 1000, 
-            path: '/',
-            sameSite: 'Lax'
-        };
-
-        const cookieHeader = cookie.serialize('next-auth.session-token1', token, cookieOptions);
-
         return new NextResponse(JSON.stringify({
             message: "User created successfully!!",
             user: {
@@ -54,7 +37,6 @@ export async function POST(req) {
         }), {
             status: 201,
             headers: {
-                'Set-Cookie': cookieHeader,
                 'Content-Type': 'application/json'
             }
         });

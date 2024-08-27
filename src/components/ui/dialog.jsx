@@ -5,6 +5,8 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { Cross2Icon } from "@radix-ui/react-icons"
 
 import { cn } from "@/lib/utils"
+//import { cn } from "../../lib/utils"
+
 
 const Dialog = DialogPrimitive.Root
 
@@ -51,7 +53,7 @@ const DialogHeader = ({
   ...props
 }) => (
   <div
-    className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)}
+    className={cn("flex flex-col space-y-1.5  sm:text-left", className)}
     {...props} />
 )
 DialogHeader.displayName = "DialogHeader"

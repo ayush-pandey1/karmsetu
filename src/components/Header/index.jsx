@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import ThemeToggler from "./ThemeToggler";
@@ -15,9 +15,74 @@ const Header = () => {
   const [navigationOpen, setNavigationOpen] = useState(false);
   const [dropdownToggler, setDropdownToggler] = useState(false);
   const [stickyMenu, setStickyMenu] = useState(false);
+  const [role, setRole] = useState("")
+  const [userData, setUserData] = useState();
   const pathUrl = usePathname();
+  const [user, setUser] = useState();
+  const router = useRouter();
+
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+    if (!userData) {
+      if (session?.user?.email) {
+
+        async function fetchUserData(email) {
+          try {
+            const response = await fetch('/api/userInfoByEmail', {
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ data: { email } })
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+              console.log("User Data:", result.user);
+              setUser(result.user);
+
+              const sessionData = {
+                email: user.email,
+                name: user.fullname,
+                id: user._id,
+                role: user.role,
+              };
+              setRole(sessionData?.role);
+              console.log("sdsd", role);
+              sessionStorage.setItem('karmsetu', JSON.stringify(sessionData));
+              console.log('Session data stored in sessionStorage:', sessionData);
+              const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+              setRole(data?.role);
+              setUserData(data);
+            } else {
+              console.error("Error:", result.message);
+            }
+          } catch (error) {
+            console.error("Fetch Error:", error);
+          }
+        }
+
+        fetchUserData(session.user.email);
 
 
+
+      }
+      else {
+        const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+        setUserData(data);
+        console.log("asas", data);
+        // setUserEmail(data?.email);
+        setRole(data?.role);
+      }
+    }
+  }, [session, role]);
+
+  const logout = () => {
+
+    sessionStorage.removeItem('karmsetu');
+    signOut({ callbackUrl: '/' });
+  }
 
 
   const handleStickyMenu = () => {
@@ -98,10 +163,10 @@ const Header = () => {
           <div className="mt-7 flex items-center gap-6 xl:mt-0">
             <ThemeToggler />
 
-            {session ? (
+            {userData?.email ? (
               // {session?.email}
               <button
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={logout}
                 className="flex items-center justify-center rounded-lg bg-primary px-7.5 py-2.5 text-regular text-white duration-300 ease-in-out hover:bg-primaryho"
               >
                 Logout

@@ -5,18 +5,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import Cookies from 'js-cookie';
 
 const Signup = () => {
   const router = useRouter();
   const [role, setRole] = useState("");
 
-
   useEffect(() => {
     const url = new URL(window.location.href);
     setRole(url.searchParams.get("role"));
-    // console.log("dsfssssssss", role);
-
   }, []);
 
   const [data, setData] = useState({
@@ -25,21 +21,22 @@ const Signup = () => {
     email: "",
     password: "",
     fullname: "",
-    role: "role"
+    role: "role",
   });
-  const [errorMessage, setErrorMessage] = useState("");
-  useEffect(() => {
-    setData(prevData => ({
-      ...prevData,
-      fullname: `${prevData.firstName} ${prevData.lastName}`
-      , role: role
-    }));
 
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    setData((prevData) => ({
+      ...prevData,
+      fullname: `${prevData.firstName} ${prevData.lastName}`,
+      role: role,
+    }));
   }, [data.firstName, data.lastName, role]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
-    console.log(data);
 
     try {
       const res = await fetch("/api/Users", {
@@ -54,20 +51,19 @@ const Signup = () => {
         const response = await res.json();
         setErrorMessage(response.message);
       } else {
-        const response = await res.json();
-        const { token } = response;
-        Cookies.set('next-auth.session-token', token, { expires: 7 });
-
+        const responseData = await res.json();
+        // Store the user data in sessionStorage
+        sessionStorage.setItem('karmsetu', JSON.stringify(responseData.user));
+        const userData = JSON.parse(sessionStorage.getItem('karmsetu'));
+        console.log('User data stored in sessionStorage:', userData?.email);
 
         router.refresh();
         router.push(`/onboarding/${role}`);
       }
-
     } catch (error) {
       console.error('Error: ', error);
     }
   };
-
 
   const handleSocialLogin = (provider, role) => {
     const callbackUrl = `/onboarding/${role}`;

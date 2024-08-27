@@ -59,6 +59,7 @@ const OnboardingClient = () => {
   const [userEmail, setUserEmail] = useState("");
   const [role, setRole] = useState("");
   const router = useRouter();
+  const [userData, setUserData] = useState();
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -70,8 +71,31 @@ const OnboardingClient = () => {
   useEffect(() => {
     if (session?.user?.email) {
       setUserEmail(session.user.email);
+      const path = window.location.pathname;
+      const segments = path.split('/');
+      const extractedRole = segments[segments.length - 1];
+      const sessionData = {
+        email: session.user.email,
+        name: session.user.name,
+        id: session.user.id,
+        role: extractedRole,
+      };
+      setRole(sessionData?.role);
+      console.log("sdsd", role);
+      sessionStorage.setItem('karmsetu', JSON.stringify(sessionData));
+      console.log('Session data stored in sessionStorage:', sessionData);
+      const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+      setRole(data?.role);
+      setUserData(data);
     }
-  }, [session]);
+    else {
+      const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+      setUserData(data);
+      console.log("asas", data);
+      setUserEmail(data?.email);
+      setRole(data?.role);
+    }
+  }, [session, role]);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -119,10 +143,15 @@ const OnboardingClient = () => {
 
       if (response.ok) {
         console.log("User updated successfully:", result);
-        router.push("/");
+        console.log("userdata", userData);
+        // if (userData?.role === "client") {
+        router.push("/auth/redirect");
+
+
       } else {
         console.error("Failed to update user:", result.message);
       }
+
     } catch (error) {
       console.error("Error submitting form:", error);
     }

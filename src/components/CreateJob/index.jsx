@@ -9,22 +9,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "../ui/form.jsx";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../ui/select.jsx";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea.jsx";
+import { Input } from "../ui/input.jsx";
+import { Button } from "../ui/button.jsx";
 import { TagInput } from "emblor";
 import { projectCategories } from "./projectCategory.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation.js";
+
 
 const createJobSchema = z.object({
   title: z
@@ -36,12 +39,25 @@ const createJobSchema = z.object({
   projectCategory: z.string().min(1, { message: "Catagory is required" }),
   budget: z.string({ message: "Budget  is required" }).transform((val) => parseInt(val)),
   duration: z.string().min(1, { message: "Duration is required" }),
+  clientId: z.string()
 });
 
 const CreateJobForm = () => {
   const [tags, setTags] = useState([]);
   const [activeTagIndex, setActiveTagIndex] = useState(null);
-
+  const [userData, setUserData] = useState();
+  useEffect(() => {
+    if (!userData) {
+      const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+      setUserData(data);
+      if (data?.id) {
+        form.reset({
+          ...form.getValues(),
+          clientId: data.id
+        });
+      }
+    }
+  }, [userData]);
   const form = useForm({
     resolver: zodResolver(createJobSchema),
     defaultValues: {
@@ -50,13 +66,23 @@ const CreateJobForm = () => {
       projectCategory: "",
       budget: "",
       duration: "",
+      clientId: userData?.id,
     },
   });
+  const { reset } = form; // Destructure reset from useForm
+  const router = useRouter();
 
-  const onSubmitForm = (values) => {
-    console.log("Form submitted with values:", values);
-    // alert("Form submitted successfully!");
-    console.log(tags);
+  const onSubmitForm = async (values) => {
+    try {
+      const response = await axios.post("/api/projects/createProject", { values, tags });
+      // console.log(values);
+      setTags([]);
+      reset();
+      router.push('/cl/jobs')
+    } catch (error) {
+      console.error("Error occurred:", error.response ? error.response.data : error.message);
+      // Optionally set an error message state or notify the user
+    }
   };
 
   return (
@@ -81,7 +107,7 @@ const CreateJobForm = () => {
                 {/* <FormDescription>
                   This is your public display name.
                 </FormDescription> */}
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -102,11 +128,10 @@ const CreateJobForm = () => {
                   />
                 </FormControl>
 
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="projectCategory"
@@ -169,7 +194,7 @@ const CreateJobForm = () => {
                 {/* <FormDescription>
                   This is your public display name.
                 </FormDescription> */}
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -189,7 +214,7 @@ const CreateJobForm = () => {
                   />
                 </FormControl>
 
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />
@@ -209,7 +234,7 @@ const CreateJobForm = () => {
                     {...field}
                   />
                 </FormControl>
-                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out"/>
+                <FormMessage className="flex  relative overflow-hidden animate-in slide-in-from-right-15 ease-in-out" />
               </FormItem>
             )}
           />

@@ -17,9 +17,9 @@ export const SIDENAV_ITEMS = [
         ],
     },
     {
-        title: 'Notifications',
-        path: '/cl/notifications',
-        icon: <Icon icon="lucide:bell" width="24" height="24"/>,
+        title: 'Application',
+        path: '/cl/application',
+        icon: <Icon icon="lucide:clipboard-pen-line" width="24" height="24"/>,
     },
     {
         title: 'Messages',

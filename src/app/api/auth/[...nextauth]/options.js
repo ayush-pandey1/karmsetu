@@ -2,6 +2,7 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import User from "@/app/(models)/User";
+//import User from "../../../(models)/User";
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
@@ -18,7 +19,7 @@ export const options = {
             profile: async (profile, tokens) => {
                 const { email } = profile;
                 const { url } = tokens;
-                const role = new URL(url, 'http://localhost').searchParams.get('role') || 'freelancer';
+                // const role = new URL(url, 'http://localhost').searchParams.get('role') || 'freelancer';
 
                 console.log("GitHub profile: ", profile);
 
@@ -28,13 +29,13 @@ export const options = {
                         fullname: profile.name || profile.login,
                         email,
                         password: null, 
-                        role: role,
+                        // role: role,
                     });
                 }
 
                 return {
                     ...profile,
-                    role: role,
+                    // role: role,
                 };
             },
             clientId: process.env.GITHUB_ID,
@@ -44,11 +45,11 @@ export const options = {
             profile: async (profile, tokens) => {
                 const { email } = profile;
                 const { url } = tokens;
-                const role = new URL(url, 'http://localhost').searchParams.get('role') || 'freelancer';
+                // const role = new URL(url, 'http://localhost').searchParams.get('role') || 'freelancer';
 
                 console.log("Google profile: ", profile);
 
-                let userRole = role === 'admin' ? 'admin' : 'freelancer';
+                // let userRole = role === 'client' ? 'client' : 'freelancer';
 
                 const existingUser = await User.findOne({ email });
                 if (!existingUser) {
@@ -56,7 +57,7 @@ export const options = {
                         fullname: profile.name,
                         email,
                         password: null, 
-                        role: userRole,
+                        // role: userRole,
                     });
                 }
 
@@ -64,7 +65,7 @@ export const options = {
                     id: profile.sub,
                     email,
                     name: profile.name,
-                    role: userRole,
+                    // role: userRole,
                 };
             },
             clientId: process.env.GOOGLE_ID,
