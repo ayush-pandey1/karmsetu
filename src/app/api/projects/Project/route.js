@@ -38,13 +38,14 @@ export async function POST(NextRequest) {
 
 export async function GET(NextRequest) {
   try {
-    const status = NextRequest.nextUrl.searchParams.get('status');
-
-    // If status is provided, filter by status; otherwise, fetch all data
-    const query = status ? { status } : {};
+    const clientId = NextRequest.nextUrl.searchParams.get('clientId');
 
     // Fetch data from MongoDB based on the query
-    const data = await ProjectSchema.find(query);
+    const data = await ProjectSchema.find({clientId});
+    console.log("Data Length:",data.length);
+    if(data.length == 0){
+      return NextResponse.json({ message: "No Projects", success: true, empty : true}, { status: 200 });  
+    }
 
     // Return the response with the fetched data
     return NextResponse.json({ message: "Fetched Data Successfully", success: true, data }, { status: 200 });

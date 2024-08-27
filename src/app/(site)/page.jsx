@@ -1,3 +1,4 @@
+import store from '../(redux)/store/store'
 import Hero from "@/components/Hero";
 import Brands from "@/components/Brands";
 import Feature from "@/components/Features";
@@ -11,7 +12,7 @@ import Pricing from "@/components/Pricing";
 import Contact from "@/components/Contact";
 import Blog from "@/components/Blog";
 import Testimonial from "@/components/Testimonial";
-
+import { Provider } from 'react-redux'
 // import Hero from "../../components/Hero/index";
 // import Brands from "../../components/Brands/index";
 // import Feature from "../../components/Features/index";
@@ -26,24 +27,29 @@ import Testimonial from "@/components/Testimonial";
 // import Blog from "../../components/Blog/index";
 // import Testimonial from "../../components/Testimonial/index";
 export const metadata = {
-    title: "Karmsetu",
-    description: "This is Home for Karmsetu",
-    // other metadata
+  title: "Karmsetu",
+  description: "This is Home for Karmsetu",
+  // other metadata
 };
+
 export default function Home() {
-    return (<main>
-      <Hero />
-      <Brands />
-      <Feature />
-      <About />
-      <FeaturesTab />
-      <FunFact />
-      <Integration />
-      <CTA />
-      <FAQ />
-      <Testimonial />
-      <Pricing />
-      {/* <Contact /> */}
-      <Blog />
-    </main>);
+  return (
+    // <Provider store={store}>
+      <main>
+        <Hero />
+        <Brands />
+        <Feature />
+        <About />
+        <FeaturesTab />
+        <FunFact />
+        <Integration />
+        <CTA />
+        <FAQ />
+        <Testimonial />
+        <Pricing />
+        {/* <Contact /> */}
+        <Blog />
+      </main>
+    // </Provider>
+  );
 }

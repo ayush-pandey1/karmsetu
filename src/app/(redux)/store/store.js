@@ -1,5 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
+import projectDataReducer from '../features/projectDataSlice'
 
-export const store = configureStore({
-  reducer: {},
+const store = configureStore({
+  reducer: {
+    projects : projectDataReducer
+  }
 })
+
+export default store;

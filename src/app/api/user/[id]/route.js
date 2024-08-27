@@ -26,7 +26,7 @@ export async function GET(req, { params }) {
         });
 
     } catch (error) {
-        console.error("Error retrieving user data:", error);
+        console.error("Error retrieving user data:", error.message);
         return NextResponse.json({
             message: "Error retrieving user data",
             error: error.message

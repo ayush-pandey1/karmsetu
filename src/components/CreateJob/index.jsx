@@ -74,7 +74,7 @@ const CreateJobForm = () => {
 
   const onSubmitForm = async (values) => {
     try {
-      const response = await axios.post("/api/projects/createProject", { values, tags });
+      const response = await axios.post("/api/projects/Project", { values, tags });
       // console.log(values);
       setTags([]);
       reset();
