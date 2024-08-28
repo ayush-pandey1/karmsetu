@@ -16,6 +16,20 @@ import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
 import {fetchProjects} from "../../(redux)/features/projectDataSlice"
+// import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { HiMiniMagnifyingGlass } from "react-icons/hi2";
+import { Input } from "@/components/ui/input";
+import { MdWorkspacePremium } from "react-icons/md";
+import { TbAdjustmentsStar } from "react-icons/tb";
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
@@ -25,9 +39,18 @@ const Home = () => {
     allProjects: 0
   })
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setProjectCount({
+      completedProjects: completedProjects,
+      ongoingProjects: ongoingProjects,
+      allProjects: projects
+    })
+  }, [completedProjects, ongoingProjects, projects])
+  console.log(projectCount);
+
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
-  }, [])
+  }, []);
   const user = userData?.name;
   const clientId = userData?.id;
   //console.log(clientId, user);
@@ -47,10 +70,10 @@ const Home = () => {
       allProjects: allProjects,
     });
   }, [completedProjects, ongoingProjects, allProjects]);
-  
+  const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
-      <div className="flex flex-col gap-12 mx-0 sm:mx-8 mt-5">
+      <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
         <div className="flex  flex-col sm:flex-row gap-4 sm:gap-0  sm:justify-between sm:items-center">
           <span className="font-semibold text-black text-4xl">
             Welcome Back, <span className="text-primary">{user}</span> 👋
@@ -68,35 +91,26 @@ const Home = () => {
         <div className=" w-full rounded-lg ">
           {" "}
           {/* Quick Stats Section */}
-          <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4">
             <Card>
-              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
-                <CardTitle className="text-xl md:text-2xl  font-semibold">
+              <CardHeader className="pt-4 pb-0 px-3  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-md sm:text-lg md:text-xl  font-semibold">
                   Total Projects Posted
                 </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-5 w-5  text-primary"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
+                <TbAdjustmentsStar className="h-5 w-5  text-primary"/>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-primary">{projectCount.allProjects}</div>
+              <CardContent className="px-3">
+                <div className="text-2xl font-bold text-primary">
+                  {projectCount.allProjects}
+                </div>
                 <p className="text-xs pt-2 text-gray-400">
                   last posted on 27 July
                 </p>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
-                <CardTitle className="text-xl md:text-2xl  font-semibold">
+              <CardHeader className="pt-4 pb-0 px-3  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-md sm:text-lg md:text-xl  font-semibold">
                   Active Projects
                 </CardTitle>
                 <svg
@@ -114,16 +128,18 @@ const Home = () => {
                   <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-primary">{projectCount.ongoingProjects}</div>
+              <CardContent className="px-3">
+                <div className="text-2xl font-bold text-primary">
+                  {projectCount.ongoingProjects}
+                </div>
                 <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
               </CardContent>
             </Card>
             <Card className="hidden lg:block">
-              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
-                <CardTitle className="text-xl md:text-2xl  font-semibold">
+              <CardHeader className="pt-4 pb-0 px-3  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-md sm:text-lg md:text-xl  font-semibold">
                   Completed Projects
                 </CardTitle>
                 <svg
@@ -140,16 +156,18 @@ const Home = () => {
                   <path d="M2 10h20" />
                 </svg>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-primary">{projectCount.completedProjects}</div>
+              <CardContent className="px-3">
+                <div className="text-2xl font-bold text-primary">
+                  {projectCount.completedProjects}
+                </div>
                 <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
               </CardContent>
             </Card>
             <Card className="hidden lg:block">
-              <CardHeader className="pt-4 pb-0  flex flex-row items-center justify-between space-y-0 ">
-                <CardTitle className="text-xl md:text-2xl  font-semibold">
+              <CardHeader className="pt-4 pb-0 px-3  flex flex-row items-center justify-between space-y-0 ">
+                <CardTitle className="text-md sm:text-lg md:text-xl  font-semibold">
                   Total Hired Freelancers
                 </CardTitle>
                 <svg
@@ -165,7 +183,7 @@ const Home = () => {
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-3">
                 <div className="text-2xl font-bold text-primary">8</div>
                 <p className="text-xs pt-2 text-gray-400">
                   Last hire on 20 July
@@ -174,11 +192,108 @@ const Home = () => {
             </Card>
           </div>
         </div>
+
         <div className="flex flex-col gap-2   w-full  rounded-lg">
-          <div className="md:text-4xl text-3xl text-black font-semibold">
+          <div className="md:text-4xl text-3xl text-black font-semibold flex flex-row items-center">
+            <span><MdWorkspacePremium className="text-secondaryho md:text-4xl text-3xl" /></span>
             Freelancers
           </div>
-          <div className=" inline-flex flex-row flex-wrap  justify-start   gap-4">
+
+          <div className="flex flex-col lg:flex-row gap-2   justify-between">
+            <div className="flex flex-row gap-2">
+              <div className="bg-white max-h-10 min-w-64 flex flex-row items-center gap-1 pl-2 rounded-md ">
+                <HiMiniMagnifyingGlass className="text-xl" />
+                <Input
+                  type="text"
+                  placeholder="Search Freelancers"
+                  className=" border-none px-1 rounded-md placeholder:font-medium bg-white  w-full"
+                />
+              </div>
+              <div>
+                <Button className="bg-secondaryho hover:bg-secondary focus:bg-secondary">
+                  Search
+                </Button>
+              </div>
+            </div>
+            <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2 ">
+              <div className="flex flex-col md:flex-row  gap-2">
+                <Select>
+                  <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
+                    <SelectValue className="k" placeholder="Select title" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup className="max-h-40 overflow-y-scroll">
+                      <SelectLabel>Titles</SelectLabel>
+                      <SelectItem value="Web Developer">
+                        Web Developer
+                      </SelectItem>
+                      <SelectItem value="Android Developer">
+                        Android Developer
+                      </SelectItem>
+                      <SelectItem value="Graphic Designer">
+                        Graphic Designer
+                      </SelectItem>
+                      <SelectItem value="Consultant">Consultant</SelectItem>
+                      <SelectItem value="Content Writer">
+                        Content Writer
+                      </SelectItem>
+                      <SelectItem value="Software Engineer">
+                        Software Engineer
+                      </SelectItem>
+                      <SelectItem value="Videographer">Videographer</SelectItem>
+                      <SelectItem value="Legal Advisor">
+                        Legal Advisor
+                      </SelectItem>
+                      <SelectItem value="Copywriter">Copywriter</SelectItem>
+                      <SelectItem value="Social Media Manager">
+                        Social Media Manager
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                <Select>
+                  <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
+                    <SelectValue className="k" placeholder="Rating" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup className="max-h-40 ">
+                      <SelectLabel>Ratings</SelectLabel>
+                      <SelectItem value="4.5">4.5+</SelectItem>
+                      <SelectItem value="4">4+</SelectItem>
+                      <SelectItem value="3">3+</SelectItem>
+                      <SelectItem value="2">2+</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="max-w-72 ">
+                <div class="price-range ">
+                  <span class="text-sm text-black font-medium">Budget: </span>
+                  <span class="text-sm">₹</span>
+                  <span class="text-sm">{maxBudget}</span>
+                  <input
+                    class="w-full accent-primary"
+                    type="range"
+                    defaultValue="1000"
+                    name="maxBudget"
+                    min="0"
+                    max="20000"
+                    step="500"
+                    // oninput="this.previousElementSibling.innerText=this.value"
+                    onChange={(e) => {
+                      setMaxBudget(e.target.value);
+                    }}
+                  />
+                  <div class="-mt-2 flex w-full justify-between">
+                    <span class="text-sm text-gray-600">0</span>
+                    <span class="text-sm text-gray-600">20000</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
             <FreelancerCard />
             <FreelancerCard />
             <FreelancerCard />
@@ -189,10 +304,6 @@ const Home = () => {
             <FreelancerCard />
           </div>
         </div>
-        {/* <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-        <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-        <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-        <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div> */}
       </div>
     </>
   );

@@ -46,11 +46,14 @@
     display: none;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
-
   .img-white {
     filter: invert(0%) sepia(96%) saturate(15%) hue-rotate(249deg)
       brightness(100%) contrast(105%);
@@ -126,6 +129,6 @@ pre {
   @apply bg-stroke text-black dark:bg-blackho dark:text-white;
 }
 
-html::-webkit-scrollbar{
+html::-webkit-scrollbar {
   display: none;
 }
