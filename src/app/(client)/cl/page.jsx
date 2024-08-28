@@ -15,15 +15,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
-import {
-  setAllProjects,
-  setCompleted,
-  setCompletedProjects,
-  setOngoing,
-  setOngoingProjects,
-  setProjects,
-} from "@/app/(redux)/features/projectDataSlice";
+import {fetchProjects} from "../../(redux)/features/projectDataSlice"
+// import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
 import {
   Select,
   SelectContent,
@@ -37,30 +30,21 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { Input } from "@/components/ui/input";
 import { MdWorkspacePremium } from "react-icons/md";
 import { TbAdjustmentsStar } from "react-icons/tb";
-// import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
-
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
-  const completedProjects = useSelector(
-    (state) => state.projects.completedProjects
-  );
-  const ongoingProjects = useSelector(
-    (state) => state.projects.ongoingProjects
-  );
-  const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
-    completedProjects: completedProjects,
-    ongoingProjects: ongoingProjects,
-    allProjects: projects,
-  });
+    completedProjects: 0,
+    ongoingProjects: 0,
+    allProjects: 0
+  })
   useEffect(() => {
     setProjectCount({
       completedProjects: completedProjects,
       ongoingProjects: ongoingProjects,
-      allProjects: projects,
-    });
-  }, [completedProjects, ongoingProjects, projects]);
+      allProjects: projects
+    })
+  }, [completedProjects, ongoingProjects, projects])
   console.log(projectCount);
 
   useEffect(() => {
@@ -69,53 +53,23 @@ const Home = () => {
   }, []);
   const user = userData?.name;
   const clientId = userData?.id;
-  console.log(clientId, user);
-  // const dispatch = useDispatch();
-  // const [userData, setUserData] = useState();
+  //console.log(clientId, user);
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    setUserData(data);
-  }, []);
-  // const user = userData?.name;
-  // const clientId = userData?.id;
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const apiUrl = `/api/projects/Project?clientId=${clientId}`;
-        const response = await axios.get(apiUrl);
-
-        const projectsData = response.data.data;
-        console.log(projectsData);
-
-        dispatch(setProjects(projectsData));
-
-        const completed = projectsData.filter(
-          (project) => project.status === "Completed"
-        );
-        const ongoing = projectsData.filter(
-          (project) => project.status === "In Progress"
-        );
-        console.log(completed);
-        console.log(ongoing);
-
-        dispatch(setCompleted(completed));
-        dispatch(setOngoing(ongoing));
-        dispatch(setAllProjects(projectsData.length));
-        dispatch(setCompletedProjects(completed.length));
-        dispatch(setOngoingProjects(ongoing.length));
-      } catch (error) {
-        console.error(
-          "Error occurred:",
-          error.response ? error.response.data : error.message
-        );
-      }
-    };
-
-    fetchProjects();
+    if (clientId) {
+      dispatch(fetchProjects(clientId));
+    }
   }, [clientId, dispatch]);
 
-  // const projects = useSelector((state) => state.projects.projects);
-  const length = useSelector((state) => state.projects.allProjects);
+  const completedProjects = useSelector((state) => state.projects.completedProjects);
+  const ongoingProjects = useSelector((state) => state.projects.ongoingProjects);
+  const allProjects = useSelector((state) => state.projects.allProjects);
+  useEffect(() => {
+    setProjectCount({
+      completedProjects: completedProjects,
+      ongoingProjects: ongoingProjects,
+      allProjects: allProjects,
+    });
+  }, [completedProjects, ongoingProjects, allProjects]);
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
