@@ -5,8 +5,7 @@ import Link from "next/link";
 import JobCardClient from '@/components/JobCardClient';
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from '@/components/ui/button';
-import axios from "axios";
-import { setAllProjects, setCompleted, setCompletedProjects, setOngoing, setOngoingProjects, setProjects } from "../../../(redux)/features/projectDataSlice";
+import { fetchProjects } from '../../../(redux)/features/projectDataSlice';
 
 const JobPage = () => {
   const dispatch = useDispatch();
@@ -18,30 +17,9 @@ const JobPage = () => {
   const user = userData?.name;
   const clientId = userData?.id;
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const apiUrl = `/api/projects/Project?clientId=${clientId}`;
-        const response = await axios.get(apiUrl);
-
-        const projectsData = response.data.data;
-        console.log(projectsData);
-
-        dispatch(setProjects(projectsData));
-
-        const completed = projectsData.filter(project => project.status === "Completed");
-        const ongoing = projectsData.filter(project => project.status === "In Progress");
-
-        dispatch(setCompleted(completed));
-        dispatch(setOngoing(ongoing));
-        dispatch(setAllProjects(projectsData.length));
-        dispatch(setCompletedProjects(completed.length));
-        dispatch(setOngoingProjects(ongoing.length));
-      } catch (error) {
-        console.error("Error occurred:", error.response ? error.response.data : error.message);
-      }
-    };
-
-    fetchProjects();
+    if (clientId) {
+      dispatch(fetchProjects(clientId));
+    }
   }, [clientId, dispatch]);
 
   const projects = useSelector((state) => state.projects.projects);

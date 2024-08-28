@@ -4,17 +4,29 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import React , {useState , useEffect} from 'react';
 import { GoPlus } from 'react-icons/go';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchProjects } from '../../../../(redux)/features/projectDataSlice';
 
 
 const CompletedJobPage =  () => {
+  const [userData, setUserData] = useState();
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
+  const clientId = userData?.id;
   const [length, setLength] = useState(0);
   const length1 = useSelector((state) => state.projects.completedProjects);
   const projects = useSelector((state) => state.projects.completed);
     useEffect(() => {
       setLength(length1);
     }, [length1]);
-    console.log(length, projects);
+    useEffect(() => {
+      if (clientId) {
+        dispatch(fetchProjects(clientId));
+      }
+    }, [clientId, dispatch]);
   return (
   <>
     <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
