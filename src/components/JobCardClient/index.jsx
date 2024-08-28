@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../ui/button";
 import { IoIosArrowForward } from "react-icons/io";
 import {
@@ -17,9 +17,6 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 const JobCardClient = ({ length, projects }) => {
-  console.log(length, projects);
-
-
   return (
     <>
       {length && Array.isArray(projects) && projects.length > 0 ? (
