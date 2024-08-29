@@ -42,9 +42,9 @@ const Home = () => {
     setProjectCount({
       completedProjects: completedProjects,
       ongoingProjects: ongoingProjects,
-      allProjects: projects
+      allProjects: allProjects
     })
-  }, [completedProjects, ongoingProjects, projects])
+  }, [completedProjects, ongoingProjects, allProjects])
   console.log(projectCount);
 
   useEffect(() => {
