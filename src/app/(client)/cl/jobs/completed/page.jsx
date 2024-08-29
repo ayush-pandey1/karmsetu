@@ -16,12 +16,7 @@ const CompletedJobPage =  () => {
     setUserData(data);
   }, [])
   const clientId = userData?.id;
-  const [length, setLength] = useState(0);
-  const length1 = useSelector((state) => state.projects.completedProjects);
   const projects = useSelector((state) => state.projects.completed);
-    useEffect(() => {
-      setLength(length1);
-    }, [length1]);
     useEffect(() => {
       if (clientId) {
         dispatch(fetchProjects(clientId));
@@ -50,7 +45,7 @@ const CompletedJobPage =  () => {
       </div>
 
       <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
-      <JobCardClient length = {length} projects = {projects}/>          
+      <JobCardClient projects = {projects}/>          
       </div>
 
     </div>

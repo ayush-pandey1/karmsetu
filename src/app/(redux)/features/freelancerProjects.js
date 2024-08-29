@@ -15,12 +15,12 @@ const initialState = {
 
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
-  async (clientId, { getState, rejectWithValue }) => {
+  async (freelancerId, { getState, rejectWithValue }) => {
     const { projects } = getState();
     if(projects.fetched == false){
       try {
         //console.log(projects.fetched, "From Inside API calling");
-        const apiUrl = `/api/projects/Project?clientId=${clientId}`;
+        const apiUrl = `/api/projects/Project?freelancerId=${freelancerId}`;
         const response = await axios.get(apiUrl);
         console.log("API Called");
         if (response.data.empty) {
@@ -40,7 +40,7 @@ export const fetchProjects = createAsyncThunk(
 
 
 const projects = createSlice({
-  name: 'projects',
+  name: 'freelancerProjects',
   initialState,
   reducers: {
   },
