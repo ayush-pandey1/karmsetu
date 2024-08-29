@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { IoIosArrowForward } from "react-icons/io";
 import { FiCircle } from "react-icons/fi";
 import { MdCurrencyRupee } from "react-icons/md";
 import Link from "next/link";
+import axios from 'axios';
 
 const JobCardFreelancer = ({ project }) => {
   const user = "alex438";

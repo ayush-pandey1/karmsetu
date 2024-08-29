@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ClockIcon, GlobeIcon, StarIcon } from "@radix-ui/react-icons";
+import axios from "axios";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -16,6 +17,44 @@ const FreelancerProfilePage = () => {
     "Tailwind",
     "MongoDB",
   ];
+
+  // Get the current URL
+  const path = window.location.pathname;
+  const pathSegments = path.split('/');
+  const userId = pathSegments[pathSegments.length - 1];
+
+
+  console.log(userId);
+
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) return; // Exit early if userId is not available
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/api/user/${userId}`);
+        setUserData(response.data.user);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false); // Ensure loading state is updated even if there's an error
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  console.log("User: ", userData);
   return (
     <>
       <div className="flex flex-col gap-20 mx-0 md:mx-15">
@@ -33,8 +72,8 @@ const FreelancerProfilePage = () => {
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="text-xl font-bold">Jefrey Dhamer</h3>
-                      <p className="text-sm text-gray-500">Web Developer</p>
+                      <h3 className="text-xl font-bold">{userData?.fullname}</h3>
+                      <p className="text-sm text-gray-500">{userData?.professionalTitle}</p>
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
                         <span>San Francisco, USA</span>
                         <span>•</span>
@@ -55,18 +94,14 @@ const FreelancerProfilePage = () => {
                 <div className="space-y-2">
                   <h4 className="text-lg font-semibold">About</h4>
                   <p className="text-gray-600">
-                    I am a skilled web developer with 5 years of experience in
-                    the industry. I specialize in building responsive and
-                    user-friendly websites using the latest technologies. I am
-                    passionate about creating innovative solutions that help
-                    businesses grow.
+                    {userData?.bio}
                   </p>
-                  <p className="text-gray-600">Years of Experience: 5</p>
+                  {/* <p className="text-gray-600">Years of Experience: 5</p> */}
                 </div>
                 <div className="space-y-2">
                   <h4 className="text-lg font-semibold">Skills</h4>
                   <div className="flex flex-wrap gap-2">
-                    {skills.map((skill, index) => {
+                    {userData?.skill.map((skill, index) => {
                       return (
                         <span
                           key={index}

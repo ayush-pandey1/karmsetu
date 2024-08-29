@@ -15,7 +15,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchProjects} from "../../(redux)/features/projectDataSlice"
+import { fetchProjects } from "../../(redux)/features/projectDataSlice"
 // import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
 import {
   Select,
@@ -33,12 +33,18 @@ import { TbAdjustmentsStar } from "react-icons/tb";
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
+
+
+
+
+
+  const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
     completedProjects: 0,
     ongoingProjects: 0,
     allProjects: 0
-  })  
-  
+  })
+
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
@@ -63,8 +69,8 @@ const Home = () => {
     });
   }, [completedProjects, ongoingProjects, allProjects]);
 
- 
-  
+
+
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
@@ -92,7 +98,7 @@ const Home = () => {
                 <CardTitle className="text-md sm:text-lg md:text-xl  font-semibold">
                   Total Projects Posted
                 </CardTitle>
-                <TbAdjustmentsStar className="h-5 w-5  text-primary"/>
+                <TbAdjustmentsStar className="h-5 w-5  text-primary" />
               </CardHeader>
               <CardContent className="px-3">
                 <div className="text-2xl font-bold text-primary">
