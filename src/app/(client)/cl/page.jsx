@@ -37,23 +37,15 @@ const Home = () => {
     completedProjects: 0,
     ongoingProjects: 0,
     allProjects: 0
-  })
+  })  
+  
   useEffect(() => {
-    setProjectCount({
-      completedProjects: completedProjects,
-      ongoingProjects: ongoingProjects,
-      allProjects: projects
-    })
-  }, [completedProjects, ongoingProjects, projects])
-  console.log(projectCount);
-
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
-  }, []);
+  }, [])
   const user = userData?.name;
   const clientId = userData?.id;
-  //console.log(clientId, user);
+
   useEffect(() => {
     if (clientId) {
       dispatch(fetchProjects(clientId));
@@ -70,6 +62,9 @@ const Home = () => {
       allProjects: allProjects,
     });
   }, [completedProjects, ongoingProjects, allProjects]);
+
+ 
+  
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
@@ -268,12 +263,12 @@ const Home = () => {
                 </Select>
               </div>
               <div className="max-w-72 ">
-                <div class="price-range ">
-                  <span class="text-sm text-black font-medium">Budget: </span>
-                  <span class="text-sm">₹</span>
-                  <span class="text-sm">{maxBudget}</span>
+                <div className="price-range ">
+                  <span className="text-sm text-black font-medium">Budget: </span>
+                  <span className="text-sm">₹</span>
+                  <span className="text-sm">{maxBudget}</span>
                   <input
-                    class="w-full accent-primary"
+                    className="w-full accent-primary"
                     type="range"
                     defaultValue="1000"
                     name="maxBudget"
@@ -285,9 +280,9 @@ const Home = () => {
                       setMaxBudget(e.target.value);
                     }}
                   />
-                  <div class="-mt-2 flex w-full justify-between">
-                    <span class="text-sm text-gray-600">0</span>
-                    <span class="text-sm text-gray-600">20000</span>
+                  <div className="-mt-2 flex w-full justify-between">
+                    <span className="text-sm text-gray-600">0</span>
+                    <span className="text-sm text-gray-600">20000</span>
                   </div>
                 </div>
               </div>
