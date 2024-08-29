@@ -22,6 +22,9 @@ import { setAllProjects, setCompleted, setCompletedProjects, setOngoing, setOngo
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
+  const [freelancers, setFreelancers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const completedProjects = useSelector((state) => state.projects.completedProjects);
   const ongoingProjects = useSelector((state) => state.projects.ongoingProjects);
   const projects = useSelector((state) => state.projects.allProjects);
@@ -30,6 +33,29 @@ const Home = () => {
     ongoingProjects: ongoingProjects,
     allProjects: projects
   })
+
+  useEffect(() => {
+    // Function to fetch freelancer data
+    const fetchFreelancers = async () => {
+      try {
+        const response = await fetch('/api/freelancer');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setFreelancers(data.freelancers);
+      } catch (error) {
+        // setError(error.message);
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFreelancers();
+  }, []);
+
+
   useEffect(() => {
     setProjectCount({
       completedProjects: completedProjects,
@@ -54,6 +80,8 @@ const Home = () => {
   }, [])
   // const user = userData?.name;
   // const clientId = userData?.id;
+  // if (loading) return <p>Loading...</p>;
+  console.log("Fre", freelancers);
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -211,19 +239,22 @@ const Home = () => {
             </Card>
           </div>
         </div>
+
         <div className="flex flex-col gap-2   w-full  rounded-lg">
           <div className="md:text-4xl text-3xl text-black font-semibold">
             Freelancers
           </div>
           <div className=" inline-flex flex-row flex-wrap  justify-start   gap-4">
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-
-            <FreelancerCard />
+            {freelancers.map((freelancer) => (
+              <FreelancerCard
+                key={freelancer._id} // Use a unique identifier for the key
+                fullname={freelancer.fullname}
+                professionalTitle={freelancer.professionalTitle}
+                skill={freelancer.skill}
+                bio={freelancer.bio}
+                id={freelancer._id}
+              />
+            ))}
           </div>
         </div>
         {/* <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
