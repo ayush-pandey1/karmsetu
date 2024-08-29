@@ -8,7 +8,7 @@ connect();
 export async function POST(NextRequest) {
   try {
     const reqBody = await NextRequest.json();
-    const { values, tags } = reqBody;
+    const { values, tags , clientName} = reqBody;
     const { description, budget, projectCategory, duration, title,clientId  } = values;
 
     // Convert tags to an array of strings
@@ -22,7 +22,8 @@ export async function POST(NextRequest) {
       technologies: tagTexts,
       duration,
       projectCategory,
-      clientId
+      clientId,
+      clientName
     });
 
     const savedProject = await newProject.save();
@@ -42,11 +43,9 @@ export async function GET(NextRequest) {
 
     // Fetch data from MongoDB based on the query
     const data = await ProjectSchema.find({clientId});
-    console.log("Data Length:",data.length);
     if(data.length == 0){
       return NextResponse.json({ message: "No Projects", success: true, empty : true}, { status: 200 });  
     }
-
     // Return the response with the fetched data
     return NextResponse.json({ message: "Fetched Data Successfully", success: true, data }, { status: 200 });
   } catch (error) {

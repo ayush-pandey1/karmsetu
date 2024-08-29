@@ -7,9 +7,9 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id }) => {
   return (
-    <div className="p-4 flex flex-col gap-4 shadow-md border bg-white border-gray-200  w-72 rounded-xl">
-      <div className="flex flex-row items-center gap-5">
-        <Image src="/images/user/user-02.png" height="45" width="45" />
+    <div className="p-4 flex flex-col gap-4  border bg-white border-gray-200  w-72 rounded-xl">
+      <div className="flex flex-row items-center gap-3">
+        <Image src="/images/user/user-02.png" height="45" width="45" className="border border-green-500 rounded-full" />
         <div className="flex flex-col">
           <span className="text-black text-lg font-semibold">{fullname}</span>
           <span className="text-xs">{professionalTitle}</span>
@@ -21,12 +21,12 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id }) => {
         </span>
       </div>
       <div className="flex flex-row  justify-between">
-        <div className="flex flex-row items-center font-semibold text-black"><MdOutlineCurrencyRupee /> 500/hr</div>
+        <div className="flex flex-row items-center font-medium  text-green-500"><MdOutlineCurrencyRupee className="" /> 500/hr</div>
         <div className="flex flex-row items-center gap-1"><FaRegStar className="text-yellow-500" /> 3.67</div>
-        <div className="flex flex-row items-center gap-1"><RiSuitcaseLine className="text-xl" /> 15</div>
+        <div className="flex flex-row items-center gap-1"><RiSuitcaseLine className="text-xl text-blue-500" /> 15</div>
       </div>
-      <div className="flex flex-col gap-2">
-        <Link href={`/cl/user/${id}`}><Button className="w-full bg-primary hover:bg-primaryho shadow-none" >View Profile</Button></Link>
+      <div className="flex flex-row gap-2">
+        <Button className="w-full bg-primary hover:bg-primaryho shadow-none text-white px-1" >View Profile</Button>
         <Button className="w-full shadow-none text-black bg-transparent hover:bg-transparent border  border-gray-200" >Chat</Button>
       </div>
     </div >

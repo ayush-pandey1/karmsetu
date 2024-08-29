@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "../ui/button";
 import { IoIosArrowForward } from "react-icons/io";
 import {
@@ -15,14 +15,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 const JobCardClient = ({ length, projects }) => {
-  console.log(length, projects);
-
-
+  const empty = useSelector((state) => state.projects.projects);
   return (
     <>
-      {length && Array.isArray(projects) && projects.length > 0 ? (
+      {empty && Array.isArray(projects) && projects.length > 0 ? (
         projects.map((project) => (
           <div key={project?.id}>
             <div className="p-4 border border-slate-300 max-w-72 sm:max-w-90 rounded-lg">

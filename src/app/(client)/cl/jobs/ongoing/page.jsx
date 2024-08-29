@@ -5,17 +5,23 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import React, {useState, useEffect} from 'react';
 import { GoPlus } from 'react-icons/go';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchProjects } from '../../../../(redux)/features/projectDataSlice';
 
 const OngoingJobPage = () => {
-  
-  const [length, setLength] = useState(0);
-    const length1 = useSelector((state) => state.projects.ongoingProjects);
+  const dispatch = useDispatch();
+  const [userData, setUserData] = useState();
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
+  const clientId = userData?.id;
     const projects = useSelector((state) => state.projects.ongoing);
     useEffect(() => {
-      setLength(length1);
-    }, [length1])
-    console.log(length, projects);
+      if (clientId) {
+        dispatch(fetchProjects(clientId));
+      }
+    }, [clientId, dispatch]);
   return (<>
     <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
       <div className="font-bold   flex flex-col sm:flex-row gap-2 sm:gap-0  sm:justify-between sm:items-center">
@@ -36,9 +42,8 @@ const OngoingJobPage = () => {
           </Button>
         </div>
       </div>
-
       <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
-      <JobCardClient length= {length} projects = {projects}/>          
+      <JobCardClient projects = {projects}/>          
       </div>
 
     </div>

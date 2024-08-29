@@ -6,6 +6,11 @@ export const SIDENAV_ITEMS = [
         icon: <Icon icon="lucide:home" width="24" height="24"/>,
     },
     {
+        title: 'Nearby',
+        path: '/cl/nearby',
+        icon: <Icon icon="lucide:map-pinned" width="24" height="24"/>,
+    },
+    {
         title: 'Jobs',
         path: '/cl/jobs',
         icon: <Icon icon="lucide:folder" width="24" height="24"/>,
@@ -21,6 +26,7 @@ export const SIDENAV_ITEMS = [
         path: '/cl/application',
         icon: <Icon icon="lucide:clipboard-pen-line" width="24" height="24"/>,
     },
+    
     {
         title: 'Messages',
         path: '/cl/messages',
