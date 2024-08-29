@@ -8,7 +8,7 @@ connect();
 export async function POST(NextRequest) {
   try {
     const reqBody = await NextRequest.json();
-    const { values, tags } = reqBody;
+    const { values, tags , clientName} = reqBody;
     const { description, budget, projectCategory, duration, title,clientId  } = values;
 
     // Convert tags to an array of strings
@@ -22,7 +22,8 @@ export async function POST(NextRequest) {
       technologies: tagTexts,
       duration,
       projectCategory,
-      clientId
+      clientId,
+      clientName
     });
 
     const savedProject = await newProject.save();

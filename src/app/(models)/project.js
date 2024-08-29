@@ -8,11 +8,10 @@ const ProjectSchema = new Schema({
   budget: { type: Number },
   technologies: [{ type: String }],
   deadline: { type: Number },
-  // clientId: { type: Number},
   projectCategory : { type: String },
   clientId :{type:String} ,
   freelancerId:{type:String,default:"none"},
-  // clientId: {type : string},
+  clientName : {type: String},
   status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
 },{
   timestamps: true,
