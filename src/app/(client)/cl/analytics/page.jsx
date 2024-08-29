@@ -21,6 +21,7 @@ import {
   Line,
   LabelList,
 } from "recharts";
+import { TbDeviceDesktopAnalytics } from "react-icons/tb";
 
 const AnalyticsPage = () => {
   // Dummy data
@@ -64,8 +65,9 @@ const AnalyticsPage = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-8 mx-4 sm:mx-8 mt-5 bg-white p-4 rounded-lg shadow-lg">
-        <div className="text-black text-4xl font-semibold mb-4">
+      <div className="flex flex-col gap-5    bg-white p-4 rounded-lg shadow-lg">
+        <div className="text-black text-2xl md:text-3xl font-semibold mb-2 flex flex-row gap-1 items-center leading-none">
+        <TbDeviceDesktopAnalytics className="text-green-500" />
           Analytics Overview
         </div>
 
