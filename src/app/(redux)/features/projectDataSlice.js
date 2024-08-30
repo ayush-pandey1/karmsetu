@@ -10,21 +10,23 @@ const initialState = {
   allProjects: 0,
   status: 'idle',
   error: null,
-  fetched : false
+  fetched: false,
+  empty: false
 };
 
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
   async (clientId, { getState, rejectWithValue }) => {
     const { projects } = getState();
-    if(projects.fetched == false){
+    //console.log(projects.fetched, "Before calling the API");
+    if (!(projects.fetched)) {
       try {
         //console.log(projects.fetched, "From Inside API calling");
         const apiUrl = `/api/projects/Project?clientId=${clientId}`;
         const response = await axios.get(apiUrl);
         console.log("API Called");
         if (response.data.empty) {
-          //console.log(response.data.empty, "From Inside API calling, No projects exists");
+          //console.log(response.data.empty, "From Inside API calling, Printing Response,No Projects Exists");
           return response.data.empty;
         } else {
           //console.log(response.data.data, "From Inside API calling, Printing Projects,Projects Exists");
@@ -34,8 +36,8 @@ export const fetchProjects = createAsyncThunk(
         return rejectWithValue(error.response ? error.response.data : error.message);
       }
     }
-    }
-    
+  }
+
 );
 
 
@@ -51,27 +53,21 @@ const projects = createSlice({
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
         const projectsData = action.payload;
-        state.fetched = true;
-        const fetched = state.fetched;
-        //console.log(projectsData, "From Inside Fulfilled state")
-        if (fetched) {
+        //console.log(projectsData, "From the fulfilled to check but beforing checking the response is array or not");
+        if (Array.isArray(projectsData)) {
           state.projects = projectsData;
-          //console.log(projectsData, "From Inside Fulfilled state, No projects Exist")
-          state.status = 'succeeded';
-          //console.log(state.fetched, "From Inside Fulfilled state, No projects Exist");   
-          // break;
-        }else{
-          //console.log(projectsData, "From Inside Fulfilled state,  Projects Exist")
-          state.projects = projectsData;
-          const completed = projectsData.filter(project => project.status === "Completed");
-          const ongoing = projectsData.filter(project => project.status === "In Progress");
-          state.completed = completed;
-          state.ongoing = ongoing;
+          state.completed = state.projects.filter(project => project.status === "Completed");
+          state.ongoing = state.projects.filter(project => project.status === "In Progress");
           state.allProjects = projectsData.length;
-          state.completedProjects = completed.length;
-          state.ongoingProjects = ongoing.length;
+          state.completedProjects = state.completed.length;
+          state.ongoingProjects = state.ongoing.length;
+          state.fetched = true;
           state.status = 'succeeded';
-          //console.log(state.fetched, "From Inside Fulfilled state, No projects Exist");
+          //console.log("Project Exists");
+        } else {
+          state.status = 'succeeded';
+          state.empty = true;
+          state.fetched = true;
         }
       })
       .addCase(fetchProjects.rejected, (state, action) => {

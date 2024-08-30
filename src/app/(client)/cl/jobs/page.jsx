@@ -23,6 +23,7 @@ const JobPage = () => {
   }, [clientId, dispatch]);
 
   const projects = useSelector((state) => state.projects.projects);
+  const empty = useSelector((state) => state.projects.empty);
   // console.log(projects, "From Inside Job page")
   return (
     <>
@@ -46,7 +47,7 @@ const JobPage = () => {
           </div>
         </div>
         <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
-          <JobCardClient projects={projects} />
+          <JobCardClient projects={projects} empty={empty} />
         </div>
       </div>
     </>

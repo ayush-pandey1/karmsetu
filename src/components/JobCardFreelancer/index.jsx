@@ -7,13 +7,11 @@ import Link from "next/link";
 import axios from 'axios';
 
 const JobCardFreelancer = ({ project }) => {
-  const user = "alex438";
-  const title = "An Ecommerce Website For Shoe Store";
-  const description =
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime quis beatae dolore rerum saepe! Illum aut totam voluptatum. Sapiente voluptates eos ea consequatur vitae iusto dolorum maiores architecto asperiores cumque.";
-  const jobCategory = "Web Development"
-  const budget = 6800;
-  const date = "April 27"
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+  console.log("Id1: ", project);
   return (
     <div>
       <div className="p-4 border border-slate-300 shadow-md bg-white max-w-72 sm:max-w-90 rounded-xl">
@@ -50,7 +48,7 @@ const JobCardFreelancer = ({ project }) => {
               <MdCurrencyRupee />
               {project?.budget}
             </span>
-            <span className=" sm:text-sm text-xs w-25 sm:w-40">Posted {date}</span>
+            <span className=" sm:text-sm text-xs w-25 sm:w-40">Posted {formatDate(project?.createdAt)}</span>
           </div>
         </div>
       </div>

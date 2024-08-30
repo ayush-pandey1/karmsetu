@@ -17,11 +17,11 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 
-const JobCardClient = ({ length, projects }) => {
-  const empty = useSelector((state) => state.projects.projects);
+const JobCardClient = ({ projects, empty, role }) => {
+  // const empty = useSelector((state) => state.projects.projects);
   return (
     <>
-      {empty && Array.isArray(projects) && projects.length > 0 ? (
+      {((projects.length > 0 || (!(empty))) ? (
         projects.map((project) => (
           <div key={project?.id}>
             <div className="p-4 border border-slate-300 max-w-72 sm:max-w-90 rounded-lg">
@@ -52,9 +52,9 @@ const JobCardClient = ({ length, projects }) => {
                 <div className="flex flex-row gap-6 text-sm items-center">
                   <span className="sm:text-sm text-sm text-red-500 font-semibold">
                     <Dialog>
-                      <DialogTrigger asChild>
+                      {!role ? <DialogTrigger asChild>
                         <button>Delete</button>
-                      </DialogTrigger>
+                      </DialogTrigger> : <></>}
                       <DialogContent className="sm:max-w-[425px]">
                         <DialogHeader>
                           <DialogTitle>Delete Job</DialogTitle>
@@ -94,7 +94,7 @@ const JobCardClient = ({ length, projects }) => {
         ))
       ) : (
         <div>No Projects</div>
-      )}
+      ))}
     </>
   );
 };

@@ -1,10 +1,60 @@
-import React from 'react';
-const CompletedProjectsPage = () => {
-    return (<>
-      <span className="text-4xl font-bold">Completed Project</span>
+"use client";
+import JobCardClient from '@/components/JobCardClient';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
+import { GoPlus } from 'react-icons/go';
+import { useSelector, useDispatch } from "react-redux";
+import { fetchFreelancerProjects } from '../../../../(redux)/features/freelancerProjects';
 
-      <div className="w-full h-12 border border-dashed rounded-lg border-zinc-500"></div>
-      <div className="w-full h-64 border border-dashed rounded-lg border-zinc-500"></div>
+
+const CompletedProjectsPage = () => {
+  const [userData, setUserData] = useState();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
+
+  const freelancerId = userData?.id;
+  // const freelancerId = `66c429e4a585734fc5a2fe31`;
+  const projects = useSelector((state) => state.freelancer.freelancerCompletedProjects);
+  const empty = useSelector((state) => state.freelancer.empty);
+
+  useEffect(() => {
+    if (freelancerId) {
+      dispatch(fetchFreelancerProjects(freelancerId));
+    }
+  }, [freelancerId, dispatch]);
+
+  return (
+    <>
+      <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
+        <div className="font-bold   flex flex-col sm:flex-row gap-2 sm:gap-0  sm:justify-between sm:items-center">
+          <div className="flex flex-col gap-1">
+            <div className="text-2xl text-black sm:text-4xl">
+              All Completed Projects
+            </div>
+            <div className="font-medium md:text-base text-sm">
+              Review, Manage, and Create New Jobs/Gigs
+            </div>
+          </div>
+          <div className="flex items-center">
+            {/* <Button className="flex item-center gap-1 text-white  bg-primary hover:bg-primaryho">
+              <Link href="/cl/createjob">Post Job</Link>
+              <span className="text-white text-xl">
+                <GoPlus />
+              </span>
+            </Button> */}
+          </div>
+        </div>
+
+        <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
+          <JobCardClient projects={projects} empty={empty} role={1} />
+        </div>
+
+      </div>
     </>);
 };
 export default CompletedProjectsPage;

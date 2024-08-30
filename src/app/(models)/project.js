@@ -11,8 +11,14 @@ const ProjectSchema = new Schema({
   projectCategory : { type: String },
   clientId :{type:String} ,
   freelancerId:{type:String,default:"none"},
+  freelancerName:{type:String},
   clientName : {type: String},
-  status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' }
+  status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' },
+  coordinates: {
+    latitude:  { type: Number ,default: null },
+    longitude: { type: Number ,default: null },
+  }
+  
 },{
   timestamps: true,
 });

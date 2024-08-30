@@ -20,6 +20,10 @@ const userSchema = new Schema({
     portfolio: String, 
     connection: {type:Number},
     role: { type: String, default: "freelancer" },
+    coordinates: {
+        latitude:  { type: Number ,default: null },
+        longitude: { type: Number ,default: null },
+      }
 }, {
     timestamps: true,
 });

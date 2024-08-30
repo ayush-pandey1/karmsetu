@@ -33,7 +33,17 @@ import { TbAdjustmentsStar } from "react-icons/tb";
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
-
+  const [freelancers, setFreelancers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  console.log("Freelancer: ", freelancers);
+  const [coordinates, setCoordinates] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
 
 
 
@@ -46,12 +56,32 @@ const Home = () => {
   })
 
   useEffect(() => {
+    const fetchFreelancers = async () => {
+      try {
+        const response = await fetch('/api/freelancer');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setFreelancers(data.freelancers);
+      } catch (error) {
+        // setError(error.message);
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFreelancers();
+  }, []);
+
+  useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
   }, [])
   const user = userData?.name;
   const clientId = userData?.id;
-
+  console.log(clientId, user);
   useEffect(() => {
     if (clientId) {
       dispatch(fetchProjects(clientId));
@@ -68,6 +98,44 @@ const Home = () => {
       allProjects: allProjects,
     });
   }, [completedProjects, ongoingProjects, allProjects]);
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    setUserData(data);
+  }, []);
+
+  useEffect(() => {
+    const getLocation = async () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+            setCoordinates({ latitude, longitude });
+            console.log("Latitude:", latitude, "Longitude:", longitude);
+
+            try {
+              const res = await fetch("/api/CpersonalDetails", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: userData?.email, coordinates: { latitude, longitude } }),
+              });
+              console.log(res.ok ? "Coordinates updated" : "Failed to update");
+            } catch (error) {
+              console.log("Error updating coordinates:", error);
+            }
+          },
+          (error) => {
+            console.error("Error getting geolocation:", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    };
+
+    if (userData) {
+      getLocation();
+    }
+  }, [userData]);
 
 
 
@@ -91,7 +159,7 @@ const Home = () => {
 
         <div className=" w-full rounded-lg ">
           {" "}
-          {/* Quick Stats Section */}
+
           <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4">
             <Card>
               <CardHeader className="pt-4 pb-0 px-3  flex flex-row items-center justify-between space-y-0 ">
@@ -295,14 +363,16 @@ const Home = () => {
             </div>
           </div>
           <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-            <FreelancerCard />
-
-            <FreelancerCard />
+            {freelancers.map((freelancer) => (
+              <FreelancerCard
+                key={freelancer._id}
+                fullname={freelancer.fullname}
+                professionalTitle={freelancer.professionalTitle}
+                skill={freelancer.skill}
+                bio={freelancer.bio}
+                id={freelancer._id}
+              />
+            ))}
           </div>
         </div>
       </div>
