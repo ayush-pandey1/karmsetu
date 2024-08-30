@@ -46,6 +46,11 @@ const CreateJobForm = () => {
   const [tags, setTags] = useState([]);
   const [activeTagIndex, setActiveTagIndex] = useState(null);
   const [userData, setUserData] = useState();
+  const [count, setCount] = useState(0);
+  const [coordinates, setCoordinates] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
   useEffect(() => {
     if (!userData) {
       const data = JSON.parse(sessionStorage.getItem('karmsetu'));
@@ -58,6 +63,30 @@ const CreateJobForm = () => {
       }
     }
   }, [userData]);
+
+  useEffect(() => {
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setCoordinates({ latitude, longitude });
+            console.log("Latitude:", latitude, "Longitude:", longitude);
+          },
+          (error) => {
+            console.error("Error getting geolocation: ", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    };
+
+    getLocation();
+  }, [count]);
+  // if (!coordinates.latitude) {
+  //   setCount(count + 1);
+  // }
   const form = useForm({
     resolver: zodResolver(createJobSchema),
     defaultValues: {
@@ -69,20 +98,27 @@ const CreateJobForm = () => {
       clientId: userData?.id,
     },
   });
-  const { reset } = form; // Destructure reset from useForm
+  const { reset } = form;
   const router = useRouter();
 
   const onSubmitForm = async (values) => {
     try {
-      const clientName = data?.name;
-      const response = await axios.post("/api/projects/Project", { values, tags, clientName});
+      console.log("asas: ", coordinates);
+      if (!coordinates.latitude || !coordinates.longitude) {
+        console.error("Geolocation data is not available yet.");
+        setCount(count + 1);
+        return;
+      }
+      const clientName = userData?.name;
+      const response = await axios.post("/api/projects/Project", { values, tags, clientName, coordinates });
       // console.log(values);
       setTags([]);
+      console.log(response);
       reset();
       router.push('/cl/jobs')
     } catch (error) {
       console.error("Error occurred:", error.response ? error.response.data : error.message);
-      // Optionally set an error message state or notify the user
+
     }
   };
 

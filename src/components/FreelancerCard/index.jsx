@@ -26,7 +26,7 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id }) => {
         <div className="flex flex-row items-center gap-1"><RiSuitcaseLine className="text-xl text-blue-500" /> 15</div>
       </div>
       <div className="flex flex-row gap-2">
-        <Button className="w-full bg-primary hover:bg-primaryho shadow-none text-white px-1" >View Profile</Button>
+        <Button className="w-full bg-primary hover:bg-primaryho shadow-none text-white px-1" ><Link href={`/cl/user/${id}`}>View Profile</Link></Button>
         <Button className="w-full shadow-none text-black bg-transparent hover:bg-transparent border  border-gray-200" >Chat</Button>
       </div>
     </div >

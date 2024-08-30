@@ -7,7 +7,7 @@ import cookie from 'cookie';
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { email, PhoneNumber, age, gender, address, bio, socialMedia, professionalTitle, skills, portfolioLink, role } = body;
+        const { email, PhoneNumber, age, gender, address, bio, socialMedia, professionalTitle, skills, portfolioLink, role, coordinates } = body;
 
         if (!email) {
             return NextResponse.json({ message: "Email is required" }, { status: 400 });
@@ -28,6 +28,10 @@ export async function POST(req) {
         if (skills) user.skill = skills;
         if (portfolioLink) user.portfolio = portfolioLink;
         if (role) user.role = role;
+        if (coordinates.latitude && coordinates.longitude){
+            user.coordinates.latitude=coordinates.latitude;
+            user.coordinates.longitude=coordinates.longitude;
+        }
 
         await user.save();
 

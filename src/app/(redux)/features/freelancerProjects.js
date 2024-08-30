@@ -2,32 +2,34 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 const initialState = {
-  projects: [],
-  ongoing: [],
-  completed: [],
-  completedProjects: 0,
-  ongoingProjects: 0,
-  allProjects: 0,
+  freelancerprojects: [],
+  freelancerOngoingProjects: [],
+  freelancerCompletedProjects: [],
+  CompletedProjects: 0,
+  OngoingProjects: 0,
+  allFreelancerProjects: 0,
   status: 'idle',
   error: null,
-  fetched : false
+  fetched : false,
+  empty : false
 };
 
-export const fetchProjects = createAsyncThunk(
-  'projects/fetchProjects',
+export const fetchFreelancerProjects = createAsyncThunk(
+  'projects/fetchFreelancerProjects',
   async (freelancerId, { getState, rejectWithValue }) => {
-    const { projects } = getState();
-    if(projects.fetched == false){
+    const { freelancer } = getState();
+    console.log(freelancer.fetched);
+    if(!(freelancer.fetched)){
       try {
-        //console.log(projects.fetched, "From Inside API calling");
-        const apiUrl = `/api/projects/Project?freelancerId=${freelancerId}`;
+        console.log(freelancer.fetched, "From Inside API calling");
+        const apiUrl = `/api/projects/Freelancer?freelancerId=${freelancerId}`;
         const response = await axios.get(apiUrl);
         console.log("API Called");
         if (response.data.empty) {
-          //console.log(response.data.empty, "From Inside API calling, No projects exists");
+          console.log(response.data.empty, "From Inside API calling, No projects created yet");
           return response.data.empty;
         } else {
-          //console.log(response.data.data, "From Inside API calling, Printing Projects,Projects Exists");
+          console.log(response.data.data, "From Inside API calling, Printing Projects,Projects Exists");
           return response.data.data;
         }
       } catch (error) {
@@ -39,46 +41,43 @@ export const fetchProjects = createAsyncThunk(
 );
 
 
-const projects = createSlice({
-  name: 'freelancerProjects',
+const freelancer = createSlice({
+  name: 'freelancer',
   initialState,
   reducers: {
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProjects.pending, (state) => {
+      .addCase(fetchFreelancerProjects.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchProjects.fulfilled, (state, action) => {
-        const projectsData = action.payload;
-        state.fetched = true;
-        const fetched = state.fetched;
-        //console.log(projectsData, "From Inside Fulfilled state")
-        if (fetched) {
-          state.projects = projectsData;
-          //console.log(projectsData, "From Inside Fulfilled state, No projects Exist")
+      .addCase(fetchFreelancerProjects.fulfilled, (state, action) => {
+        const freelancer = action.payload;
+        if(Array.isArray(freelancer)){
+          state.freelancerprojects = freelancer;
+          const completed = freelancer.filter(project => project.status === "Completed");
+          const ongoing = freelancer.filter(project => project.status === "In Progress");
+          state.freelancerCompletedProjects = completed;
+          state.freelancerOngoingProjects = ongoing;
+          state.allFreelancerProjects = freelancer.length;
+          state.CompletedProjects = completed.length;
+          state.OngoingProjects = ongoing.length;
+          state.fetched = true;
+          
           state.status = 'succeeded';
-          //console.log(state.fetched, "From Inside Fulfilled state, No projects Exist");   
-          // break;
+
         }else{
-          //console.log(projectsData, "From Inside Fulfilled state,  Projects Exist")
-          state.projects = projectsData;
-          const completed = projectsData.filter(project => project.status === "Completed");
-          const ongoing = projectsData.filter(project => project.status === "In Progress");
-          state.completed = completed;
-          state.ongoing = ongoing;
-          state.allProjects = projectsData.length;
-          state.completedProjects = completed.length;
-          state.ongoingProjects = ongoing.length;
+
           state.status = 'succeeded';
-          //console.log(state.fetched, "From Inside Fulfilled state, No projects Exist");
+          state.empty = true;
+          state.fetched = true;
         }
-      })
-      .addCase(fetchProjects.rejected, (state, action) => {
+        })
+      .addCase(fetchFreelancerProjects.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });
   },
 });
 
-export default projects.reducer;
+export default freelancer.reducer;

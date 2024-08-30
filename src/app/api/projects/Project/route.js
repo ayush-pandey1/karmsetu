@@ -8,10 +8,13 @@ connect();
 export async function POST(NextRequest) {
   try {
     const reqBody = await NextRequest.json();
-    const { values, tags , clientName} = reqBody;
-    const { description, budget, projectCategory, duration, title,clientId  } = values;
+    const { values, tags , clientName, coordinates} = reqBody;
+    const { description, budget, projectCategory, duration, title,clientId,   } = values;
 
-    // Convert tags to an array of strings
+    if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
+      return NextResponse.json({ error: "Invalid coordinates" }, { status: 400 });
+    }
+
     const tagTexts = tags.map(tag => tag.text);
 
 
@@ -23,8 +26,13 @@ export async function POST(NextRequest) {
       duration,
       projectCategory,
       clientId,
-      clientName
+      clientName,
+      coordinates: {
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude
+      }
     });
+    
 
     const savedProject = await newProject.save();
     // console.log(savedProject);
@@ -41,12 +49,12 @@ export async function GET(NextRequest) {
   try {
     const clientId = NextRequest.nextUrl.searchParams.get('clientId');
 
-    // Fetch data from MongoDB based on the query
+    
     const data = await ProjectSchema.find({clientId});
     if(data.length == 0){
       return NextResponse.json({ message: "No Projects", success: true, empty : true}, { status: 200 });  
     }
-    // Return the response with the fetched data
+ 
     return NextResponse.json({ message: "Fetched Data Successfully", success: true, data }, { status: 200 });
   } catch (error) {
     console.log(error.message);

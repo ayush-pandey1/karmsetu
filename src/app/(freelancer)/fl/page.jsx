@@ -6,9 +6,60 @@ export default function Home() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userData, setUserData] = useState();
+  // const [count, setCount] = useState(0);
+  const [coordinates, setCoordinates] = useState({
+    latitude: 0,
+    longitude: 0,
+  });
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
+  // if (userData) {
+  //   setCount(count++);
+  // }
+
+
+  // const [count, setCount] = useState(0);
+  useEffect(async () => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            setCoordinates({ latitude, longitude });
+            console.log("Latitude:", latitude, "Longitude:", longitude);
+          },
+          (error) => {
+            console.error("Error getting geolocation: ", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    };
+
+    await getLocation();
+    const updateCoordinates = async () => {
+      try {
+        const res = await fetch('/api/FpersonalDetails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data?.email, coordinates })
+        });
+        console.log(res.ok ? 'Coordinates updated' : 'Failed to update');
+      } catch {
+        console.log('Error updating coordinates');
+      }
+    };
+    await updateCoordinates();
+  }, []);
+
 
   useEffect(() => {
-    // Fetch data from the API
+
     const fetchProjects = async () => {
       try {
         const response = await fetch('http://localhost:3000/api/project/all');
@@ -16,17 +67,21 @@ export default function Home() {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        setProjects(data.projects || []); // Store projects data in state
+        setProjects(data.projects || []);
       } catch (error) {
-        setError(error.message); // Set error if any
+        setError(error.message);
       } finally {
-        setLoading(false); // Set loading to false once done
+        setLoading(false);
       }
     };
 
-    fetchProjects(); // Call the function to fetch data
-  }, []); // Empty dependency array means this runs once on component mount
+    fetchProjects();
 
+  }, []);
+
+  if (!projects) {
+    fetchProjects();
+  }
   return (
     <>
       <span className="font-bold text-4xl">Home</span>
