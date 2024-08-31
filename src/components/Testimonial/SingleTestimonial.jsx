@@ -1,18 +1,38 @@
 import Image from "next/image";
+
 const SingleTestimonial = ({ review }) => {
-    const { name, designation, image, content } = review;
-    return (<div className="rounded-lg bg-white p-9 pt-7.5 shadow-solid-9 dark:border dark:border-strokedark dark:bg-blacksection dark:shadow-none">
-      <div className="mb-7.5 flex justify-between border-b border-stroke pb-6 dark:border-strokedark">
-        <div>
-          <h3 className="mb-1.5 text-metatitle3 text-black dark:text-white">
+  const { name, designation, image, content } = review;
+
+  return (
+    <div className="relative rounded-lg bg-white p-8 pt-6 shadow-lg transition-transform transform hover:scale-105 dark:bg-gray-800 dark:border dark:border-gray-700 dark:shadow-none">
+      {/* Avatar and Information */}
+      <div className="flex items-start mb-6 border-b border-gray-200 pb-4 dark:border-gray-700">
+        <Image
+          src={image}
+          alt={name}
+          width={60}
+          height={60}
+          className="rounded-full shadow-lg"
+        />
+        <div className="ml-4">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {name}
           </h3>
-          <p>{designation}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {designation}
+          </p>
         </div>
-        <Image width={60} height={50} className="" src={image} alt={name}/>
       </div>
 
-      <p>{content}</p>
-    </div>);
+      {/* Testimonial Content */}
+      <p className="text-base text-gray-800 dark:text-gray-300 italic leading-relaxed">
+        "{content}"
+      </p>
+
+      {/* Decorative Element */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-blue-100 dark:to-gray-900 rounded-lg opacity-20 -z-10" />
+    </div>
+  );
 };
+
 export default SingleTestimonial;
