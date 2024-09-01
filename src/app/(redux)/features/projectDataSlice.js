@@ -11,25 +11,23 @@ const initialState = {
   status: 'idle',
   error: null,
   fetched: false,
-  empty: false
+  empty: false,
+  freelancer: [],
+  filteredFreelancer: [],
+  freelancerDetailsFetched: false
 };
 
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
   async (clientId, { getState, rejectWithValue }) => {
     const { projects } = getState();
-    //console.log(projects.fetched, "Before calling the API");
     if (!(projects.fetched)) {
       try {
-        //console.log(projects.fetched, "From Inside API calling");
         const apiUrl = `/api/projects/Project?clientId=${clientId}`;
         const response = await axios.get(apiUrl);
-        console.log("API Called");
         if (response.data.empty) {
-          //console.log(response.data.empty, "From Inside API calling, Printing Response,No Projects Exists");
           return response.data.empty;
         } else {
-          //console.log(response.data.data, "From Inside API calling, Printing Projects,Projects Exists");
           return response.data.data;
         }
       } catch (error) {
@@ -40,11 +38,42 @@ export const fetchProjects = createAsyncThunk(
 
 );
 
+export const freelancerDetails = createAsyncThunk(
+  'users/freelancer',
+  async (_, { getState, rejectWithValue }) => {
+    const { projects } = getState();
+    if (!(projects.freelancerDetailsFetched)) {
+      try {
+        const api = `/api/freelancer`;
+        const response = await axios.get(api);
+        return response.data.freelancers;
+      } catch (error) {
+        return rejectWithValue(error.response ? error.response.data : error.message);
+      }
+    } else {
+      return;
+    }
+  }
+)
 
 const projects = createSlice({
   name: 'projects',
   initialState,
   reducers: {
+    filterByRating: (state, action) => {
+      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.rating >= action.payload);
+    },
+    filterByBudget: (state, action) => {
+      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.budget <= action.payload);
+    },
+    filterByCategory: (state, action) => {
+      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.professionalTitle === action.payload);
+    },
+    filterBySearch: (state, action) => {
+      state.filteredFreelancer = state.freelancer.filter(freelancer =>
+        freelancer.fullname.toLowerCase().includes(action.payload.toLowerCase())
+      );
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -53,7 +82,6 @@ const projects = createSlice({
       })
       .addCase(fetchProjects.fulfilled, (state, action) => {
         const projectsData = action.payload;
-        //console.log(projectsData, "From the fulfilled to check but beforing checking the response is array or not");
         if (Array.isArray(projectsData)) {
           state.projects = projectsData;
           state.completed = state.projects.filter(project => project.status === "Completed");
@@ -63,7 +91,6 @@ const projects = createSlice({
           state.ongoingProjects = state.ongoing.length;
           state.fetched = true;
           state.status = 'succeeded';
-          //console.log("Project Exists");
         } else {
           state.status = 'succeeded';
           state.empty = true;
@@ -73,8 +100,24 @@ const projects = createSlice({
       .addCase(fetchProjects.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      });
+      })
+      .addCase(freelancerDetails.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(freelancerDetails.fulfilled, (state, action) => {
+        const freelancerData = action.payload;
+        if (Array.isArray(freelancerData)) {
+          state.freelancer = freelancerData;
+          state.filteredFreelancer = freelancerData;
+          state.freelancerDetailsFetched = true;
+          state.status = 'succeeded'
+        }
+      })
+      .addCase(freelancerDetails.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
   },
 });
-
+export const { filterByRating, filterByBudget, filterByCategory, filterBySearch } = projects.actions;
 export default projects.reducer;
