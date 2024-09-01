@@ -15,8 +15,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProjects } from "../../(redux)/features/projectDataSlice"
-// import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
+import { fetchProjects, freelancerDetails } from "../../(redux)/features/projectDataSlice"
+import {filterByRating, filterByBudget, filterByCategory, filterBySearch} from "../../(redux)/features/projectDataSlice"
 import {
   Select,
   SelectContent,
@@ -30,58 +30,78 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { Input } from "@/components/ui/input";
 import { MdWorkspacePremium } from "react-icons/md";
 import { TbAdjustmentsStar } from "react-icons/tb";
+
+
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
   const [freelancers, setFreelancers] = useState([]);
+  const [filteredFreelancers, setFilteredFreelancer] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log("Freelancer: ", freelancers);
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
   });
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    setUserData(data);
-  }, [])
-
-
-
-
-  const projects = useSelector((state) => state.projects.allProjects);
+  const [maxBudget, setMaxBudget] = useState(1000);
   const [projectCount, setProjectCount] = useState({
     completedProjects: 0,
     ongoingProjects: 0,
     allProjects: 0
   })
 
+  const filteredFreelancersData = useSelector((state) => state.projects.filteredFreelancer);
   useEffect(() => {
-    const fetchFreelancers = async () => {
-      try {
-        const response = await fetch('/api/freelancer');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setFreelancers(data.freelancers);
-      } catch (error) {
-        // setError(error.message);
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    setFilteredFreelancer(filteredFreelancersData);
+    // console.log(freelancers, "All freelancers State Variable")
+    // console.log(freelancerData, "All freelancers Redux Variable")
+    // console.log(filteredFreelancers, "After filtering the data");
+  }, [filteredFreelancersData]);
 
-    fetchFreelancers();
-  }, []);
 
+  const handleFilterChange = (filterType, value) => {
+    switch (filterType) {
+      case 'rating':
+        dispatch(filterByRating(value));
+        break;
+      case 'budget':
+        dispatch(filterByBudget(value));
+        break;
+      case 'category':
+        dispatch(filterByCategory(value));
+        break;
+      case 'search':
+        dispatch(filterBySearch(value));
+        break;
+      default:
+        break;
+    }
+  };
+
+
+  //To get user details from sessionStorage
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
   }, [])
+
+
   const user = userData?.name;
   const clientId = userData?.id;
-  console.log(clientId, user);
+
+
+  //To fetch freelancer details
+  useEffect(() => {
+    dispatch(freelancerDetails());
+  }, [dispatch])
+
+
+  //To set freelancer data fetched from the database in the state variable to display it 
+  const freelancerData = useSelector((state) => state.projects.freelancer)
+  useEffect(() => {
+    setFreelancers(freelancerData);
+  }, [freelancerData])
+
+  //Calling API to fetch client projects
   useEffect(() => {
     if (clientId) {
       dispatch(fetchProjects(clientId));
@@ -91,6 +111,8 @@ const Home = () => {
   const completedProjects = useSelector((state) => state.projects.completedProjects);
   const ongoingProjects = useSelector((state) => state.projects.ongoingProjects);
   const allProjects = useSelector((state) => state.projects.allProjects);
+
+  //Updating state variables to store number of projects on the basis of status
   useEffect(() => {
     setProjectCount({
       completedProjects: completedProjects,
@@ -98,11 +120,8 @@ const Home = () => {
       allProjects: allProjects,
     });
   }, [completedProjects, ongoingProjects, allProjects]);
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    setUserData(data);
-  }, []);
 
+  //To get geolocation of the client
   useEffect(() => {
     const getLocation = async () => {
       if (navigator.geolocation) {
@@ -111,7 +130,6 @@ const Home = () => {
             const { latitude, longitude } = position.coords;
             setCoordinates({ latitude, longitude });
             console.log("Latitude:", latitude, "Longitude:", longitude);
-
             try {
               const res = await fetch("/api/CpersonalDetails", {
                 method: "PUT",
@@ -137,9 +155,6 @@ const Home = () => {
     }
   }, [userData]);
 
-
-
-  const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
       <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
@@ -268,65 +283,54 @@ const Home = () => {
             Freelancers
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-2   justify-between">
+          <div className="flex flex-col lg:flex-row gap-2 justify-between">
             <div className="flex flex-row gap-2">
               <div className="bg-white max-h-10 min-w-64 flex flex-row items-center gap-1 pl-2 rounded-md ">
                 <HiMiniMagnifyingGlass className="text-xl" />
                 <Input
                   type="text"
                   placeholder="Search Freelancers"
-                  className=" border-none px-1 rounded-md placeholder:font-medium bg-white  w-full"
+                  className="border-none px-1 rounded-md placeholder:font-medium bg-white w-full"
+                  name="searchInput"
+                  onChange={(e) => handleFilterChange('search', e.target.value)}
                 />
               </div>
               <div>
-                <Button className="bg-secondaryho hover:bg-secondary focus:bg-secondary">
+                <Button className="bg-secondaryho hover:bg-secondary focus:bg-secondary" name="searchButton">
                   Search
                 </Button>
               </div>
             </div>
-            <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2 ">
-              <div className="flex flex-col md:flex-row  gap-2">
-                <Select>
+            <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2">
+              <div className="flex flex-col md:flex-row gap-2">
+                <Select name="titleSelect" onValueChange={(value) => handleFilterChange('category', value)}>
                   <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                     <SelectValue className="k" placeholder="Select title" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup className="max-h-40 overflow-y-scroll">
                       <SelectLabel>Titles</SelectLabel>
-                      <SelectItem value="Web Developer">
-                        Web Developer
-                      </SelectItem>
-                      <SelectItem value="Android Developer">
-                        Android Developer
-                      </SelectItem>
-                      <SelectItem value="Graphic Designer">
-                        Graphic Designer
-                      </SelectItem>
+                      <SelectItem value="Android Developer">Android Developer</SelectItem>
+                      <SelectItem value="Web Developer">Web Developer</SelectItem>
+                      <SelectItem value="Graphic Designer" >Graphic Designer</SelectItem>
                       <SelectItem value="Consultant">Consultant</SelectItem>
-                      <SelectItem value="Content Writer">
-                        Content Writer
-                      </SelectItem>
-                      <SelectItem value="Software Engineer">
-                        Software Engineer
-                      </SelectItem>
+                      <SelectItem value="Content Writer">Content Writer</SelectItem>
+                      <SelectItem value="Software Engineer">Software Engineer</SelectItem>
                       <SelectItem value="Videographer">Videographer</SelectItem>
-                      <SelectItem value="Legal Advisor">
-                        Legal Advisor
-                      </SelectItem>
+                      <SelectItem value="Legal Advisor">Legal Advisor</SelectItem>
                       <SelectItem value="Copywriter">Copywriter</SelectItem>
-                      <SelectItem value="Social Media Manager">
-                        Social Media Manager
-                      </SelectItem>
+                      <SelectItem value="Social Media Manager">Social Media Manager</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
 
-                <Select>
+                <Select name="ratingSelect" onValueChange={(value) => handleFilterChange('rating', value)}
+                >
                   <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                     <SelectValue className="k" placeholder="Rating" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectGroup className="max-h-40 ">
+                    <SelectGroup className="max-h-40">
                       <SelectLabel>Ratings</SelectLabel>
                       <SelectItem value="4.5">4.5+</SelectItem>
                       <SelectItem value="4">4+</SelectItem>
@@ -336,8 +340,8 @@ const Home = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="max-w-72 ">
-                <div className="price-range ">
+              <div className="max-w-72">
+                <div className="price-range">
                   <span className="text-sm text-black font-medium">Budget: </span>
                   <span className="text-sm">₹</span>
                   <span className="text-sm">{maxBudget}</span>
@@ -345,13 +349,13 @@ const Home = () => {
                     className="w-full accent-primary"
                     type="range"
                     defaultValue="1000"
-                    name="maxBudget"
+                    name="budgetRange"
                     min="0"
                     max="20000"
                     step="500"
-                    // oninput="this.previousElementSibling.innerText=this.value"
                     onChange={(e) => {
                       setMaxBudget(e.target.value);
+                      handleFilterChange('budget', e.target.value)
                     }}
                   />
                   <div className="-mt-2 flex w-full justify-between">
@@ -362,17 +366,22 @@ const Home = () => {
               </div>
             </div>
           </div>
+
           <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
-            {freelancers.map((freelancer) => (
-              <FreelancerCard
-                key={freelancer._id}
-                fullname={freelancer.fullname}
-                professionalTitle={freelancer.professionalTitle}
-                skill={freelancer.skill}
-                bio={freelancer.bio}
-                id={freelancer._id}
-              />
-            ))}
+            {filteredFreelancers.length > 0 ? (
+              filteredFreelancers.map((filteredFreelancer) => (
+                <FreelancerCard
+                  key={filteredFreelancer._id}
+                  fullname={filteredFreelancer.fullname}
+                  professionalTitle={filteredFreelancer.professionalTitle}
+                  skill={filteredFreelancer.skill}
+                  bio={filteredFreelancer.bio}
+                  id={filteredFreelancer._id}
+                />
+              ))
+            ) : (
+              <div>No freelancers</div>
+            )}
           </div>
         </div>
       </div>
