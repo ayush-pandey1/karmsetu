@@ -34,9 +34,17 @@ export default function Home() {
   //   setCount(count++);
   // }
 
+
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
   // const [count, setCount] = useState(0);
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    setUserData(data);
+
+
     const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -54,28 +62,31 @@ export default function Home() {
       }
     };
 
+
     getLocation();
     const updateCoordinates = async () => {
       try {
-        const res = await fetch("/api/FpersonalDetails", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: data?.email, coordinates }),
+        const res = await fetch('/api/FpersonalDetails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data1?.email, coordinates })
         });
-        console.log(res.ok ? "Coordinates updated" : "Failed to update");
+        console.log(res.ok ? 'Coordinates updated' : 'Failed to update');
       } catch {
-        console.log("Error updating coordinates");
+        console.log('Error updating coordinates');
       }
     };
     updateCoordinates();
   }, []);
 
+
   useEffect(() => {
+
     const fetchProjects = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/project/all");
+        const response = await fetch('http://localhost:3000/api/project/all');
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error('Network response was not ok');
         }
         const data = await response.json();
         setProjects(data.projects || []);
@@ -87,6 +98,7 @@ export default function Home() {
     };
 
     fetchProjects();
+
   }, []);
 
   if (!projects) {

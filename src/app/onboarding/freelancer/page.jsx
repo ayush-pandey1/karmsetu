@@ -80,6 +80,8 @@ const OnboardingFreelancer = () => {
   const [photo, setPhoto] = useState(null);
   const [userData, setUserData] = useState();
 
+
+
   const router = useRouter();
 
   useEffect(() => {
