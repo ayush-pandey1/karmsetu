@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import JobCardFreelancer from "@/components/JobCardFreelancer";
 
 export default function Home() {
@@ -13,17 +13,24 @@ export default function Home() {
     longitude: 0,
   });
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
-  }, [])
+  }, []);
   // if (userData) {
   //   setCount(count++);
   // }
 
 
-  const [count, setCount] = useState(0);
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    setUserData(data);
+  }, [])
+  // const [count, setCount] = useState(0);
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    setUserData(data);
+
+
     const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -41,9 +48,9 @@ export default function Home() {
       }
     };
 
+
     getLocation();
-    const updateCoordinates = async (data1) => {
-      console.log("update function: ", data1?.email, coordinates);
+    const updateCoordinates = async () => {
       try {
         const res = await fetch('/api/FpersonalDetails', {
           method: 'POST',
@@ -51,21 +58,12 @@ export default function Home() {
           body: JSON.stringify({ email: data1?.email, coordinates })
         });
         console.log(res.ok ? 'Coordinates updated' : 'Failed to update');
-        console.log(res);
       } catch {
         console.log('Error updating coordinates');
       }
     };
-    if (coordinates.latitude !== 0 && userData) {
-      updateCoordinates(data);
-    }
-    else {
-      getLocation();
-      const data2 = JSON.parse(sessionStorage.getItem('karmsetu'));
-      updateCoordinates(data2);
-    }
-
-  }, [coordinates?.latitude, coordinates?.longitude, userData]);
+    updateCoordinates();
+  }, []);
 
 
   useEffect(() => {
@@ -94,26 +92,29 @@ export default function Home() {
   }
   return (
     <>
-      <span className="font-bold text-4xl">Home</span>
-      <div className="border-dashed border border-zinc-500 w-full h-12 rounded-lg">
+      <div className="flex p-4 flex-col gap-3">
+        <span className="font-bold text-4xl">Home</span>
+        <div className="border-dashed border border-zinc-500 w-full h-12 rounded-lg"></div>
 
-      </div>
-      <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg" style={{
+
+
+        {/* <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg" style={{
         height: "auto", display: "flex", width: "100%", flexDirection: "row", flexWrap: "wrap", gap: "12px",
         padding: "12px"
-      }}>
-        {projects.length > 0 ? (
-          projects.map(project => (
-            <JobCardFreelancer key={project._id} project={project} />
-          ))
-        ) : (
-          <p>No projects available</p>
-        )}
+      }}> */}
+        <div className="flex justify-between">
+          <div className=" inline-flex flex-row  justify-center sm:justify-start flex-wrap gap-4">
+
+            {projects.length > 0 ? (
+              projects.map((project) => (
+                <JobCardFreelancer key={project._id} project={project} />
+              ))
+            ) : (
+              <p>No projects available</p>
+            )}
+          </div>
+        </div>
       </div>
-      <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-      <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-      <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
-      <div className="border-dashed border border-zinc-500 w-full h-64 rounded-lg"></div>
     </>
   );
 }
