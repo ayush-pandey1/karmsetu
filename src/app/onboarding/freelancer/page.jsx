@@ -67,7 +67,7 @@ const OnboardingFreelancer = () => {
   const [photo, setPhoto] = useState(null);
   const [userData, setUserData] = useState();
 
-  
+
 
   const router = useRouter();
 
@@ -137,7 +137,7 @@ const OnboardingFreelancer = () => {
   }, [userEmail, form]);
 
   const onSubmit = async (data) => {
-    console.log(data);
+    console.log("data: ", data);
     console.log("sdasda", role);
     try {
       const response = await fetch("/api/FpersonalDetails", {

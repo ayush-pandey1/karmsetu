@@ -11,9 +11,15 @@ const JobPage = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    setUserData(data);
-  }, [])
+    const data = sessionStorage.getItem('karmsetu');
+    if (data) {
+      try {
+        setUserData(JSON.parse(data));
+      } catch (error) {
+        console.error("Invalid session data:", error);
+      }
+    }
+  }, []);
   const user = userData?.name;
   const clientId = userData?.id;
   useEffect(() => {
@@ -22,8 +28,8 @@ const JobPage = () => {
     }
   }, [clientId, dispatch]);
 
-  const projects = useSelector((state) => state.projects.projects);
-  const empty = useSelector((state) => state.projects.empty);
+  const projects = useSelector((state) => state.projects?.projects || []);
+  const empty = useSelector((state) => state.projects?.empty);
   // console.log(projects, "From Inside Job page")
   return (
     <>

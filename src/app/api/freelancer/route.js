@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
     try {
         // Fetch users with role 'freelancer' and exclude the 'password' field
-        const freelancers = await User.find({ role: "freelancer" }, { password: 0 }).lean().exec();
+        const freelancers = await User.find({ role: "freelancer" }).lean().exec();
 
         return NextResponse.json({
             message: "Freelancer data successfully retrieved",

@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, freelancerDetails } from "../../(redux)/features/projectDataSlice"
-import {filterByRating, filterByBudget, filterByCategory, filterBySearch} from "../../(redux)/features/projectDataSlice"
+import { filterByRating, filterByBudget, filterByCategory, filterBySearch } from "../../(redux)/features/projectDataSlice"
 import {
   Select,
   SelectContent,
@@ -42,7 +42,22 @@ const Home = () => {
     latitude: 0,
     longitude: 0,
   });
-  const [maxBudget, setMaxBudget] = useState(1000);
+
+
+  useEffect(() => {
+    const data = sessionStorage.getItem('karmsetu');
+    if (data) {
+      try {
+        setUserData(JSON.parse(data));
+      } catch (error) {
+        console.error("Invalid session storage data", error);
+      }
+    }
+  }, []);
+
+
+
+  const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
     completedProjects: 0,
     ongoingProjects: 0,
