@@ -11,7 +11,7 @@ const SideNav = () => {
       <div className="flex flex-col w-full space-y-6 ">
         <Link
           href="/cl"
-          className="flex flex-row items-center justify-center w-full h-12 space-x-3 border-b md:justify-start md:px-6 border-zinc-200"
+          className="flex flex-row items-center justify-center w-full h-12 space-x-1 border-b md:justify-start md:px-6 border-zinc-200"
         >
           <span className="rounded-lg">
             {" "}
@@ -22,10 +22,8 @@ const SideNav = () => {
               height="34"
             />{" "}
           </span>
-          {/* <span className="hidden text-xl font-bold md:flex">Karmsetu</span> */}
-          <p className="hidden text-2xl font-bold text-black md:flex dark:text-white">
-            Karm<span className="text-primary">Setu</span>
-          </p>
+          
+          <span className="flex w-32"><Image src="/images/karmsetuLogo-cropped.svg" width="0" height="0" className="w-auto h-auto"/></span>
         </Link>
 
         <div className="flex flex-col space-y-2 md:px-6 ">

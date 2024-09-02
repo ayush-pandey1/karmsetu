@@ -10,26 +10,12 @@ import CTA from "@/components/CTA";
 import FAQ from "@/components/FAQ";
 import Pricing from "@/components/Pricing";
 import Contact from "@/components/Contact";
-// import Blog from "@/components/Blog";
 import Testimonial from "@/components/Testimonial";
 import { Provider } from "react-redux";
-// import Hero from "../../components/Hero/index";
-// import Brands from "../../components/Brands/index";
-// import Feature from "../../components/Features/index";
-// import About from "../../components/About/index";
-// import FeaturesTab from "../../components/FeaturesTab/index";
-// import FunFact from "../../components/FunFact/index";
-// import Integration from "../../components/Integration/index";
-// import CTA from "../../components/CTA/index";
-// import FAQ from "../../components/FAQ/index";
-// import Pricing from "../../components/Pricing/index";
-// import Contact from "../../components/Contact/index";
-// import Blog from "../../components/Blog/index";
-// import Testimonial from "../../components/Testimonial/index";
 export const metadata = {
-  title: "Karmsetu",
-  description: "This is Home for Karmsetu",
-  // other metadata
+  title: "Karmsetu - Threads of Talent, Woven Locally",
+  description: "Freelancing platform curated especially for India",
+ 
 };
 
 export default function Home() {
@@ -40,13 +26,13 @@ export default function Home() {
       <Brands />
       <Feature />
       <About />
-      <FeaturesTab />
+      {/* <FeaturesTab /> */}
       <FunFact />
       <Integration />
       <CTA />
       <FAQ />
       <Testimonial />
-      <Pricing />
+      {/* <Pricing /> */}
       {/* <Contact /> */}
       {/* <Blog /> */}
     </main>

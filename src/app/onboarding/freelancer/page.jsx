@@ -32,11 +32,23 @@ import {
 } from "react-icons/fa";
 import { AiOutlineMail } from "react-icons/ai";
 import { MdWork } from "react-icons/md";
-import { skills } from "./skills";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  webDeveloperSkills,
+  androidIosDeveloperSkills,
+  graphicDesignerSkills,
+  consultantSkills,
+  contentWriterSkills,
+  softwareEngineerSkills,
+  videographerSkills,
+  legalAdvisorSkills,
+  copywriterSkills,
+  socialMediaManagerSkills,
+} from "./skills";
 
 // Define the schema using Zod
 const formSchema = z.object({
@@ -61,13 +73,12 @@ const formSchema = z.object({
 });
 
 const OnboardingFreelancer = () => {
+  const [selectedSkills, setSelectedSkills] = useState([]); //This is the profesional title selected, I (Ayush) made this to only determine which profesional title is selected
   const { data: session, status } = useSession();
   const [userEmail, setUserEmail] = useState("");
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
   const [userData, setUserData] = useState();
-
-  
 
   const router = useRouter();
 
@@ -83,7 +94,7 @@ const OnboardingFreelancer = () => {
     if (session?.user?.email) {
       setUserEmail(session.user.email);
       const path = window.location.pathname;
-      const segments = path.split('/');
+      const segments = path.split("/");
       const extractedRole = segments[segments.length - 1];
       const sessionData = {
         email: session.user.email,
@@ -93,14 +104,13 @@ const OnboardingFreelancer = () => {
       };
       setRole(sessionData?.role);
       console.log("sdsd", role);
-      sessionStorage.setItem('karmsetu', JSON.stringify(sessionData));
-      console.log('Session data stored in sessionStorage:', sessionData);
-      const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+      sessionStorage.setItem("karmsetu", JSON.stringify(sessionData));
+      console.log("Session data stored in sessionStorage:", sessionData);
+      const data = JSON.parse(sessionStorage.getItem("karmsetu"));
       setRole(data?.role);
       setUserData(data);
-    }
-    else {
-      const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    } else {
+      const data = JSON.parse(sessionStorage.getItem("karmsetu"));
       setUserData(data);
       console.log("asas", data);
       setUserEmail(data?.email);
@@ -138,7 +148,7 @@ const OnboardingFreelancer = () => {
 
   const onSubmit = async (data) => {
     console.log(data);
-    console.log("sdasda", role);
+    console.log("role: ", role);
     try {
       const response = await fetch("/api/FpersonalDetails", {
         method: "POST",
@@ -153,7 +163,6 @@ const OnboardingFreelancer = () => {
         console.log("User updated successfully");
 
         router.push("/auth/redirect");
-
       } else {
         console.log(`Error: ${result.message}`);
       }
@@ -167,6 +176,43 @@ const OnboardingFreelancer = () => {
     setPhoto(URL.createObjectURL(e.target.files[0]));
   };
 
+  useEffect(() => {
+    switch (form.watch("professionalTitle")) {
+      case "Web Developer":
+        setSelectedSkills(webDeveloperSkills);
+        break;
+      case "Android/Ios Developer":
+        setSelectedSkills(androidIosDeveloperSkills);
+        break;
+      case "Graphic Designer":
+        setSelectedSkills(graphicDesignerSkills);
+        break;
+      case "Consultant":
+        setSelectedSkills(consultantSkills);
+        break;
+      case "Content Writer":
+        setSelectedSkills(contentWriterSkills);
+        break;
+      case "Software Engineer":
+        setSelectedSkills(softwareEngineerSkills);
+        break;
+      case "Videographer":
+        setSelectedSkills(videographerSkills);
+        break;
+      case "Legal Advisor":
+        setSelectedSkills(legalAdvisorSkills);
+        break;
+      case "Copywriter":
+        setSelectedSkills(copywriterSkills);
+        break;
+      case "Social Media Manager":
+        setSelectedSkills(socialMediaManagerSkills);
+        break;
+      default:
+        setSelectedSkills([]);
+        break;
+    }
+  }, [form.watch("professionalTitle")]);
   return (
     <div className="flex justify-center w-full h-full pt-0 md:pt-20 pb-10 font-inter">
       <div className="flex flex-col h-full w-[40rem] border border-stroke py-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
@@ -319,6 +365,9 @@ const OnboardingFreelancer = () => {
                         <SelectItem value="Web Developer">
                           Web Developer
                         </SelectItem>
+                        <SelectItem value="Android/Ios Developer">
+                          Android/Ios Developer
+                        </SelectItem>
                         <SelectItem value="Graphic Designer">
                           Graphic Designer
                         </SelectItem>
@@ -361,7 +410,7 @@ const OnboardingFreelancer = () => {
                         </FormDescription>
                       </div>
                       <div className="flex flex-wrap gap-4">
-                        {skills.map((skill) => (
+                        {selectedSkills.map((skill) => (
                           <FormItem
                             key={skill.id}
                             className="flex flex-row items-center space-x-3"
@@ -374,7 +423,9 @@ const OnboardingFreelancer = () => {
                                     ? [...field.value, skill.id]
                                     : field.value.filter((s) => s !== skill.id);
                                   field.onChange(newSkills);
+                                  console.log(newSkills);
                                 }}
+                                className="rounded-sm "
                               />
                             </FormControl>
                             <FormLabel className="text-sm font-normal dark:text-gray-300">

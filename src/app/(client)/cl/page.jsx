@@ -15,7 +15,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProjects } from "../../(redux)/features/projectDataSlice"
+import { fetchProjects } from "../../(redux)/features/projectDataSlice";
 // import { setAllProjects } from "@/app/(redux)/features/projectDataSlice";
 import {
   Select,
@@ -30,6 +30,8 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { Input } from "@/components/ui/input";
 import { MdWorkspacePremium } from "react-icons/md";
 import { TbAdjustmentsStar } from "react-icons/tb";
+import Loader from "@/components/Loader";
+import Loader2 from "@/components/Loader2";
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
@@ -41,26 +43,23 @@ const Home = () => {
     longitude: 0,
   });
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
-  }, [])
-
-
-
+  }, []);
 
   const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
     completedProjects: 0,
     ongoingProjects: 0,
-    allProjects: 0
-  })
+    allProjects: 0,
+  });
 
   useEffect(() => {
     const fetchFreelancers = async () => {
       try {
-        const response = await fetch('/api/freelancer');
+        const response = await fetch("/api/freelancer");
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setFreelancers(data.freelancers);
@@ -76,9 +75,9 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
-  }, [])
+  }, []);
   const user = userData?.name;
   const clientId = userData?.id;
   console.log(clientId, user);
@@ -88,8 +87,12 @@ const Home = () => {
     }
   }, [clientId, dispatch]);
 
-  const completedProjects = useSelector((state) => state.projects.completedProjects);
-  const ongoingProjects = useSelector((state) => state.projects.ongoingProjects);
+  const completedProjects = useSelector(
+    (state) => state.projects.completedProjects
+  );
+  const ongoingProjects = useSelector(
+    (state) => state.projects.ongoingProjects
+  );
   const allProjects = useSelector((state) => state.projects.allProjects);
   useEffect(() => {
     setProjectCount({
@@ -116,7 +119,10 @@ const Home = () => {
               const res = await fetch("/api/CpersonalDetails", {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: userData?.email, coordinates: { latitude, longitude } }),
+                body: JSON.stringify({
+                  email: userData?.email,
+                  coordinates: { latitude, longitude },
+                }),
               });
               console.log(res.ok ? "Coordinates updated" : "Failed to update");
             } catch (error) {
@@ -136,8 +142,6 @@ const Home = () => {
       getLocation();
     }
   }, [userData]);
-
-
 
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
@@ -159,7 +163,6 @@ const Home = () => {
 
         <div className=" w-full rounded-lg ">
           {" "}
-
           <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4">
             <Card>
               <CardHeader className="pt-4 pb-0 px-3  flex flex-row items-center justify-between space-y-0 ">
@@ -264,8 +267,11 @@ const Home = () => {
 
         <div className="flex flex-col gap-2   w-full  rounded-lg">
           <div className="md:text-4xl text-3xl text-black font-semibold flex flex-row items-center">
-            <span><MdWorkspacePremium className="text-secondaryho md:text-4xl text-3xl" /></span>
-            Freelancers
+            {/* <span><MdWorkspacePremium className="text-secondaryho md:text-4xl text-3xl " /></span> */}
+            <p className="px-3  border-l-4 border-l-secondary font-bold">
+              {" "}
+              Freelancers
+            </p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-2   justify-between">
@@ -338,7 +344,9 @@ const Home = () => {
               </div>
               <div className="max-w-72 ">
                 <div className="price-range ">
-                  <span className="text-sm text-black font-medium">Budget: </span>
+                  <span className="text-sm text-black font-medium">
+                    Budget:{" "}
+                  </span>
                   <span className="text-sm">₹</span>
                   <span className="text-sm">{maxBudget}</span>
                   <input
@@ -362,17 +370,23 @@ const Home = () => {
               </div>
             </div>
           </div>
-          <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
-            {freelancers.map((freelancer) => (
-              <FreelancerCard
-                key={freelancer._id}
-                fullname={freelancer.fullname}
-                professionalTitle={freelancer.professionalTitle}
-                skill={freelancer.skill}
-                bio={freelancer.bio}
-                id={freelancer._id}
-              />
-            ))}
+          <div className="inline-flex flex-row flex-wrap   justify-start   gap-4">
+            {loading ? (
+              <div className="h-80 w-full">
+              <Loader2 />
+              </div>
+            ) : (
+              freelancers.map((freelancer) => (
+                <FreelancerCard
+                  key={freelancer._id}
+                  fullname={freelancer.fullname}
+                  professionalTitle={freelancer.professionalTitle}
+                  skill={freelancer.skill}
+                  bio={freelancer.bio}
+                  id={freelancer._id}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -12,17 +12,17 @@ const JobCardFreelancer = ({ project }) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
-  console.log("Id1: ", project);
+  // console.log("Id1: ", project);
   return (
     <div>
-      <div className="p-4 border  border-slate-300 shadow-md bg-white max-w-72  sm:max-w-90 rounded-xl h-full w-full">
+      <div className="p-4 border  border-slate-300 shadow-md bg-white max-w-64  sm:max-w-80 rounded-xl h-full w-full">
         <div className="flex flex-col gap-2  sm:gap-4 justify-between">
           <div className="flex flex-col sm:flex-row gap-3  sm:gap-4">
             <div>
               <span className="text-xs font-medium flex flex-row gap-1">
                 Posted by
                 <p className="text-blue-500 cursor-pointer ">
-                  {project?.clientId}
+                  {project?.clientName}
                 </p>
               </span>
               <div className="text-black text-base sm:text-lg font-bold leading-tight">
@@ -37,7 +37,7 @@ const JobCardFreelancer = ({ project }) => {
           </div>
           <div className="flex flex-col sm:flex-col gap-4 sm:gap-4 text-sm   font- ">
             <div className="flex flex-col gap-2">
-              <div className="flex flex-row ">
+              <div className="flex sm:flex-row flex-col gap-2 sm:gap-0 ">
                 <span className="flex flex-row gap-1 items-center  w-50 sm:w-55 sm:text-sm text-xs">
                   <FiCircle className="text-xs text-primary font-bold" /> 
                   {project?.projectCategory}

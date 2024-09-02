@@ -95,7 +95,7 @@ const redirect = () => {
         // }
     }, [user, userData])
     return (
-        <div><Loader/></div>
+        <div className="h-screen w-screen"><Loader/></div>
     )
 }
 
