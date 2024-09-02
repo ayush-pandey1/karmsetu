@@ -15,7 +15,8 @@ export async function POST(NextRequest) {
       return NextResponse.json({ error: "Invalid coordinates" }, { status: 400 });
     }
 
-    const tagTexts = tags.map(tag => tag.text);
+    // const tagTexts = tags.map(tag => tag.text);
+    const tagTexts = values.skills;
 
 
     const newProject = new ProjectSchema({

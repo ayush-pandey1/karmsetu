@@ -420,11 +420,12 @@ const Home = () => {
           </div>
 
           <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
-            {loading ? (
+            {/* {loading ? (
               <div className="h-80 w-full">
                 <Loader2 />
-              </div>
-            ) : filteredFreelancers.length > 0 ? (
+              </div> */}
+            {/* ) : */}
+            {filteredFreelancers.length > 0 ? (
               filteredFreelancers.map((filteredFreelancer) => (
                 <FreelancerCard
                   key={filteredFreelancer._id}
@@ -438,6 +439,7 @@ const Home = () => {
             ) : (
               <div>No freelancers</div>
             )}
+            {/* } */}
           </div>
         </div>
       </div>

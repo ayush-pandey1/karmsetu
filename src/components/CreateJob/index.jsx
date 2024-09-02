@@ -54,8 +54,8 @@ const createJobSchema = z.object({
     .min(20, { message: "Description should be at least 20 characters long" }),
   projectCategory: z.string().min(1, { message: "Catagory is required" }),
   skills: z
-  .array(z.string())
-  .min(1, { message: "You have to select at least one skill." }),
+    .array(z.string())
+    .min(1, { message: "You have to select at least one skill." }),
   budget: z
     .string({ message: "Budget  is required" })
     .transform((val) => parseInt(val)),
@@ -64,7 +64,7 @@ const createJobSchema = z.object({
 });
 
 const CreateJobForm = () => {
-  
+
   const [userData, setUserData] = useState();
   const [count, setCount] = useState(0);
   const [coordinates, setCoordinates] = useState({
@@ -119,21 +119,21 @@ const CreateJobForm = () => {
       clientId: userData?.id,
     },
   });
+  console.log("Errors:", form.formState.errors);
   const { reset } = form;
   const router = useRouter();
 
   const onSubmitForm = async (values) => {
-    console.log("Form Values:", values); // Check what values are being passed
-    
+    console.log("Form Values:", values);
     try {
-      
-      console.log("asas: ", coordinates);
+
+      console.log("asas: ", values);
       if (!coordinates.latitude || !coordinates.longitude) {
         console.error("Geolocation data is not available yet.");
         setCount(count + 1);
         return;
       }
-      
+
       const clientName = userData?.name;
       const response = await axios.post("/api/projects/Project", {
         values,
@@ -141,9 +141,9 @@ const CreateJobForm = () => {
         coordinates,
       });
       // console.log(values);
-      setTags([]);
+      // setTags([]);
       console.log(response);
-      reset();
+      // resetForm();
       router.push("/cl/jobs");
     } catch (error) {
       console.error(
@@ -153,6 +153,7 @@ const CreateJobForm = () => {
     }
   };
   const [selectedSkills, setSelectedSkills] = useState([]); //This is the project category selected, I (Ayush) made this to only determine which project category is selected
+  // ohk(suraj)
 
   useEffect(() => {
     switch (form.watch("projectCategory")) {
@@ -190,10 +191,8 @@ const CreateJobForm = () => {
   return (
     <div className="flex flex-col ">
       <Form {...form}>
-        <form
-         onSubmit={form.handleSubmit(onSubmitForm)}
-          className="space-y-8 mb-4"
-        >
+        <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-8 mb-4">
+
           <FormField
             control={form.control}
             name="title"
@@ -264,7 +263,7 @@ const CreateJobForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="overflow-hidden">
-                    {projectCategories.map((category) => (
+                    {projectCategories && projectCategories.map((category) => (
                       <SelectItem key={category.value} value={category.value}>
                         {category.label}
                       </SelectItem>
@@ -370,12 +369,10 @@ const CreateJobForm = () => {
             )}
           />
 
-          <Button
-          
-            type="submit"
-            className="bg-primary hover:bg-primary active:bg-primaryho  text-white">
+          <Button type="submit" className="bg-primary hover:bg-primary active:bg-primaryho text-white">
             Submit
           </Button>
+
         </form>
       </Form>
     </div>
