@@ -21,8 +21,8 @@ export default function Home() {
   // }
 
 
-  // const [count, setCount] = useState(0);
-  useEffect(async () => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     const getLocation = () => {
       if (navigator.geolocation) {
@@ -41,21 +41,31 @@ export default function Home() {
       }
     };
 
-    await getLocation();
-    const updateCoordinates = async () => {
+    getLocation();
+    const updateCoordinates = async (data1) => {
+      console.log("update function: ", data1?.email, coordinates);
       try {
         const res = await fetch('/api/FpersonalDetails', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: data?.email, coordinates })
+          body: JSON.stringify({ email: data1?.email, coordinates })
         });
         console.log(res.ok ? 'Coordinates updated' : 'Failed to update');
+        console.log(res);
       } catch {
         console.log('Error updating coordinates');
       }
     };
-    await updateCoordinates();
-  }, []);
+    if (coordinates.latitude !== 0 && userData) {
+      updateCoordinates(data);
+    }
+    else {
+      getLocation();
+      const data2 = JSON.parse(sessionStorage.getItem('karmsetu'));
+      updateCoordinates(data2);
+    }
+
+  }, [coordinates?.latitude, coordinates?.longitude, userData]);
 
 
   useEffect(() => {

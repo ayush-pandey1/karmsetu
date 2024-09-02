@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -13,12 +13,16 @@ import { FaClipboardList } from "react-icons/fa";
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
+  const [status, setStatus] = useState({}); // To track each application's status
+
+  useEffect(() => {
+    console.log(status);
+  }, [status])
+
 
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     if (data?.id) {
-      setUserId(data.id);
       fetchApplications(data.id);
     }
   }, []);
@@ -39,6 +43,39 @@ const ApplicationsPage = () => {
     }
   };
 
+  // Function to handle the accept click
+  const handleAcceptClick = async (appId, projectId, freelancerId) => {
+    // Update the status immediately for the button change
+    setStatus((prev) => ({ ...prev, [appId]: "accepted" }));
+
+    try {
+      const response = await fetch(`/api/applicationAccepted/${projectId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ freelancerId }),
+      });
+
+      const data = await response.json();
+      console.log("data: ", data);
+      if (!data.success) {
+        // If API fails, reset the button status
+        setStatus((prev) => ({ ...prev, [appId]: null }));
+        console.error("Failed to accept the application");
+      }
+    } catch (error) {
+      // Handle error and reset the button status
+      setStatus((prev) => ({ ...prev, [appId]: null }));
+      console.error("Error accepting application:", error);
+    }
+  };
+
+  // Function to handle the reject click
+  const handleRejectClick = (appId) => {
+    setStatus((prev) => ({ ...prev, [appId]: "rejected" })); // Update status to rejected
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -46,19 +83,6 @@ const ApplicationsPage = () => {
       </div>
     );
   }
-
-  const assignFreelancer = async (projectId, freelancerId) => {
-    const response = await fetch(`/api/applicationAccepted/${projectId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ freelancerId }), // Send freelancerId
-    });
-
-    const data = await response.json();
-    console.log(data);
-  };
 
   return (
     <div className="flex flex-col gap-20">
@@ -104,7 +128,9 @@ const ApplicationsPage = () => {
                         <div className="flex flex-row gap-4 text-sm sm:text-md">
                           <div className="flex flex-row gap items-center">
                             <MdOutlineCurrencyRupee className="w-5 h-5 text-green-500" />
-                            {app.project?.budget}/h
+                            {app.project?.budget}
+                            /h
+
                           </div>
                           <div className="flex flex-row gap-1 items-center">
                             <StarIcon className="w-5 h-5 text-yellow-500" />
@@ -118,14 +144,30 @@ const ApplicationsPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <Button variant="accept" className="flex items-center space-x-2 px-3 sm:px-4" onClick={() => assignFreelancer(app.project?.id, app.freelancer?.id)}>
-                        <CheckIcon className="w-5 h-5" />
-                        <span>Accept</span>
-                      </Button>
-                      <Button variant="destructive" className="flex items-center space-x-2 px-3 sm:px-4">
-                        <RxCross2 className="w-5 h-5" />
-                        <span>Reject</span>
-                      </Button>
+                      {status[app._id] === "accepted" ? (
+                        <Button variant="success" className="bg-green-500 text-white" disabled>Accepted</Button>
+                      ) : status[app._id] === "rejected" ? (
+                        <Button variant="destructive" disabled>Rejected</Button>
+                      ) : (
+                        <>
+                          <Button
+                            variant="accept"
+                            className="flex items-center space-x-2 px-3 sm:px-4"
+                            onClick={() => handleAcceptClick(app._id, app.project?.id, app.freelancer?.id)}
+                          >
+                            <CheckIcon className="w-5 h-5" />
+                            <span>Accept</span>
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            className="flex items-center space-x-2 px-3 sm:px-4"
+                            onClick={() => handleRejectClick(app._id)}
+                          >
+                            <RxCross2 className="w-5 h-5" />
+                            <span>Reject</span>
+                          </Button>
+                        </>
+                      )}
                       <Button variant="outline" className="flex items-center space-x-2 px-3 sm:px-4">
                         <IoChatbubblesOutline className="w-5 h-5" />
                         <span>Chat</span>
@@ -139,7 +181,6 @@ const ApplicationsPage = () => {
         </main>
       </div>
     </div>
-
   );
 };
 

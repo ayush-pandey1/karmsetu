@@ -9,16 +9,16 @@ import { fetchFreelancerProjects } from '../../../(redux)/features/freelancerPro
 
 const ProjectsPage = () => {
   const dispatch = useDispatch();
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState(null); // Default to null
 
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    setUserData(data);
-  }, [])
+    if (data) {
+      setUserData(data);
+    }
+  }, []);
 
-  const user = userData?.name;
   const freelancerId = userData?.id;
-  //const freelancerId = `66c429e4a585734fc5a2fe31`;
 
   useEffect(() => {
     if (freelancerId) {
@@ -29,12 +29,16 @@ const ProjectsPage = () => {
 
   const projects = useSelector((state) => state.freelancer.freelancerprojects);
   const empty = useSelector((state) => state.freelancer.empty);
-  console.log(projects, "From Inside Freelancer Project page")
+  console.log(projects, "From Inside Freelancer Project page");
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
       <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
-        <div className="font-bold   flex flex-col sm:flex-row gap-2 sm:gap-0  sm:justify-between sm:items-center">
+        <div className="font-bold flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center">
           <div className="flex flex-col gap-1">
             <div className="text-2xl text-black sm:text-4xl">
               All Posted Projects
@@ -44,7 +48,8 @@ const ProjectsPage = () => {
             </div>
           </div>
           <div className="flex items-center">
-            {/* <Button className="flex item-center gap-1 text-white  bg-primary hover:bg-primaryho">
+            {/* Uncomment if needed */}
+            {/* <Button className="flex item-center gap-1 text-white bg-primary hover:bg-primaryho">
               <Link href="/cl/createjob">Post Job</Link>
               <span className="text-white text-xl">
                 <GoPlus />
@@ -52,11 +57,12 @@ const ProjectsPage = () => {
             </Button> */}
           </div>
         </div>
-        <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
+        <div className="w-full grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
           <JobCardClient projects={projects} empty={empty} role={1} />
         </div>
       </div>
     </>
   );
 };
+
 export default ProjectsPage;

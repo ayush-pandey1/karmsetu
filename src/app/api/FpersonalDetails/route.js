@@ -1,8 +1,5 @@
 import User from "@/app/(models)/User";
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import cookie from 'cookie';
 
 export async function POST(req) {
     try {
@@ -18,9 +15,10 @@ export async function POST(req) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
+        // Update fields only if provided
         if (PhoneNumber) user.phone = PhoneNumber;
         if (age) user.age = age;
-        if (gender !== undefined) user.gender = gender; 
+        if (gender !== undefined) user.gender = gender;
         if (address) user.address = address;
         if (bio) user.bio = bio;
         if (socialMedia) user.socialMedia = socialMedia;
@@ -28,9 +26,17 @@ export async function POST(req) {
         if (skills) user.skill = skills;
         if (portfolioLink) user.portfolio = portfolioLink;
         if (role) user.role = role;
-        if (coordinates.latitude && coordinates.longitude){
-            user.coordinates.latitude=coordinates.latitude;
-            user.coordinates.longitude=coordinates.longitude;
+
+        // Update coordinates if they are passed and valid
+        if (coordinates) {
+            if (typeof coordinates.latitude === 'number' && typeof coordinates.longitude === 'number') {
+                user.coordinates = {
+                    latitude: coordinates.latitude,
+                    longitude: coordinates.longitude
+                };
+            } else {
+                return NextResponse.json({ message: "Invalid coordinates" }, { status: 400 });
+            }
         }
 
         await user.save();

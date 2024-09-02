@@ -40,10 +40,19 @@ const Home = () => {
     latitude: 0,
     longitude: 0,
   });
+
+  const user = userData?.name;
+  const clientId = userData?.id;
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    setUserData(data);
-  }, [])
+    const data = sessionStorage.getItem('karmsetu');
+    if (data) {
+      try {
+        setUserData(JSON.parse(data));
+      } catch (error) {
+        console.error("Invalid session storage data", error);
+      }
+    }
+  }, []);
 
 
 
@@ -56,31 +65,31 @@ const Home = () => {
   })
 
   useEffect(() => {
-    const fetchFreelancers = async () => {
-      try {
-        const response = await fetch('/api/freelancer');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+    if (freelancers.length === 0) {
+      const fetchFreelancers = async () => {
+        try {
+          const response = await fetch('/api/freelancer');
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const data = await response.json();
+          setFreelancers(data.freelancers);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
         }
-        const data = await response.json();
-        setFreelancers(data.freelancers);
-      } catch (error) {
-        // setError(error.message);
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      };
 
-    fetchFreelancers();
-  }, []);
+      fetchFreelancers();
+    }
+  }, [freelancers]);
 
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    setUserData(data);
-  }, [])
-  const user = userData?.name;
-  const clientId = userData?.id;
+
+
+
+
+
   console.log(clientId, user);
   useEffect(() => {
     if (clientId) {
@@ -98,10 +107,7 @@ const Home = () => {
       allProjects: allProjects,
     });
   }, [completedProjects, ongoingProjects, allProjects]);
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    setUserData(data);
-  }, []);
+
 
   useEffect(() => {
     const getLocation = async () => {

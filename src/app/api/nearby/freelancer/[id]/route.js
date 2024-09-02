@@ -11,12 +11,16 @@ function calculateDistance(userCoords, projectCoords) {
 }
 
 export async function GET(req, { params }) {
+  const freelancerId = params.id;
   try {
-    const freelancerId = params.id; 
+    
+    const searchParams = req.nextUrl.searchParams;
+    const distanceParam = searchParams.get('distance');
+    const selectedDistance = distanceParam ? parseInt(distanceParam, 10) : 5000; 
 
     const freelancer = await User.findById(freelancerId);
-    
-    if (!freelancer || !freelancer.coordinates || freelancer.coordinates.latitude === null) {
+
+    if (!freelancer || !freelancer.coordinates || !freelancer.coordinates.latitude || !freelancer.coordinates.longitude) {
       return NextResponse.json({ message: "Freelancer or coordinates not found" }, { status: 404 });
     }
 
@@ -24,22 +28,18 @@ export async function GET(req, { params }) {
 
     const projects = await Project.find({ status: "Pending" });
 
-    const nearbyProjects = [];
-
-    projects.forEach((project) => {
-      if (project.coordinates && project.coordinates.latitude !== null) {
+    const nearbyProjects = projects
+      .filter((project) => project.coordinates && project.coordinates.latitude !== null)
+      .map((project) => {
         const projectCoords = project.coordinates;
-        const distance = calculateDistance(freelancerCoords, projectCoords); 
+        const distance = calculateDistance(freelancerCoords, projectCoords);
 
-        if (distance <= 5000) {
-
-          nearbyProjects.push({
-            ...project._doc, 
-            distance: distance / 1000, 
-          });
-        }
-      }
-    });
+        return {
+          ...project._doc,
+          distance: distance / 1000, // Convert meters to kilometers
+        };
+      })
+      .filter((project) => project.distance <= selectedDistance); // Filter projects based on distance
 
     return NextResponse.json(nearbyProjects, { status: 200 });
   } catch (error) {

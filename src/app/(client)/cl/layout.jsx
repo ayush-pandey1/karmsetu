@@ -1,6 +1,8 @@
 "use client";
 
 import '@/app/globals.css';
+import 'leaflet/dist/leaflet.css';
+
 import { Inter } from 'next/font/google';
 import Header from '@/components/mainClient/header';
 import HeaderMobile from '@/components/mainClient/header-mobile';
@@ -12,9 +14,9 @@ import { Provider } from 'react-redux'
 import store from "../../(redux)/store/store"
 
 export default function RootLayout({ children, }) {
-    return (<html lang="en">
-      <body className={`bg-white ${inter.className}`}>
-        <div className="flex">
+  return (<html lang="en">
+    <body className={`bg-white ${inter.className}`}>
+      <div className="flex">
         <Provider store={store}>
           <SideNav />
           <main className="flex-1">
@@ -24,8 +26,8 @@ export default function RootLayout({ children, }) {
               <PageWrapper>{children}</PageWrapper>
             </MarginWidthWrapper>
           </main>
-          </Provider>
-        </div>
-      </body>
-    </html>);
+        </Provider>
+      </div>
+    </body>
+  </html>);
 }

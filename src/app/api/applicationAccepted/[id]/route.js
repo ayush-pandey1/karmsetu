@@ -32,7 +32,7 @@ export async function PUT(req, { params }) {
     return NextResponse.json(
       {
         message: "Freelancer assigned and project status updated to In Progress.",
-        project,
+        project,success:true
       },
       { status: 200 }
     );

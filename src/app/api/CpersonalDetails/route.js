@@ -24,8 +24,8 @@ export async function PUT(req) {
         role,
         // if (coordinates.latitude && coordinates.longitude){
           coordinates:{
-            latitude:coordinates.latitude,
-            longitude:coordinates.longitude
+            latitude:coordinates?.latitude,
+            longitude:coordinates?.longitude
           } 
           
       // }
