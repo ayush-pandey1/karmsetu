@@ -19,10 +19,8 @@ const userSchema = new Schema({
     skill: [String], 
     portfolio: String, 
     connection: {type:Number},
-    rating: [{
-        review : {type: String},
-        rating : {type : Number}
-    }],
+    rating : {type : Number},
+    Cost : {type : Number},
     role: { type: String, default: "freelancer" },
     coordinates: {
         latitude:  { type: Number ,default: null },

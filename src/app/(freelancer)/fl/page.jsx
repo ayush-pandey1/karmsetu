@@ -15,9 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useDispatch, useSelector } from "react-redux";
+import {fetchProjects, filterByBudget, filterByCategory, filterByRating, filterBySearch} from "@/app/(redux)/features/freelancerProjects"
 
 export default function Home() {
+  const dispatch = useDispatch();
   const [projects, setProjects] = useState([]);
+  const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState();
@@ -26,20 +30,23 @@ export default function Home() {
     latitude: 0,
     longitude: 0,
   });
+
+  useEffect(() => {
+    dispatch(fetchProjects());
+  }, [dispatch]);
+
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
   }, []);
+
   // if (userData) {
   //   setCount(count++);
   // }
 
 
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    setUserData(data);
-  }, [])
   // const [count, setCount] = useState(0);
+  
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
@@ -79,31 +86,36 @@ export default function Home() {
     updateCoordinates();
   }, []);
 
+  const handleFilterChange = (filterType, value) => {
+    switch (filterType) {
+      case "rating":
+        dispatch(filterByRating(value));
+        break;
+      case "budget":
+        dispatch(filterByBudget(value));
+        break;
+      case "category":
+        dispatch(filterByCategory(value));
+        break;
+      case "search":
+        dispatch(filterBySearch(value));
+        break;
+      default:
+        break;
+    }
+  };
 
-  useEffect(() => {
+  const projectsData = useSelector((state) => state.projects);
+  useEffect(() => {    
+    setProjects(projectsData);
+  }, [projectsData]);
 
-    const fetchProjects = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/project/all');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setProjects(data.projects || []);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const filteredProjectsData = useSelector((state) => state.filteredProjects);
+  useEffect(() => {    
+    setProjects(filteredProjectsData);
+  }, [filteredProjectsData]);
 
-    fetchProjects();
 
-  }, []);
-
-  if (!projects) {
-    fetchProjects();
-  }
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
@@ -112,6 +124,8 @@ export default function Home() {
           Welcome Back,{" "}
           <span className="text-primary font-bold">{"Ayush"}</span> 👋
         </span>
+
+
         <div className=" w-full rounded-lg ">
           {" "}
           <div className="grid gap-4  sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4">
@@ -211,7 +225,6 @@ export default function Home() {
         </div>
 
         <div className="md:text-4xl text-3xl text-black font-semibold flex flex-row items-center">
-            
             <p className="px-3  border-l-4 border-l-secondary font-bold">
               {" "}
               Gigs
@@ -227,6 +240,8 @@ export default function Home() {
                   type="text"
                   placeholder="Search Freelancers"
                   className=" border-none px-1 rounded-md placeholder:font-medium bg-white  w-full"
+                  name="searchInput"
+                  onChange={(e) => handleFilterChange("search", e.target.value)}
                 />
               </div>
               <div>
@@ -235,9 +250,15 @@ export default function Home() {
                 </Button>
               </div>
             </div>
+
             <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2 ">
               <div className="flex flex-col md:flex-row  gap-2">
-                <Select>
+                <Select
+                name="titleSelect"
+                onValueChange={(value) =>
+                  handleFilterChange("category", value)
+                }
+                >
                   <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                     <SelectValue className="k" placeholder="Select title" />
                   </SelectTrigger>
@@ -272,7 +293,10 @@ export default function Home() {
                   </SelectContent>
                 </Select>
 
-                <Select>
+                <Select
+                name="ratingSelect"
+                onValueChange={(value) => handleFilterChange("rating", value)}
+                >
                   <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                     <SelectValue className="k" placeholder="Rating" />
                   </SelectTrigger>
@@ -287,6 +311,7 @@ export default function Home() {
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="max-w-72 ">
                 <div className="price-range ">
                   <span className="text-sm text-black font-medium">
@@ -305,6 +330,7 @@ export default function Home() {
                     // oninput="this.previousElementSibling.innerText=this.value"
                     onChange={(e) => {
                       setMaxBudget(e.target.value);
+                      handleFilterChange("budget", e.target.value);
                     }}
                   />
                   <div className="-mt-2 flex w-full justify-between">
@@ -313,13 +339,14 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
        
         <div className="flex justify-between">
           <div className=" inline-flex flex-row  justify-center sm:justify-start flex-wrap gap-4">
-            {projects.length > 0 ? (
+            {filteredProjects.length > 0 ? (
               projects.map((project) => (
                 <JobCardFreelancer key={project._id} project={project} />
               ))

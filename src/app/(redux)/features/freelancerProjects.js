@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { act } from 'react';
 
 const initialState = {
   freelancerprojects: [],
@@ -11,25 +12,26 @@ const initialState = {
   status: 'idle',
   error: null,
   fetched : false,
-  empty : false
+  empty : false,
+  projects : [],
+  filteredProjects : [],
+  projectsFetched : false
 };
 
 export const fetchFreelancerProjects = createAsyncThunk(
   'projects/fetchFreelancerProjects',
   async (freelancerId, { getState, rejectWithValue }) => {
     const { freelancer } = getState();
-    console.log(freelancer.fetched);
     if(!(freelancer.fetched)){
       try {
-        console.log(freelancer.fetched, "From Inside API calling");
         const apiUrl = `/api/projects/Freelancer?freelancerId=${freelancerId}`;
         const response = await axios.get(apiUrl);
-        console.log("API Called");
+        // console.log("API Called");
         if (response.data.empty) {
-          console.log(response.data.empty, "From Inside API calling, No projects created yet");
+          // console.log(response.data.empty, "From Inside API calling, No projects created yet");
           return response.data.empty;
         } else {
-          console.log(response.data.data, "From Inside API calling, Printing Projects,Projects Exists");
+          // console.log(response.data.data, "From Inside API calling, Printing Projects,Projects Exists");
           return response.data.data;
         }
       } catch (error) {
@@ -40,11 +42,47 @@ export const fetchFreelancerProjects = createAsyncThunk(
     
 );
 
+//Calling API to fetch the projects data from the database
+export const fetchProjects = createAsyncThunk(
+  'projects/fetchProjects',
+  async (_, { getState, rejectWithValue }) => {
+    const { projects } = getState();
+    if (!(freelancer.projectsFetched)) {
+      try {
+        const apiUrl = `/api/projects/Project`;
+        const response = await axios.get(apiUrl);
+        if (response.data.empty) {
+          return response.data.empty;
+        } else {
+          return response.data.data;
+        }
+      } catch (error) {
+        return rejectWithValue(error.response ? error.response.data : error.message);
+      }
+    }
+  }
+
+);
+
 
 const freelancer = createSlice({
   name: 'freelancer',
   initialState,
   reducers: {
+    filterByRating: (state, action) => {
+      state.filteredProjects = state.filteredProjects.filter((freelancer) => freelancer.rating >= action.payload);
+    },
+    filterByBudget: (state, action) => {
+      state.filteredProjects = state.filteredProjects.filter((freelancer) => freelancer.budget <= action.payload);
+    },
+    filterByCategory: (state, action) => {
+      state.filteredProjects = state.filteredProjects.filter((freelancer) => freelancer.projectCategory === action.payload);
+    },
+    filterBySearch: (state, action) => {
+      state.filteredProjects = state.filteredProjects.filter(freelancer =>
+        freelancer.fullname.toLowerCase().includes(action.payload.toLowerCase())
+      );
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -63,11 +101,8 @@ const freelancer = createSlice({
           state.CompletedProjects = completed.length;
           state.OngoingProjects = ongoing.length;
           state.fetched = true;
-          
           state.status = 'succeeded';
-
         }else{
-
           state.status = 'succeeded';
           state.empty = true;
           state.fetched = true;
@@ -76,8 +111,31 @@ const freelancer = createSlice({
       .addCase(fetchFreelancerProjects.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      });
+      })
+      .addCase(fetchProjects.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchProjects.rejected, (state,action)=> {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(fetchProjects.fulfilled, (state,action) =>{
+        const projectsData = action.payload;
+        if (Array.isArray(projectsData)) {
+          state.projects = projectsData;
+          state.filteredProjects = projectsData;
+          state.status = 'succeeded';
+          state.empty = true;
+          state.projectsFetched = true;
+        }else{
+          state.status = 'succeeded';
+          state.empty = true;
+          state.projectsFetched = true;
+        }
+      })
   },
 });
+
+export  const {filterByBudget, filterByCategory, filterByRating, filterBySearch} = freelancer.actions;
 
 export default freelancer.reducer;
