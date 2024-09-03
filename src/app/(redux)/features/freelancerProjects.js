@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { act } from 'react';
 
 const initialState = {
   freelancerprojects: [],
@@ -49,8 +48,10 @@ export const fetchProjects = createAsyncThunk(
     const { projects } = getState();
     if (!(freelancer.projectsFetched)) {
       try {
+        console.log("API called to fetch projects for fl page")
         const apiUrl = `/api/projects/Project`;
         const response = await axios.get(apiUrl);
+        console.log(response.data);
         if (response.data.empty) {
           return response.data.empty;
         } else {
@@ -69,18 +70,15 @@ const freelancer = createSlice({
   name: 'freelancer',
   initialState,
   reducers: {
-    filterByRating: (state, action) => {
-      state.filteredProjects = state.filteredProjects.filter((freelancer) => freelancer.rating >= action.payload);
-    },
     filterByBudget: (state, action) => {
-      state.filteredProjects = state.filteredProjects.filter((freelancer) => freelancer.budget <= action.payload);
+      state.filteredProjects = state.projects.filter((freelancer) => freelancer.budget <= action.payload);
     },
     filterByCategory: (state, action) => {
-      state.filteredProjects = state.filteredProjects.filter((freelancer) => freelancer.projectCategory === action.payload);
+      state.filteredProjects = state.projects.filter((freelancer) => freelancer.projectCategory === action.payload);
     },
     filterBySearch: (state, action) => {
-      state.filteredProjects = state.filteredProjects.filter(freelancer =>
-        freelancer.fullname.toLowerCase().includes(action.payload.toLowerCase())
+      state.filteredProjects = state.projects.filter(freelancer =>
+        freelancer.title.toLowerCase().includes(action.payload.toLowerCase())
       );
     }
   },
@@ -122,12 +120,14 @@ const freelancer = createSlice({
       .addCase(fetchProjects.fulfilled, (state,action) =>{
         const projectsData = action.payload;
         if (Array.isArray(projectsData)) {
+          console.log(projectsData, "Inside Fulfilled State, Array");
           state.projects = projectsData;
           state.filteredProjects = projectsData;
           state.status = 'succeeded';
           state.empty = true;
           state.projectsFetched = true;
         }else{
+          console.log(projectsData, "Inside Fulfilled State, Not an Array");
           state.status = 'succeeded';
           state.empty = true;
           state.projectsFetched = true;
@@ -136,6 +136,6 @@ const freelancer = createSlice({
   },
 });
 
-export  const {filterByBudget, filterByCategory, filterByRating, filterBySearch} = freelancer.actions;
+export  const {filterByBudget, filterByCategory, filterBySearch} = freelancer.actions;
 
 export default freelancer.reducer;

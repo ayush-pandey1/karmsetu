@@ -20,7 +20,7 @@ import {fetchProjects, filterByBudget, filterByCategory, filterByRating, filterB
 
 export default function Home() {
   const dispatch = useDispatch();
-  const [projects, setProjects] = useState([]);
+  // const [projects, setProjects] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -58,7 +58,7 @@ export default function Home() {
           (position) => {
             const { latitude, longitude } = position.coords;
             setCoordinates({ latitude, longitude });
-            console.log("Latitude:", latitude, "Longitude:", longitude);
+            //console.log("Latitude:", latitude, "Longitude:", longitude);
           },
           (error) => {
             console.error("Error getting geolocation: ", error);
@@ -88,16 +88,16 @@ export default function Home() {
 
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
-      case "rating":
-        dispatch(filterByRating(value));
-        break;
       case "budget":
+        //console.log(value);
         dispatch(filterByBudget(value));
         break;
       case "category":
+        //console.log(value);
         dispatch(filterByCategory(value));
         break;
       case "search":
+        //console.log(value);
         dispatch(filterBySearch(value));
         break;
       default:
@@ -105,16 +105,17 @@ export default function Home() {
     }
   };
 
-  const projectsData = useSelector((state) => state.projects);
-  useEffect(() => {    
-    setProjects(projectsData);
-  }, [projectsData]);
+  // const projectsData = useSelector((state) => state.freelancer.projects);
+  // useEffect(() => {    
+  //   setProjects(projectsData);
+  // }, [projectsData]);
 
-  const filteredProjectsData = useSelector((state) => state.filteredProjects);
+  const filteredProjectsData = useSelector((state) => state.freelancer.filteredProjects);
   useEffect(() => {    
-    setProjects(filteredProjectsData);
+    setFilteredProjects(filteredProjectsData);
   }, [filteredProjectsData]);
-
+  // console.log(filteredProjectsData, "From FL page Redux Store");
+  // console.log(filteredProjects, "From FL page State Variable");
 
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
@@ -265,20 +266,20 @@ export default function Home() {
                   <SelectContent>
                     <SelectGroup className="max-h-40 overflow-y-scroll">
                       <SelectLabel>Titles</SelectLabel>
-                      <SelectItem value="Web Developer">
+                      <SelectItem value="web-development">
                         Web Developer
                       </SelectItem>
-                      <SelectItem value="Android Developer">
+                      <SelectItem value="mobile-app-development">
                         Android Developer
                       </SelectItem>
-                      <SelectItem value="Graphic Designer">
+                      <SelectItem value="graphic-design">
                         Graphic Designer
                       </SelectItem>
                       <SelectItem value="Consultant">Consultant</SelectItem>
                       <SelectItem value="Content Writer">
                         Content Writer
                       </SelectItem>
-                      <SelectItem value="Software Engineer">
+                      <SelectItem value="software-development">
                         Software Engineer
                       </SelectItem>
                       <SelectItem value="Videographer">Videographer</SelectItem>
@@ -347,8 +348,8 @@ export default function Home() {
         <div className="flex justify-between">
           <div className=" inline-flex flex-row  justify-center sm:justify-start flex-wrap gap-4">
             {filteredProjects.length > 0 ? (
-              projects.map((project) => (
-                <JobCardFreelancer key={project._id} project={project} />
+              filteredProjects.map((filteredProject) => (
+                <JobCardFreelancer key={filteredProject._id} project={filteredProject} />
               ))
             ) : (
               <p>No projects available</p>

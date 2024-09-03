@@ -63,16 +63,13 @@ const projects = createSlice({
   initialState,
   reducers: {
     filterByRating: (state, action) => {
-      state.filteredFreelancer = state.filteredFreelancer.filter((freelancer) => freelancer.rating >= action.payload);
-    },
-    filterByBudget: (state, action) => {
-      state.filteredFreelancer = state.filteredFreelancer.filter((freelancer) => freelancer.budget <= action.payload);
+      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.rating >= action.payload);
     },
     filterByCategory: (state, action) => {
-      state.filteredFreelancer = state.filteredFreelancer.filter((freelancer) => freelancer.professionalTitle === action.payload);
+      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.professionalTitle === action.payload);
     },
     filterBySearch: (state, action) => {
-      state.filteredFreelancer = state.filteredFreelancer.filter(freelancer =>
+      state.filteredFreelancer = state.freelancer.filter(freelancer =>
         freelancer.fullname.toLowerCase().includes(action.payload.toLowerCase())
       );
     }
@@ -122,5 +119,5 @@ const projects = createSlice({
   },
 });
 
-export const { filterByRating, filterByBudget, filterByCategory, filterBySearch } = projects.actions;
+export const { filterByRating, filterByCategory, filterBySearch } = projects.actions;
 export default projects.reducer;

@@ -21,7 +21,6 @@ import {
 } from "../../(redux)/features/projectDataSlice";
 import {
   filterByRating,
-  filterByBudget,
   filterByCategory,
   filterBySearch,
 } from "../../(redux)/features/projectDataSlice";
@@ -87,9 +86,6 @@ const Home = () => {
     switch (filterType) {
       case "rating":
         dispatch(filterByRating(value));
-        break;
-      case "budget":
-        dispatch(filterByBudget(value));
         break;
       case "category":
         dispatch(filterByCategory(value));
@@ -422,11 +418,12 @@ const Home = () => {
           </div>
 
           <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
-            {loading ? (
+            {/* {loading ? (
               <div className="h-80 w-full">
                 <Loader2 />
-              </div>
-            ) : filteredFreelancers.length > 0 ? (
+              </div> */}
+            {/* ) : */}
+            {filteredFreelancers.length > 0 ? (
               filteredFreelancers.map((filteredFreelancer) => (
                 <FreelancerCard
                   key={filteredFreelancer._id}
@@ -435,11 +432,13 @@ const Home = () => {
                   skill={filteredFreelancer.skill}
                   bio={filteredFreelancer.bio}
                   id={filteredFreelancer._id}
+                  rating={filteredFreelancer.rating}
                 />
               ))
             ) : (
               <div>No freelancers</div>
             )}
+            {/* } */}
           </div>
         </div>
       </div>
