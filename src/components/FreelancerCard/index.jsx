@@ -5,7 +5,7 @@ import { FaRegStar } from "react-icons/fa";
 import { RiSuitcaseLine } from "react-icons/ri";
 import { Button } from "../ui/button";
 import Link from "next/link";
-const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id }) => {
+const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id , rating}) => {
   return (
     <div className="p-4 flex flex-col gap-4  border bg-white border-gray-200  w-72 rounded-xl">
       <div className="flex flex-row items-center gap-3">
@@ -22,7 +22,7 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id }) => {
       </div>
       <div className="flex flex-row  justify-between">
         <div className="flex flex-row items-center font-medium  text-green-500"><MdOutlineCurrencyRupee className="" /> 500/hr</div>
-        <div className="flex flex-row items-center gap-1"><FaRegStar className="text-yellow-500" /> 3.67</div>
+        <div className="flex flex-row items-center gap-1"><FaRegStar className="text-yellow-500" /> {rating}</div>
         <div className="flex flex-row items-center gap-1"><RiSuitcaseLine className="text-xl text-blue-500" /> 15</div>
       </div>
       <div className="flex flex-row gap-2">

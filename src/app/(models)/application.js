@@ -18,7 +18,8 @@ const ApplicationSchema = new Schema({
     description: { type: String },
     budget: { type: Number },
     status: { type: String }
-  }
+  },
+  applicationStatus : {type: String, enum: ['Pending', 'Accepted', 'Rejected'], default: 'Pending'}
 }, {
   timestamps: true                                        
 });

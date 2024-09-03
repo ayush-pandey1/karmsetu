@@ -21,7 +21,6 @@ import {
 } from "../../(redux)/features/projectDataSlice";
 import {
   filterByRating,
-  filterByBudget,
   filterByCategory,
   filterBySearch,
 } from "../../(redux)/features/projectDataSlice";
@@ -40,6 +39,9 @@ import { MdWorkspacePremium } from "react-icons/md";
 import { TbAdjustmentsStar } from "react-icons/tb";
 import Loader from "@/components/Loader";
 import Loader2 from "@/components/Loader2";
+
+
+
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
@@ -51,6 +53,7 @@ const Home = () => {
     longitude: 0,
   });
 
+    //To get user details from sessionStorage
   useEffect(() => {
     const data = sessionStorage.getItem("karmsetu");
     if (data) {
@@ -84,9 +87,6 @@ const Home = () => {
       case "rating":
         dispatch(filterByRating(value));
         break;
-      case "budget":
-        dispatch(filterByBudget(value));
-        break;
       case "category":
         dispatch(filterByCategory(value));
         break;
@@ -98,11 +98,7 @@ const Home = () => {
     }
   };
 
-  //To get user details from sessionStorage
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    setUserData(data);
-  }, []);
+
   const user = userData?.name;
   const clientId = userData?.id;
 
@@ -330,6 +326,7 @@ const Home = () => {
                 </Button>
               </div>
             </div>
+
             <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2">
               <div className="flex flex-col md:flex-row gap-2">
                 <Select
@@ -390,6 +387,7 @@ const Home = () => {
                   </SelectContent>
                 </Select>
               </div>
+              
               <div className="max-w-72">
                 <div className="price-range">
                   <span className="text-sm text-black font-medium">
@@ -434,6 +432,7 @@ const Home = () => {
                   skill={filteredFreelancer.skill}
                   bio={filteredFreelancer.bio}
                   id={filteredFreelancer._id}
+                  rating={filteredFreelancer.rating}
                 />
               ))
             ) : (

@@ -50,13 +50,20 @@ export async function GET(NextRequest) {
   try {
     const clientId = NextRequest.nextUrl.searchParams.get('clientId');
 
-    
+    if(clientId){
     const data = await ProjectSchema.find({clientId});
     if(data.length == 0){
       return NextResponse.json({ message: "No Projects", success: true, empty : true}, { status: 200 });  
     }
  
     return NextResponse.json({ message: "Fetched Data Successfully", success: true, data }, { status: 200 });
+    }else{
+      const data = await ProjectSchema.find();
+    if(data.length == 0){
+      return NextResponse.json({ message: "No Projects", success: true, empty : true}, { status: 200 });  
+    }
+    return NextResponse.json({ message: "Fetched Data Successfully", success: true, data }, { status: 200 });
+    }
   } catch (error) {
     console.log(error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });

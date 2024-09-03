@@ -13,6 +13,7 @@ const ProjectSchema = new Schema({
   freelancerId:{type:String,default:"none"},
   freelancerName:{type:String},
   clientName : {type: String},
+  applied : [String],
   status: { type: String, enum: ['Pending', 'In Progress', 'Completed'], default: 'Pending' },
   coordinates: {
     latitude:  { type: Number ,default: null },

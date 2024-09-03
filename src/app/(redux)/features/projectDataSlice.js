@@ -17,6 +17,7 @@ const initialState = {
   freelancerDetailsFetched: false
 };
 
+//Calling API to fetch the projects data from the database
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
   async (clientId, { getState, rejectWithValue }) => {
@@ -38,6 +39,7 @@ export const fetchProjects = createAsyncThunk(
 
 );
 
+//Calling API to fetch the freelancers details from the database
 export const freelancerDetails = createAsyncThunk(
   'users/freelancer',
   async (_, { getState, rejectWithValue }) => {
@@ -62,9 +64,6 @@ const projects = createSlice({
   reducers: {
     filterByRating: (state, action) => {
       state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.rating >= action.payload);
-    },
-    filterByBudget: (state, action) => {
-      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.budget <= action.payload);
     },
     filterByCategory: (state, action) => {
       state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.professionalTitle === action.payload);
@@ -119,5 +118,6 @@ const projects = createSlice({
       })
   },
 });
-export const { filterByRating, filterByBudget, filterByCategory, filterBySearch } = projects.actions;
+
+export const { filterByRating, filterByCategory, filterBySearch } = projects.actions;
 export default projects.reducer;
