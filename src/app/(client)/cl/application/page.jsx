@@ -15,9 +15,9 @@ const ApplicationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({}); // To track each application's status
 
-  useEffect(() => {
-    console.log(status);
-  }, [status])
+  // useEffect(() => {
+  //   console.log(status);
+  // }, [status])
 
 
   useEffect(() => {
@@ -33,8 +33,10 @@ const ApplicationsPage = () => {
       const result = await res.json();
       if (res.ok) {
         setApplications(result.applications);
+        //console.log("Application data fetched");
       } else {
         console.error(result.message);
+        //console.log("Application data not fetched");
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -44,21 +46,24 @@ const ApplicationsPage = () => {
   };
 
   // Function to handle the accept click
-  const handleAcceptClick = async (appId, projectId, freelancerId) => {
-    // Update the status immediately for the button change
-    setStatus((prev) => ({ ...prev, [appId]: "accepted" }));
-
+  const handleStatus = async (appId, projectId, freelancerId, newStatus) => {
     try {
+      // Update the status immediately for the button change
+      //console.log(newStatus, freelancerId);
+  
+      setStatus((prev) => ({ ...prev, [appId]: newStatus }));
+      //console.log(JSON.stringify({ freelancerId, newStatus }), "Converting JS to JSON");
       const response = await fetch(`/api/applicationAccepted/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ freelancerId }),
+        body: JSON.stringify({ freelancerId, newStatus })
       });
-
+      //console.log("Put Request API called");
       const data = await response.json();
-      console.log("data: ", data);
+      //console.log("data: ", data);
+      
       if (!data.success) {
         // If API fails, reset the button status
         setStatus((prev) => ({ ...prev, [appId]: null }));
@@ -70,11 +75,7 @@ const ApplicationsPage = () => {
       console.error("Error accepting application:", error);
     }
   };
-
-  // Function to handle the reject click
-  const handleRejectClick = (appId) => {
-    setStatus((prev) => ({ ...prev, [appId]: "rejected" })); // Update status to rejected
-  };
+  
 
   if (loading) {
     return (
@@ -153,15 +154,17 @@ const ApplicationsPage = () => {
                           <Button
                             variant="accept"
                             className="flex items-center space-x-2 px-3 sm:px-4"
-                            onClick={() => handleAcceptClick(app._id, app.project?.id, app.freelancer?.id)}
+                            onClick={(event) => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'accepted', event)}
+                            name = "accept"
                           >
                             <CheckIcon className="w-5 h-5" />
                             <span>Accept</span>
                           </Button>
                           <Button
                             variant="destructive"
+                            name = 'reject'
                             className="flex items-center space-x-2 px-3 sm:px-4"
-                            onClick={() => handleRejectClick(app._id)}
+                            onClick={(event) => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'rejected', event)}
                           >
                             <RxCross2 className="w-5 h-5" />
                             <span>Reject</span>
