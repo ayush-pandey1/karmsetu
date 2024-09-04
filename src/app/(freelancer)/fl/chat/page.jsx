@@ -12,14 +12,15 @@ import { formatDistanceToNow } from 'date-fns';
 import InputEmoji from "react-input-emoji";
 import Loader2 from "@/components/Loader2";
 import { setSendMessage, setReceiveMessage } from "@/app/(redux)/features/chatDataSlice";
+// import {format} from 'timeago.js';
 
 const ChatPage = () => {
   const dispatch = useDispatch();
   const scroll = useRef();
+
   const router = useRouter();
   const user = useSelector((state) => state.chatData.userData);
   const chat = useSelector((state) => state.chatData.currentChat);
-  // console.log("newnewchat: ", chat);
   const receiveMessage = useSelector((state) => state.chatData.receiveMessage);
   const onlineUsers = useSelector((state) => state.socket.onlineUsers);
   const [userData, setUserData] = useState(null);
@@ -45,7 +46,7 @@ const ChatPage = () => {
   }, [receiveMessage])
 
   useEffect(() => {
-    const userId = chat?.members.find((id) => id !== currentUserId);
+    const userId = chat?.members?.find((id) => id !== currentUserId);
     const getuserData = async () => {
       try {
         const { data } = await getUser(userId);
@@ -58,7 +59,7 @@ const ChatPage = () => {
     if (chat !== null) getuserData();
   }, [chat, currentUserId]);
 
-  // fetching data for messages
+
   useEffect(() => {
     const fetchMessages = async () => {
       try {
@@ -91,7 +92,7 @@ const ChatPage = () => {
     } catch (error) {
       console.log(error);
     }
-    const receiverId = chat?.members.find((id) => id !== currentUserId);
+    const receiverId = chat.members.find((id) => id !== currentUserId);
     dispatch(setSendMessage({ ...message, receiverId }));
   }
   const [temp, setTemp] = useState(true);
@@ -116,12 +117,9 @@ const ChatPage = () => {
 
   const checkOnlineStatus = (chat) => {
     const chatMember = chat?.members.find((member) => member !== user.id);
-    // console.log("chatMember: ", chatMember);
     const online = onlineUsers.find((user) => user.userId === chatMember);
     return online ? true : false;
   }
-  // checkOnlineStatus(chat);
-  // console.log("ok: ", onlineUsers);
 
 
   return (
