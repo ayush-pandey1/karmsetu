@@ -1,5 +1,9 @@
 import Application from "@/app/(models)/application";
 import { NextResponse } from "next/server";
+import Project from "@/app/(models)/project";
+import { connect } from "@/config/db";
+
+connect();
 
 export async function POST(req) {
     try {
@@ -33,6 +37,14 @@ export async function POST(req) {
                 status: project.status
             }
         });
+
+        const projectData = await Project.findOneAndUpdate(
+            {_id : project._id},
+            {$addToSet : {applied : [freelancer._id]}},
+            { new: true }                             // Return the updated document
+        );
+
+        console.log(projectData, "After updating applied applied array in project")
 
         // Save the application to the database
         await newApplication.save();

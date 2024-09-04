@@ -31,6 +31,7 @@ export async function GET(req, { params }) {
         if (!project) {
             return NextResponse.json({ message: "Project not found." }, { status: 404 });
         }
+        //console.log(project);
 
         return NextResponse.json({
             message: "Project data successfully retrieved",

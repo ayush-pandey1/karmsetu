@@ -120,7 +120,7 @@ const freelancer = createSlice({
       .addCase(fetchProjects.fulfilled, (state,action) =>{
         const projectsData = action.payload;
         if (Array.isArray(projectsData)) {
-          console.log(projectsData, "Inside Fulfilled State, Array");
+          //console.log(projectsData, "Inside Fulfilled State, Array");
           state.projects = projectsData;
           state.filteredProjects = projectsData;
           state.status = 'succeeded';
