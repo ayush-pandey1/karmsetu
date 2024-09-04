@@ -1,9 +1,71 @@
-import { Separator } from "@/components/ui/separator";
-import Link from "next/link";
-import React from "react";
-import { IoChatbubblesOutline } from "react-icons/io5";
+"use client";
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserData, setCurrentChat } from '@/app/(redux)/features/chatDataSlice';
+import { useEffect, useState } from 'react';
+import Conversation from '@/components/Conversation';
+import { IoChatbubblesOutline } from 'react-icons/io5';
+import { userChats } from '@/services/chatRequest';
+// import { io } from 'socket.io-client';
 
 const MessagesPage = () => {
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.chatData.userData);
+  const currentChat = useSelector((state) => state.chatData.currentChat);
+  // const [sendMessage, setSendMessage] = useState(null);
+  const onlineUsers = useSelector((state) => state.socket.onlineUsers);
+  // const onlineUsers = useSelector((state) => state.socket.onlineUsers);
+
+  const userId = userData?.id;
+  const [chats, setChats] = useState([]);
+  // console.log("new chats: ", chats);
+  // const socket = useRef();
+  // const [onlineUsers, setOnlineUsers] = useState([]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     socket.current = io("http://localhost:8800");
+  //     socket.current.emit("new-user-add", userId);
+  //     socket.current.on("get-users", (users) => {
+  //       setOnlineUsers(users);
+  //       console.log("OnlineUser: ", onlineUsers);
+  //     })
+  //   }
+  // }, [userData])
+  // console.log("user: ", userId);
+
+
+  useEffect(() => {
+    const getChats = async () => {
+      try {
+        const { data } = await userChats(userData?.id);
+        setChats(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (userData) {
+      getChats();
+    }
+  }, [userData]);
+
+  useEffect(() => {
+    const data = sessionStorage.getItem('karmsetu');
+    if (data) {
+      try {
+        const parsedData = JSON.parse(data);
+        dispatch(setUserData(parsedData));
+      } catch (error) {
+        console.error('Invalid session storage data', error);
+      }
+    }
+  }, [dispatch]);
+
+  const checkOnlineStatus = (chat) => {
+    const chatMember = chat.members.find((member) => member !== userId);
+    const online = onlineUsers.find((user) => user.userId === chatMember);
+    return online ? true : false;
+  }
+
   return (
     <>
       <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
@@ -14,9 +76,9 @@ const MessagesPage = () => {
                 <svg
                   fill="none"
                   stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   viewBox="0 0 24 24"
                   className="w-6 h-6 text-gray-300"
                 >
@@ -25,7 +87,7 @@ const MessagesPage = () => {
               </span>
               <input
                 type="search"
-                className="block w-full py-2 pl-10 bg-gray-100  outline-none border border-gray-300 rounded-lg"
+                className="block w-full py-2 pl-10 bg-gray-100 outline-none border border-gray-300 rounded-lg"
                 name="search"
                 placeholder="Search"
                 required
@@ -34,84 +96,17 @@ const MessagesPage = () => {
           </div>
 
           <ul className="overflow-auto h-[32rem]">
-            <div className="my-2 mb-2 ml-2  flex flex-row gap-1 items-center text-xl text-black font-medium">
+            <div className="my-2 mb-2 ml-2 flex flex-row gap-1 items-center text-xl text-black font-medium">
               <IoChatbubblesOutline className="text-green-500" />
               Chats
             </div>
 
             <li>
-              <Link
-                href="/cl/chat"
-                className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none"
-              >
-                <img
-                  className="object-cover w-10 h-10 rounded-full"
-                  src="/images/user/user-07.png"
-                  alt="username"
-                />
-                <div className="w-full pb-2">
-                  <div className="flex justify-between">
-                    <span className="block ml-2 font-semibold text-gray-600">
-                      Jhon Don
-                    </span>
-                    <span className="block ml-2 text-sm text-gray-600">
-                      25 minutes
-                    </span>
-                  </div>
-                  <span className="block ml-2 text-sm text-gray-600">bye</span>
+              {chats && chats.map((chat) => (
+                <div key={chat.id} onClick={() => dispatch(setCurrentChat(chat))}>
+                  <Conversation data={chat} currentUserId={userData?.id} online={checkOnlineStatus(chat)} />
                 </div>
-              </Link>
-
-              <Link
-                href="/cl/messages"
-                className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out bg-gray-100 border-b border-gray-300 cursor-pointer focus:outline-none"
-              >
-                <img
-                  className="object-cover w-10 h-10 rounded-full"
-                  src="/images/user/user-06.png"
-                  alt="username"
-                />
-                <div className="w-full pb-2">
-                  <div className="flex justify-between">
-                    <span className="block ml-2 font-semibold text-gray-600">
-                      Same
-                    </span>
-                    <span className="block ml-2 text-sm text-gray-600">
-                      50 minutes
-                    </span>
-                  </div>
-                  <span className="block ml-2 text-sm text-gray-600">
-                    Good night
-                  </span>
-                </div>
-              </Link>
-
-              <Link
-                href="/cl/messages"
-                className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none"
-              >
-                <img
-                  className="object-cover w-10 h-10 rounded-full"
-                  src="/images/user/user-04.png"
-                  alt="username"
-                />
-                <div className="w-full pb-2">
-                  <div className="flex justify-between">
-                    <span className=" ml-2 font-semibold text-gray-600 flex flex-row gap-1 items-center">
-                      Emma
-                      {/* online Dot */}
-                      <p className="h-1.5 w-1.5 rounded-full bg-green-500"></p>
-                      {/* online Dot */}
-                    </span>
-                    <span className="block ml-2 text-sm text-gray-600">
-                      6 hour
-                    </span>
-                  </div>
-                  <span className="block ml-2 text-sm text-gray-600">
-                    Good Morning
-                  </span>
-                </div>
-              </Link>
+              ))}
             </li>
           </ul>
         </div>
@@ -119,4 +114,5 @@ const MessagesPage = () => {
     </>
   );
 };
+
 export default MessagesPage;

@@ -11,7 +11,7 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
     const [userLocation, setUserLocation] = useState(myCoordinate);
     const [userMarker, setUserMarker] = useState(null);
     const [circle, setCircle] = useState(null);
-    const [markers, setMarkers] = useState([]); // Track markers to clear old ones
+    const [markers, setMarkers] = useState([]); 
     const freelancerId = "";
     const customIcon2 = new L.Icon({
         iconUrl: '/icon-for.png',
@@ -24,7 +24,7 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
     useEffect(() => {
         if (userLocation && userLocation.latitude !== 0) {
             if (!map) {
-                // Initialize map if it doesn't exist
+                
                 const initializedMap = L.map('map', {
                     attributionControl: false
                 }).setView([userLocation.latitude, userLocation.longitude], getZoomLevel(distance));
@@ -54,7 +54,7 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
                 }).addTo(initializedMap);
                 setCircle(circle);
 
-                // Initialize markers array
+                
                 setMarkers([]);
 
                 othersCoordinates && othersCoordinates.forEach(coord => {
@@ -91,12 +91,12 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
                         popupContent
                     );
 
-                    // Remove zoom functionality on click
+               
                     marker.on('click', () => {
-                        // Perform other actions if needed, but don't change the view
+                        
                     });
 
-                    // Add marker to markers array
+                    
                     setMarkers(prevMarkers => [...prevMarkers, marker]);
                 });
 
@@ -139,7 +139,7 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
 
                 setMap(initializedMap);
             } else {
-                // Update map if it already exists
+                
                 map.setView([userLocation.latitude, userLocation.longitude], getZoomLevel(distance), { animate: true });
 
                 if (userMarker) {
@@ -168,11 +168,11 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
                 }).addTo(map);
                 setCircle(newCircle);
 
-                // Remove old markers
+                
                 markers.forEach(marker => map.removeLayer(marker));
                 setMarkers([]);
 
-                // Add new markers
+                
                 othersCoordinates && othersCoordinates.forEach(coord => {
                     const marker = L.marker([coord.coordinates.latitude, coord.coordinates.longitude], { icon: customIcon2 }).addTo(map);
 
@@ -207,12 +207,12 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
                         popupContent
                     );
 
-                    // Remove zoom functionality on click
+                    
                     marker.on('click', () => {
-                        // Perform other actions if needed, but don't change the view
+                       
                     });
 
-                    // Add marker to markers array
+                   
                     setMarkers(prevMarkers => [...prevMarkers, marker]);
                 });
             }
