@@ -93,7 +93,7 @@ const NearbyFreelancersPage = () => {
             myCoordinate={coordinates}
             othersCoordinates={freelancers}
             distance={selectedDistance}
-            selectedFreelancerId={selectedFreelancerId} // Pass the selected ID to MapComponent
+            selectedFreelancerId={selectedFreelancerId}
           />
         ) : (
           <h1>Page is loading...</h1>
@@ -120,7 +120,7 @@ const NearbyFreelancersPage = () => {
               skill={freelancer?.skill}
               bio={freelancer?.bio}
               id={freelancer?._id}
-              onClick={handleFreelancerClick} // Pass the click handler
+              onClick={handleFreelancerClick}
             />
           ))
         ) : (

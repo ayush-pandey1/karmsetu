@@ -1,9 +1,15 @@
 import User from "@/app/(models)/User";
+import connectToDatabase from "@/lib/db";
 import { NextResponse } from "next/server";
+// import mongoose from "mongoose";
+
+// mongoose.connect(process.env.MONGO_URL);
+// mongoose.Promise = global.Promise;
 
 export async function GET() {
+    await connectToDatabase();
     try {
-        // Fetch users with role 'freelancer' and exclude the 'password' field
+        
         const freelancers = await User.find({ role: "freelancer" }).lean().exec();
 
         return NextResponse.json({

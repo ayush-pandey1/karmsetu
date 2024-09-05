@@ -26,7 +26,7 @@ const sidebar = {
     },
   },
 };
-
+console.log("ffffffffffffffffffffffffffffffffff");
 const HeaderMobile = () => {
   const { data: session, status } = useSession();
   const pathname = usePathname();

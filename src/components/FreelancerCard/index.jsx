@@ -5,7 +5,34 @@ import { FaRegStar } from "react-icons/fa";
 import { RiSuitcaseLine } from "react-icons/ri";
 import { Button } from "../ui/button";
 import Link from "next/link";
-const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id , rating}) => {
+import { useDispatch, useSelector } from "react-redux";
+import { createChat } from "@/services/chatRequest";
+import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
+import { useRouter } from 'next/navigation';
+const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id, rating }) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.chatData.userData);
+  const receiverId = id;
+  const senderId = user.id;
+  const router = useRouter();
+  // console.log("senderId: ", senderId, "receiverId: ", receiverId);
+  const handleCreateChat = async () => {
+    try {
+      const response = await createChat(senderId, receiverId);
+      dispatch(setCurrentChat(response?.data))
+      router.push("/cl/chat");
+
+      console.log('Chat created successfully!', response);
+
+      // setSenderId('');
+      // setReceiverId('');
+      console.log('Chat response:', response.data);
+    } catch (error) {
+      console.log('Failed to create chat. Please try again.');
+      console.error('Error creating chat:', error);
+    }
+  };
+
   return (
     <div className="p-4 flex flex-col gap-4  border bg-white border-gray-200  w-72 rounded-xl">
       <div className="flex flex-row items-center gap-3">
@@ -27,7 +54,7 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id , rating})
       </div>
       <div className="flex flex-row gap-2">
         <Button className="w-full bg-primary hover:bg-primaryho shadow-none text-white px-1" ><Link href={`/cl/user/${id}`}>View Profile</Link></Button>
-        <Button className="w-full shadow-none text-black bg-transparent hover:bg-transparent border  border-gray-200" >Chat</Button>
+        <Button className="w-full shadow-none text-black bg-transparent hover:bg-transparent border  border-gray-200" onClick={handleCreateChat}>Chat</Button>
       </div>
     </div >
   );

@@ -52,20 +52,20 @@ const redirect = () => {
                             const data = JSON.parse(sessionStorage.getItem('karmsetu'));
                             setRole(data?.role);
                             setUserData(data);
-                            // Handle the user data here
+
                         } else {
                             console.error("Error:", result.message);
 
-                            // Handle the error here
+
                         }
                     } catch (error) {
                         console.error("Fetch Error:", error);
-                        // Handle the error here
+
                     }
                 }
 
 
-                // Usage example
+
                 fetchUserData(session.user.email);
 
 
@@ -94,7 +94,7 @@ const redirect = () => {
         // }
     }, [user, userData])
     return (
-        <div className="h-screen w-screen"><Loader/></div>
+        <div className="h-screen w-screen"><Loader /></div>
     )
 }
 
