@@ -3,9 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SIDENAV_ITEMS } from '@/constants/client/constants';
-//import { SIDENAV_ITEMS } from '../../constants/client/constants';
 import { Icon } from '@iconify/react';
 import { motion, useCycle } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
 const sidebar = {
   open: (height = 1000) => ({
     clipPath: `circle(${height * 2 + 200}px at 100% 0)`,
@@ -24,12 +26,26 @@ const sidebar = {
     },
   },
 };
-console.log("ffffffffffffffffffffffffffffffffff");
+
 const HeaderMobile = () => {
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const containerRef = useRef(null);
   const { height } = useDimensions(containerRef);
   const [isOpen, toggleOpen] = useCycle(false, true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const userDetails = sessionStorage.getItem("karmsetu");
+    // console.log(userDetails, 'Session Storage Data');
+    if (userDetails && session?.user) {
+    } else if (session?.user && !(userDetails)) {
+      router.push('/auth/redirect');
+    } else if (!(session?.user) && !(userDetails)) {
+      router.push('/auth/signin');
+    }
+  }, []);
+
   return (<motion.nav initial={false} animate={isOpen ? 'open' : 'closed'} custom={height} className={`fixed inset-0 z-50 w-full md:hidden ${isOpen ? '' : 'pointer-events-none'}`} ref={containerRef}>
     <motion.div className="absolute inset-0 right-0 w-full bg-white" variants={sidebar} />
     <motion.ul variants={variants} className="absolute grid w-full gap-3 px-10 py-16 max-h-screen overflow-y-auto">

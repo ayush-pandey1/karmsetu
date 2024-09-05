@@ -30,8 +30,6 @@ const Signin = () => {
       setErrorMessage(res.error || "Login failed");
       // const response = await res.json();
       // setErrorMessage(response.error || "Login failed");
-
-
     } else {
       router.push("/auth/redirect");
     }

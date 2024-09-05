@@ -1,7 +1,4 @@
 "use client";
-// import Lines from "../../components/Lines/index";
-// import ToasterContext from "../context/ToastContext";
-// import ScrollToTop from "../../components/ScrollToTop/index";
 import Lines from "@/components/Lines";
 import ToasterContext from "../context/ToastContext";
 import ScrollToTop from "@/components/ScrollToTop";

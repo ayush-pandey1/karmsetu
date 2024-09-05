@@ -23,10 +23,9 @@ const redirect = () => {
         if (!userData) {
             if (session?.user?.email) {
                 // setUserEmail(session.user.email);
-
                 async function fetchUserData(email) {
                     try {
-                        const response = await fetch('/api/userInfoByEmail', { // Replace with your actual route
+                        const response = await fetch('/api/userInfoByEmail', { 
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

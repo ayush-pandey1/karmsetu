@@ -181,9 +181,9 @@ const ApplicationsPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      {status[app._id] === "accepted" ? (
+                      {app.applicationStatus === "accepted" ? (
                         <Button variant="success" className="bg-green-500 text-white" disabled>Accepted</Button>
-                      ) : status[app._id] === "rejected" ? (
+                      ) : app.applicationStatus === "rejected" ? (
                         <Button variant="destructive" disabled>Rejected</Button>
                       ) : (
                         <>
