@@ -8,8 +8,8 @@ mongoose.Promise = global.Promise;
 export async function PUT(req) {
   try {
     const data = await req.json();
-    const { email, phoneNumber, age, gender, address, companyName, industry, bio, socialMedia, role, coordinates } = data;
-
+    const { email, phoneNumber, age, gender, address, companyName, industry, bio, socialMedia, role, coordinates, photo } = data;
+    console.log(data);
     const updatedUser = await User.findOneAndUpdate(
       { email }, 
       {
@@ -22,6 +22,7 @@ export async function PUT(req) {
         bio,
         socialMedia,
         role,
+        imageLink : photo,
         // if (coordinates.latitude && coordinates.longitude){
           coordinates:{
             latitude:coordinates?.latitude,

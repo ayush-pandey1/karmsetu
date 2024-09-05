@@ -1,28 +1,24 @@
-import cloudinary from '@/lib/cloudinary';
+import { v2 as cloudinary } from 'cloudinary';
+import { NextResponse } from 'next/server';
 
-export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    try {
-        console.log("API request received in the Backend to upload image to cloudinary")
-      const { image } = req.body;
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-      const uploadResponse = await cloudinary.uploader.upload(image, {
-        folder: 'profile_pics', // Optional folder to organize images
-        use_filename: true,
-        unique_filename: false,
-      });
+export async function POST(req) {
+  try {
+    const { image } = await req.json();
 
-      console.log("Image uploaded image to cloudinary from Backend");
-      console.log(uploadResponse.secure_url, "From Backend API")
-      return res.status(200).json({
-        success: true,
-        url: uploadResponse.secure_url,
-      });
-    } catch (error) {
-        console.log(error.message);
-      return res.status(500).json({ success: false, error: error.message });
-    }
-  } else {
-    return res.status(405).json({ message: 'Method not allowed' });
+    const uploadResponse = await cloudinary.uploader.upload(image, {
+      upload_preset: 'karmsetu', // Replace with your preset
+    });
+    console.log(uploadResponse.secure_url, "Image URL");
+    return NextResponse.json({ success: true, url: uploadResponse.secure_url });
+  } catch (error) {
+    console.error("Error uploading to Cloudinary:", error.message);
+    return NextResponse.json({ success: false, message: error.message });
   }
 }

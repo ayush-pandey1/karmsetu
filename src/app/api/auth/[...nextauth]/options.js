@@ -29,6 +29,7 @@ export const options = {
                         fullname: profile.name || profile.login,
                         email,
                         password: null, 
+                        imageLink : ""
                         // role: role,
                     });
                 }
@@ -56,7 +57,8 @@ export const options = {
                     await User.create({
                         fullname: profile.name,
                         email,
-                        password: null, 
+                        password: null,
+                        imageLink : "" 
                         // role: userRole,
                     });
                 }
