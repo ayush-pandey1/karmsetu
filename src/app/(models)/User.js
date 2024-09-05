@@ -25,7 +25,8 @@ const userSchema = new Schema({
     coordinates: {
         latitude:  { type: Number ,default: null },
         longitude: { type: Number ,default: null },
-      }
+      },
+    imageLink : {type : String}
 }, {
     timestamps: true,
 });

@@ -174,9 +174,32 @@ const OnboardingFreelancer = () => {
     }
   };
 
-  const handlePhotoChange = (e) => {
+  const handleImageUpload = (e) => {
     setPhoto(URL.createObjectURL(e.target.files[0]));
   };
+  
+  // const handleImageUpload = (file) => {
+  //   console.log("HandleImageUpload Function called")
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(file);
+  
+  //   reader.onloadend = async () => {
+  //     const imageData = reader.result;
+  
+  //     const response = await fetch('/api/imageUpload', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({ image: imageData }),
+  //     });
+  //     console.log("API called to upload image to cloudinary");
+  //     const data = await response.json();
+  //     if (data.success) {
+  //       console.log(data.url);
+  //       setProfileImageUrl(data.url); // Save the image URL
+  //     }
+  //   };
+  // };
+  
 
   useEffect(() => {
     switch (form.watch("professionalTitle")) {
@@ -248,7 +271,7 @@ const OnboardingFreelancer = () => {
                     id="photoUpload"
                     type="file"
                     accept="image/*"
-                    onChange={handlePhotoChange}
+                    onChange={handleImageUpload}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </label>

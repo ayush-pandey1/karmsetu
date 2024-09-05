@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
 import {fetchProjects, filterByBudget, filterByCategory, filterByRating, filterBySearch} from "@/app/(redux)/features/freelancerProjects"
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -26,6 +27,7 @@ export default function Home() {
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState();
   // const [count, setCount] = useState(0);
+  const router = useRouter();
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
@@ -37,7 +39,10 @@ export default function Home() {
 
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    setUserData(data);
+    console.log(data, 'Session Storage Data');
+    if(data){
+      setUserData(data);
+    }
   }, []);
 
   // if (userData) {
