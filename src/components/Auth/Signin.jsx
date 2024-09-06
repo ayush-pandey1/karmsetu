@@ -39,8 +39,8 @@ const Signin = () => {
 
   return (<>
     {/* <!-- ===== SignIn Form Start ===== --> */}
-    <section className="pb-12.5 pt-32.5 lg:pb-25 lg:pt-45 xl:pb-30 xl:pt-50">
-      <div className="relative z-1 mx-auto max-w-c-1016 px-7.5 pb-7.5 pt-10 lg:px-15 lg:pt-15 xl:px-20 xl:pt-20">
+    <section className="pb-12.5 lg:pb-25 lg:pt-10 xl:pb-30">
+      <div className="relative z-1 mx-auto max-w-c-1016 px-7.5 pb-7.5 pt-10 lg:px-15 lg:pt-10 xl:px-20 ">
         <div className="absolute left-0 top-0 -z-1 h-2/3 w-full rounded-lg bg-gradient-to-t from-transparent to-[#dee7ff47] dark:bg-gradient-to-t dark:to-[#252A42]"></div>
         <div className="absolute bottom-17.5 left-0 -z-1 h-1/3 w-full">
           <Image src="/images/shape/shape-dotted-light.svg" alt="Dotted" className="dark:hidden" fill />
@@ -56,14 +56,18 @@ const Signin = () => {
             opacity: 1,
             y: 0,
           },
-        }} initial="hidden" whileInView="visible" transition={{ duration: 1, delay: 0.1 }} viewport={{ once: true }} className="animate_top rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15">
-          <h2 className="mb-15 text-center text-3xl font-semibold text-black dark:text-white xl:text-sectiontitle2">
+        }} initial="hidden" whileInView="visible" transition={{ duration: 1, delay: 0.1 }} viewport={{ once: true }} className="animate_top border border-primary border-opacity-25 rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15">
+           <div className=" w-full  p-2 flex justify-center ">
+        <Image src="/images/karmsetuLogo-cropped.svg" width="0" height="0" className="w-[12rem] h-auto"/>
+        </div>
+          <div className="mb-10 text-center text-xl font-semibold text-black dark:text-white xl:text-2xl flex justify-center">
             Login to Your Account
-          </h2>
+          </div>
+         
           <div className="flex flex-col">
             <div className="flex items-center gap-8">
-              <button aria-label="sign with google" onClick={() => signIn("google", { callbackUrl: "/auth/redirect" })} className="text-body-color dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
-                <span className="mr-3">
+              <button aria-label="sign with google" onClick={() => signIn("google", { callbackUrl: "/auth/redirect" })} className="text-body-color dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center sm:rounded-sm border border-stroke bg-[#f8f8f8] p-3 sm:px-6 sm:py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none rounded-full">
+                <span className="mr-0 sm:mr-3">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clipPath="url(#clip0_95:967)">
                       <path d="M20.0001 10.2216C20.0122 9.53416 19.9397 8.84776 19.7844 8.17725H10.2042V11.8883H15.8277C15.7211 12.539 15.4814 13.1618 15.1229 13.7194C14.7644 14.2769 14.2946 14.7577 13.7416 15.1327L13.722 15.257L16.7512 17.5567L16.961 17.5772C18.8883 15.8328 19.9997 13.266 19.9997 10.2216" fill="#4285F4" />
@@ -78,16 +82,20 @@ const Signin = () => {
                     </defs>
                   </svg>
                 </span>
+                <span className="sm:block hidden">
                 Signup with Google
+                </span>
               </button>
 
-              <button aria-label="signup with github" onClick={() => signIn("github", { callbackUrl: "/auth/redirect" })} className="text-body-color dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center rounded-sm border border-stroke bg-[#f8f8f8] px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none">
-                <span className="mr-3">
+              <button aria-label="signup with github" onClick={() => signIn("github", { callbackUrl: "/auth/redirect" })} className="text-body-color dark:text-body-color-dark dark:shadow-two mb-6 flex w-full items-center justify-center sm:rounded-sm border border-stroke bg-[#f8f8f8] p-3 sm:px-6 sm:py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-transparent dark:bg-[#2C303B] dark:hover:border-primary dark:hover:bg-primary/5 dark:hover:text-primary dark:hover:shadow-none rounded-full">
+                <span className="mr-0 sm:mr-3">
                   <svg fill="currentColor" width="22" height="22" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
                     <path d="M32 1.7998C15 1.7998 1 15.5998 1 32.7998C1 46.3998 9.9 57.9998 22.3 62.1998C23.9 62.4998 24.4 61.4998 24.4 60.7998C24.4 60.0998 24.4 58.0998 24.3 55.3998C15.7 57.3998 13.9 51.1998 13.9 51.1998C12.5 47.6998 10.4 46.6998 10.4 46.6998C7.6 44.6998 10.5 44.6998 10.5 44.6998C13.6 44.7998 15.3 47.8998 15.3 47.8998C18 52.6998 22.6 51.2998 24.3 50.3998C24.6 48.3998 25.4 46.9998 26.3 46.1998C19.5 45.4998 12.2 42.7998 12.2 30.9998C12.2 27.5998 13.5 24.8998 15.4 22.7998C15.1 22.0998 14 18.8998 15.7 14.5998C15.7 14.5998 18.4 13.7998 24.3 17.7998C26.8 17.0998 29.4 16.6998 32.1 16.6998C34.8 16.6998 37.5 16.9998 39.9 17.7998C45.8 13.8998 48.4 14.5998 48.4 14.5998C50.1 18.7998 49.1 22.0998 48.7 22.7998C50.7 24.8998 51.9 27.6998 51.9 30.9998C51.9 42.7998 44.6 45.4998 37.8 46.1998C38.9 47.1998 39.9 49.1998 39.9 51.9998C39.9 56.1998 39.8 59.4998 39.8 60.4998C39.8 61.2998 40.4 62.1998 41.9 61.8998C54.1 57.7998 63 46.2998 63 32.5998C62.9 15.5998 49 1.7998 32 1.7998Z" />
                   </svg>
                 </span>
+                <span className="sm:block hidden">
                 Signup with Github
+                </span>
               </button>
             </div>
           </div>

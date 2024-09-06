@@ -31,6 +31,7 @@ const Header = () => {
                 className=""
                 width="35"
                 height="35"
+                alt="gov punjab"
               />{" "}
             </span>
             {/* <span className="flex text-xl font-bold ">Karmsetu</span> */}
@@ -40,6 +41,7 @@ const Header = () => {
                 width="0"
                 height="0"
                 className="w-auto h-auto"
+                alt="karmsetu logo"
               />
             </span>
           </Link>
