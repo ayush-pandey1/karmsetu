@@ -306,7 +306,7 @@ const Home = () => {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-2 justify-between">
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-2 items-center">
               <div className="bg-white max-h-10 min-w-64 flex flex-row items-center gap-1 pl-2 rounded-md ">
                 <HiMiniMagnifyingGlass className="text-xl" />
                 <Input

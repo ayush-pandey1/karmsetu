@@ -1,7 +1,16 @@
-"use client"
-import FreelancerCard from '@/components/FreelancerCard';
-import MapComponent from '@/components/CmapComponent';
-import React, { useEffect, useState } from 'react';
+"use client";
+import FreelancerCard from "@/components/FreelancerCard";
+import MapComponent from "@/components/CmapComponent";
+import React, { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GrMap } from "react-icons/gr";
+import { PiMapPinAreaFill } from "react-icons/pi";
 
 const NearbyFreelancersPage = () => {
   const [freelancers, setFreelancers] = useState([]);
@@ -25,19 +34,20 @@ const NearbyFreelancersPage = () => {
   };
 
   useEffect(() => {
-    const data1 = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const data1 = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data1);
     const id = data1?.id;
 
     const fetchFreelancers = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/nearby/client/${id}?distance=${selectedDistance}`);
+        const response = await fetch(
+          `/api/nearby/client/${id}?distance=${selectedDistance}`
+        );
         const result = await response.json();
 
         if (response.ok) {
           setFreelancers(result.nearbyFreelancers);
-
         } else {
           console.error("Error fetching freelancers:", result.error);
         }
@@ -85,50 +95,82 @@ const NearbyFreelancersPage = () => {
 
   return (
     <>
-      <div>NearbyFreelancersPage</div>
-      <div className="App">
-        <h1>My Leaflet Map</h1>
-        {coordinates.latitude ? (
-          <MapComponent
-            myCoordinate={coordinates}
-            othersCoordinates={freelancers}
-            distance={selectedDistance}
-            selectedFreelancerId={selectedFreelancerId} // Pass the selected ID to MapComponent
-          />
-        ) : (
-          <h1>Page is loading...</h1>
-        )}
-      </div>
-      <div>
-        <label htmlFor="distance">Select distance (km): </label>
-        <select id="distance" value={selectedDistance} onChange={handleDistanceChange}>
-          {distances.map((distance) => (
-            <option key={distance} value={distance}>
-              {distance} km
-            </option>
-          ))}
-        </select>
-        <p>Selected distance: {selectedDistance} km</p>
-      </div>
-      <div style={{ display: "flex", flexDirection: "row", gap: "2", width: "100%", flexWrap: "wrap" }}>
-        {freelancers.length > 0 ? (
-          freelancers.map(freelancer => (
-            <FreelancerCard
-              key={freelancer?._id}
-              fullname={freelancer?.fullname}
-              professionalTitle={freelancer?.professionalTitle}
-              skill={freelancer?.skill}
-              bio={freelancer?.bio}
-              id={freelancer?._id}
-              onClick={handleFreelancerClick} // Pass the click handler
+      <div className="flex flex-col gap-5  mx-3 sm:mx-10 mt-2">
+        <div className="flex flex-col gap-1">
+          <div className="text-black font-bold text-lg sm:text-2xl  border-l-4 border-l-green-500 px-2 leading-none ">
+            Discover Freelancers Near You
+          </div>
+          <div className=" font-medium text-xs sm:text-md  leading-none pl-[14px]">
+            Find skilled professionals in your area and hire with confidence
+          </div>
+        </div>
+        <div className="App">
+          {/* <h1>Nearby</h1> */}
+          {coordinates.latitude ? (
+            <MapComponent
+              myCoordinate={coordinates}
+              othersCoordinates={freelancers}
+              distance={selectedDistance}
+              selectedFreelancerId={selectedFreelancerId} // Pass the selected ID to MapComponent
             />
-          ))
-        ) : (
-          <p>No freelancers available</p>
-        )}
+          ) : (
+            <h1>Page is loading...</h1>
+          )}
+        </div>
+
+        <div>
+          <span className="text-black font-bold text-xl md:text-3xl  flex flex-row items-center gap-1">
+            <GrMap className="text-primary" />
+            Freelancers within <span className="text-green-600">{selectedDistance} km</span> range
+          </span>
+        </div>
+
+        <div>
+          <label htmlFor="distance" className="text-black font-medium text-xl">Select distance (km): </label>
+          <select
+            id="distance"
+            value={selectedDistance}
+            onChange={handleDistanceChange}
+            className=" rounded-md text-lg px-2 py-1 border "
+          >
+            {distances.map((distance) => (
+              <option key={distance} value={distance} className="">
+                {distance} km
+              </option>
+            ))}
+          </select>
+         
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "2",
+            width: "100%",
+            flexWrap: "wrap",
+          }}
+          className="gap-2 mb-3"
+        >
+          {freelancers.length > 0 ? (
+            freelancers.map((freelancer) => (
+              <FreelancerCard
+                key={freelancer?._id}
+                fullname={freelancer?.fullname}
+                professionalTitle={freelancer?.professionalTitle}
+                skill={freelancer?.skill}
+                bio={freelancer?.bio}
+                id={freelancer?._id}
+                onClick={handleFreelancerClick} // Pass the click handler
+              />
+            ))
+          ) : (
+            <p>No freelancers available</p>
+          )}
+        </div>
       </div>
     </>
   );
-}
+};
 
 export default NearbyFreelancersPage;

@@ -22,6 +22,17 @@ import { useForm } from "react-hook-form";
 import { Textarea } from "../ui/textarea.jsx";
 import { Input } from "../ui/input.jsx";
 import { Button } from "../ui/button.jsx";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+  DialogDescription,
+} from "../ui/dialog.jsx";
+  
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -29,7 +40,8 @@ import { useRouter } from "next/navigation.js";
 import { LuClipboardList } from "react-icons/lu";
 import { TbListDetails } from "react-icons/tb";
 import { BsBriefcase } from "react-icons/bs";
-import { GiSkills } from "react-icons/gi";
+import { GiSkills, GiProgression } from "react-icons/gi";
+import { MdAdd, MdDeleteForever, MdOutlineEdit } from "react-icons/md";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { GiSandsOfTime } from "react-icons/gi";
 import { projectCategories } from "./projectCategory.js";
@@ -44,6 +56,7 @@ import {
   socialMediaMarketingSkills,
 } from "./skills.js";
 import { Checkbox } from "../ui/checkbox.jsx";
+import { Label } from "../ui/label.jsx";
 
 const createJobSchema = z.object({
   title: z
@@ -64,7 +77,6 @@ const createJobSchema = z.object({
 });
 
 const CreateJobForm = () => {
-
   const [userData, setUserData] = useState();
   const [count, setCount] = useState(0);
   const [coordinates, setCoordinates] = useState({
@@ -126,7 +138,6 @@ const CreateJobForm = () => {
   const onSubmitForm = async (values) => {
     console.log("Form Values:", values);
     try {
-
       console.log("asas: ", values);
       if (!coordinates.latitude || !coordinates.longitude) {
         console.error("Geolocation data is not available yet.");
@@ -188,11 +199,75 @@ const CreateJobForm = () => {
     }
   }, [form.watch("projectCategory")]);
 
+  // MileStone Feature
+  const [milestones, setMilestones] = useState([]);
+  const [totalPercentage, setTotalPercentage] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [milestoneData, setMilestoneData] = useState({
+    title: "",
+    description: "",
+    amount: "",
+  });
+
+  const handleAddMilestone = () => {
+    const { percentage } = newMilestone;
+
+    if (totalPercentage + percentage > 100) {
+      toast.error("Total milestone percentage cannot exceed 100%");
+      return;
+    }
+
+    setMilestones([...milestones, newMilestone]);
+    setTotalPercentage(totalPercentage + percentage);
+    setNewMilestone({ description: "", percentage: 0 });
+    setIsDialogOpen(false);
+  };
+
+  const handleOpenDialog = (milestone = null, index = null) => {
+    if (milestone) {
+      setMilestoneData(milestone);
+      setSelectedMilestone(index);
+    } else {
+      setMilestoneData({ title: "", description: "", amount: "" });
+      setSelectedMilestone(null);
+    }
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setMilestoneData({ title: "", description: "", amount: "" });
+  };
+
+  const handleChangeMilestone = (e) => {
+    const { name, value } = e.target;
+    setMilestoneData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSave = () => {
+    if (selectedMilestone !== null) {
+      const updatedMilestones = milestones.map((milestone, index) =>
+        index === selectedMilestone ? milestoneData : milestone
+      );
+      setMilestones(updatedMilestones);
+    } else {
+      setMilestones([...milestones, milestoneData]);
+    }
+    handleCloseDialog();
+  };
+
+  const handleRemove = (index) => {
+    setMilestones(milestones.filter((_, i) => i !== index));
+  };
+
   return (
     <div className="flex flex-col ">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-8 mb-4">
-
+        <form
+          onSubmit={form.handleSubmit(onSubmitForm)}
+          className="space-y-8 mb-4"
+        >
           <FormField
             control={form.control}
             name="title"
@@ -246,7 +321,7 @@ const CreateJobForm = () => {
             control={form.control}
             name="projectCategory"
             render={({ field }) => (
-              <FormItem >
+              <FormItem>
                 <FormLabel className="text-black font-bold flex flex-row items-center gap-1">
                   <span>
                     <BsBriefcase className="text-primary" />
@@ -263,18 +338,18 @@ const CreateJobForm = () => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent className="overflow-hidden">
-                    {projectCategories && projectCategories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
-                      </SelectItem>
-                    ))}
+                    {projectCategories &&
+                      projectCategories.map((category) => (
+                        <SelectItem key={category.value} value={category.value}>
+                          {category.label}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
-
 
           <FormField
             control={form.control}
@@ -286,8 +361,12 @@ const CreateJobForm = () => {
                     <FormLabel className="font-semibold text-black dark:text-white">
                       Skills
                     </FormLabel>
-                    <FormDescription>
-                      Select the skills you want to add to your profile.
+                    <FormDescription className="">
+                      First select the{" "}
+                      <span className="text-blue-500 font-medium">
+                        project category,{" "}
+                      </span>
+                      then skills.
                     </FormDescription>
                   </div>
                   <div className="flex flex-wrap gap-4">
@@ -321,6 +400,7 @@ const CreateJobForm = () => {
             }}
           />
 
+
           <FormField
             control={form.control}
             name="budget"
@@ -346,6 +426,114 @@ const CreateJobForm = () => {
             )}
           />
 
+          <div>
+            <div className="">
+              <FormLabel className="text-black font-bold flex flex-row items-center gap-1 mb-5">
+                <GiProgression className="text-primary" />
+                Project Milestones
+              </FormLabel>
+              {milestones.map((milestone, index) => (
+                <div key={index} className="milestone-card flex flex-col ">
+                  <div className="flex flex-col border-l-[3px] border-l-green-500 px-2 gap-2 mb-3">
+                    <span className="leading-none text-sm">
+                      <span className="text-black font-semibold text-md">
+                        Title:
+                      </span>{" "}
+                      {milestone.title}
+                    </span>
+                    <span className="leading-[16px] text-sm">
+                      <span className="text-black font-semibold text-md">
+                        Description:
+                      </span>{" "}
+                      {milestone.description}
+                    </span>
+                    <span className="leading-none text-green-500 text-sm">
+                      <span className="text-black font-semibold text-md">
+                        Amount:{" "}
+                      </span>
+                      {milestone.amount}%
+                    </span>
+                  </div>
+                  <div className="actions mb-2 flex flex-row items-center">
+                    <Button
+                      onClick={() => handleOpenDialog(milestone, index)}
+                      className="button bg-transparent hover:bg-transparent focus:bg-transparent shadow-none text-blue-500 flex flex-row items-center gap-1"
+                    >
+                      Edit
+                      <MdOutlineEdit />
+                    </Button>
+                    <Button
+                      onClick={() => handleRemove(index)}
+                      className="button bg-transparent hover:bg-transparent focus:bg-transparent shadow-none text-red-500 flex flex-row items-center  gap-1"
+                    >
+                      Remove
+                      <MdDeleteForever />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Button
+              onClick={() => handleOpenDialog()}
+              className="button px-2 py-0 mt-0 text-primary bg-transparent hover:bg-transparent hover:text-primaryho shadow-none flex flex-row gap- items-center text-sm"
+            >
+              Add Milestone
+              <MdAdd />
+            </Button>
+
+            <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+              <DialogContent className="gap-2">
+                <DialogTitle className="text-black">
+                  {selectedMilestone !== null
+                    ? "Edit Milestone"
+                    : "Add Milestone"}
+                </DialogTitle>
+                <DialogDescription>
+                  Add a milestone with amount.
+                </DialogDescription>
+                <div className="flex flex-col space-y-4">
+                  <Input
+                    type="text"
+                    name="title"
+                    value={milestoneData.title}
+                    onChange={handleChangeMilestone}
+                    placeholder="Title"
+                    className="input "
+                  />
+                  <Textarea
+                    name="description"
+                    value={milestoneData.description}
+                    onChange={handleChangeMilestone}
+                    placeholder="Description"
+                    className="textarea"
+                  />
+                  <Input
+                    type="number"
+                    name="amount"
+                    value={milestoneData.amount}
+                    onChange={handleChangeMilestone}
+                    placeholder="Amount"
+                    className="input"
+                  />
+                </div>
+                <div className="mt-4 flex justify-end space-x-2">
+                  <Button
+                    className="button bg-transparent hover:bg-transparent focus:bg-transparent text-red-500 shadow-none"
+                    onClick={handleCloseDialog}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="button bg-green-500 hover:bg-green-700 focus:bg-green-500 px-4"
+                    onClick={handleSave}
+                  >
+                    Save
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
           <FormField
             control={form.control}
             name="duration"
@@ -369,10 +557,12 @@ const CreateJobForm = () => {
             )}
           />
 
-          <Button type="submit" className="bg-primary hover:bg-primary active:bg-primaryho text-white">
+          <Button
+            type="submit"
+            className="bg-primary hover:bg-primary active:bg-primaryho text-white"
+          >
             Submit
           </Button>
-
         </form>
       </Form>
     </div>
