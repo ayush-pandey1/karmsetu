@@ -9,15 +9,31 @@ import { IoChatbubblesOutline, IoCalendarOutline } from "react-icons/io5";
 import { MdOutlineCurrencyRupee } from "react-icons/md";
 import { RxCross2 } from "react-icons/rx";
 import { FaClipboardList } from "react-icons/fa";
+import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { createChat } from "@/services/chatRequest";
+import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState({}); // To track each application's status
+  const [status, setStatus] = useState({});
 
+  const [senderId, setSenderId] = useState();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.chatData.userData);
+  console.log("newuser: ", user)
+  // const receiverId = id;
+  // const senderId = user.id;
   useEffect(() => {
-    console.log(status);
-  }, [status])
+    setSenderId(user?.id);
+  }, [user])
+
+  const router = useRouter();
+
+  // useEffect(() => {
+  //   console.log(status);
+  // }, [status])
 
 
   useEffect(() => {
@@ -33,8 +49,10 @@ const ApplicationsPage = () => {
       const result = await res.json();
       if (res.ok) {
         setApplications(result.applications);
+        //console.log("Application data fetched");
       } else {
         console.error(result.message);
+        //console.log("Application data not fetched");
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -44,36 +62,36 @@ const ApplicationsPage = () => {
   };
 
   // Function to handle the accept click
-  const handleAcceptClick = async (appId, projectId, freelancerId) => {
-    // Update the status immediately for the button change
-    setStatus((prev) => ({ ...prev, [appId]: "accepted" }));
+  const handleStatus = async (appId, projectId, freelancerId, newStatus) => {
+
 
     try {
+      // Update the status immediately for the button change
+      //console.log(newStatus, freelancerId);
+
+      setStatus((prev) => ({ ...prev, [appId]: newStatus }));
+      //console.log(JSON.stringify({ freelancerId, newStatus }), "Converting JS to JSON");
       const response = await fetch(`/api/applicationAccepted/${projectId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ freelancerId }),
+        body: JSON.stringify({ freelancerId, newStatus })
       });
-
+      //console.log("Put Request API called");
       const data = await response.json();
-      console.log("data: ", data);
+      //console.log("data: ", data);
+
       if (!data.success) {
-        // If API fails, reset the button status
+
         setStatus((prev) => ({ ...prev, [appId]: null }));
         console.error("Failed to accept the application");
       }
     } catch (error) {
-      // Handle error and reset the button status
+
       setStatus((prev) => ({ ...prev, [appId]: null }));
       console.error("Error accepting application:", error);
     }
-  };
-
-  // Function to handle the reject click
-  const handleRejectClick = (appId) => {
-    setStatus((prev) => ({ ...prev, [appId]: "rejected" })); // Update status to rejected
   };
 
   if (loading) {
@@ -83,6 +101,25 @@ const ApplicationsPage = () => {
       </div>
     );
   }
+
+  // console.log("senderId: ", senderId, "receiverId: ", receiverId);
+  const handleCreateChat = async (receiverId) => {
+    // console.log(senderId, receiverId, chat);
+    try {
+      const response = await createChat(senderId, receiverId);
+      dispatch(setCurrentChat(response?.data))
+      console.log("code: ", senderId, receiverId, response?.data);
+      router.push("/cl/chat");
+
+      console.log('Chat created successfully!', response);
+
+
+    } catch (error) {
+      console.log('Failed to create chat. Please try again.');
+      console.error('Error creating chat:', error);
+    }
+  };
+
 
   return (
     <div className="flex flex-col gap-20">
@@ -144,31 +181,33 @@ const ApplicationsPage = () => {
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      {status[app._id] === "accepted" ? (
+                      {app.applicationStatus === "accepted" ? (
                         <Button variant="success" className="bg-green-500 text-white" disabled>Accepted</Button>
-                      ) : status[app._id] === "rejected" ? (
+                      ) : app.applicationStatus === "rejected" ? (
                         <Button variant="destructive" disabled>Rejected</Button>
                       ) : (
                         <>
                           <Button
                             variant="accept"
                             className="flex items-center space-x-2 px-3 sm:px-4"
-                            onClick={() => handleAcceptClick(app._id, app.project?.id, app.freelancer?.id)}
+                            onClick={(event) => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'accepted', event)}
+                            name="accept"
                           >
                             <CheckIcon className="w-5 h-5" />
                             <span>Accept</span>
                           </Button>
                           <Button
                             variant="destructive"
+                            name='reject'
                             className="flex items-center space-x-2 px-3 sm:px-4"
-                            onClick={() => handleRejectClick(app._id)}
+                            onClick={(event) => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'rejected', event)}
                           >
                             <RxCross2 className="w-5 h-5" />
                             <span>Reject</span>
                           </Button>
                         </>
                       )}
-                      <Button variant="outline" className="flex items-center space-x-2 px-3 sm:px-4">
+                      <Button variant="outline" className="flex items-center space-x-2 px-3 sm:px-4" onClick={() => handleCreateChat(app._id)}>
                         <IoChatbubblesOutline className="w-5 h-5" />
                         <span>Chat</span>
                       </Button>

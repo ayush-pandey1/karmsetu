@@ -48,10 +48,10 @@ export const fetchProjects = createAsyncThunk(
     const { projects } = getState();
     if (!(freelancer.projectsFetched)) {
       try {
-        console.log("API called to fetch projects for fl page")
+        //console.log("API called to fetch projects for fl page")
         const apiUrl = `/api/projects/Project`;
         const response = await axios.get(apiUrl);
-        console.log(response.data);
+        //console.log(response.data);
         if (response.data.empty) {
           return response.data.empty;
         } else {
@@ -120,7 +120,7 @@ const freelancer = createSlice({
       .addCase(fetchProjects.fulfilled, (state,action) =>{
         const projectsData = action.payload;
         if (Array.isArray(projectsData)) {
-          console.log(projectsData, "Inside Fulfilled State, Array");
+          //console.log(projectsData, "Inside Fulfilled State, Array");
           state.projects = projectsData;
           state.filteredProjects = projectsData;
           state.status = 'succeeded';

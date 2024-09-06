@@ -106,7 +106,7 @@ const MapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
           ReactDOM.render(
             <div className="flex flex-col gap-4  bg-white border-gray-200 w-72 rounded-xl">
               <div className="flex flex-row items-center gap-3">
-                <Link href="/cl/user/276">
+                <Link href={`/cl/user/${coord._id}`}>
                   <Image
                     src="/images/user/user-02.png"
                     height="45"

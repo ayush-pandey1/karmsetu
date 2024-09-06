@@ -23,10 +23,9 @@ const redirect = () => {
         if (!userData) {
             if (session?.user?.email) {
                 // setUserEmail(session.user.email);
-
                 async function fetchUserData(email) {
                     try {
-                        const response = await fetch('/api/userInfoByEmail', { // Replace with your actual route
+                        const response = await fetch('/api/userInfoByEmail', { 
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -53,20 +52,20 @@ const redirect = () => {
                             const data = JSON.parse(sessionStorage.getItem('karmsetu'));
                             setRole(data?.role);
                             setUserData(data);
-                            // Handle the user data here
+
                         } else {
                             console.error("Error:", result.message);
 
-                            // Handle the error here
+
                         }
                     } catch (error) {
                         console.error("Fetch Error:", error);
-                        // Handle the error here
+
                     }
                 }
 
 
-                // Usage example
+
                 fetchUserData(session.user.email);
 
 
@@ -95,7 +94,7 @@ const redirect = () => {
         // }
     }, [user, userData])
     return (
-        <div className="h-screen w-screen"><Loader/></div>
+        <div className="h-screen w-screen"><Loader /></div>
     )
 }
 

@@ -41,7 +41,6 @@ import Loader from "@/components/Loader";
 import Loader2 from "@/components/Loader2";
 
 
-
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
@@ -53,7 +52,7 @@ const Home = () => {
     longitude: 0,
   });
 
-    //To get user details from sessionStorage
+  //To get user details from sessionStorage
   useEffect(() => {
     const data = sessionStorage.getItem("karmsetu");
     if (data) {
@@ -387,7 +386,7 @@ const Home = () => {
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="max-w-72">
                 <div className="price-range">
                   <span className="text-sm text-black font-medium">

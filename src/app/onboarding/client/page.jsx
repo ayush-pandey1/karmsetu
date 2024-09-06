@@ -35,6 +35,7 @@ import {
   FaGlobe,
   FaUpload,
 } from "react-icons/fa";
+
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   phoneNumber: z
@@ -60,7 +61,10 @@ const OnboardingClient = () => {
   const [role, setRole] = useState("");
   const router = useRouter();
   const [userData, setUserData] = useState();
+  const [profileImageUrl, setProfileImageUrl] = useState(""); // State to store uploaded image URL
+  const [selectedFile, setSelectedFile] = useState(null);
 
+  // Set role from URL path
   useEffect(() => {
     const path = window.location.pathname;
     const segments = path.split("/");
@@ -68,6 +72,7 @@ const OnboardingClient = () => {
     setRole(extractedRole);
   }, []);
 
+  // Set user email from session or sessionStorage
   useEffect(() => {
     if (session?.user?.email) {
       setUserEmail(session.user.email);
@@ -110,7 +115,7 @@ const OnboardingClient = () => {
       gender: "",
       industry: "",
       role: role,
-      photo: null, // New photo default value
+      photo: "", // New photo default value
     },
   });
 
@@ -126,14 +131,52 @@ const OnboardingClient = () => {
     }
   }, [userEmail, form]);
 
+    // Handle file change for image upload
+    const handleFileChange = (e) => {
+      if(e.target.files){
+      console.log(e.target.files[0])
+      setSelectedFile(e.target.files[0]);
+      }
+    };
+
+    // Handle image upload to Cloudinary
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      console.log("Please select an image first.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+
+    reader.onloadend = async () => {
+      const imageData = reader.result;
+
+      try {
+        const response = await fetch("/api/imageUpload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageData }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setProfileImageUrl(data.url); // Set the image URL for submission
+          form.setValue("photo", data.url); // Set the photo field value in the form
+          console.log("Image uploaded successfully!", data.url);
+        } else {
+          console.error("Image upload failed.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error.message);
+      } 
+    };
+  };
+
+
   const onSubmit = async (values) => {
-    // const formData = new FormData();
-
-    // for (const key in values) {
-    //   formData.append(key, values[key]);
-    // }
-
     try {
+      await handleImageUpload();
       const response = await fetch("/api/CpersonalDetails", {
         method: "PUT",
         headers: {
@@ -147,16 +190,13 @@ const OnboardingClient = () => {
       if (response.ok) {
         console.log("User updated successfully:", result);
         console.log("userdata", userData);
-        // if (userData?.role === "client") {
         router.push("/auth/redirect");
-
-
       } else {
         console.error("Failed to update user:", result.message);
       }
 
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error submitting form:", error.message);
     }
   };
 
@@ -182,7 +222,7 @@ const OnboardingClient = () => {
               <FormField
                 control={form.control}
                 name="photo"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel className="font-semibold text-gray-800 flex items-center">
                       <FaUser className="mr-2 text-blue-600" /> Upload Photo
@@ -195,21 +235,19 @@ const OnboardingClient = () => {
                         >
                           <FaUpload className="mr-2" /> Choose File
                         </label>
-                        <input
+                        <Input
                           id="photo-upload"
                           type="file"
                           accept="image/*"
-                          onChange={(e) =>
-                            form.setValue("photo", e.target.files[0])
-                          }
+                          onChange={handleFileChange}
                           className="hidden" // Hide the default file input
                         />
-                        {field.value && (
+                        {profileImageUrl && (
                           <div className="w-16 h-16 rounded-full overflow-hidden border border-blue-600">
                             <img
-                              src={URL.createObjectURL(field.value)}
-                              alt="Preview"
+                              src={profileImageUrl}
                               className="w-full h-full object-cover"
+                              alt="Profile" 
                             />
                           </div>
                         )}

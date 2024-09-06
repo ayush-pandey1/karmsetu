@@ -79,7 +79,8 @@ const OnboardingFreelancer = () => {
   const [role, setRole] = useState("");
   const [photo, setPhoto] = useState(null);
   const [userData, setUserData] = useState();
-
+  const [profileImageUrl, setProfileImageUrl] = useState(""); // State to store uploaded image URL
+  const [selectedFile, setSelectedFile] = useState(null);
 
 
   const router = useRouter();
@@ -119,6 +120,7 @@ const OnboardingFreelancer = () => {
       setRole(data?.role);
     }
   }, [session, role]);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -133,6 +135,7 @@ const OnboardingFreelancer = () => {
       professionalTitle: "",
       skills: [],
       role: role,
+      photo: ""
     },
   });
 
@@ -148,7 +151,52 @@ const OnboardingFreelancer = () => {
     }
   }, [userEmail, form]);
 
+  // Handle file change for image upload
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      console.log(e.target.files[0])
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  // Handle image upload to Cloudinary
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      console.log("Please select an image first.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+
+    reader.onloadend = async () => {
+      const imageData = reader.result;
+
+      try {
+        const response = await fetch("/api/imageUpload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageData }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          setProfileImageUrl(data.url); // Set the image URL for submission
+          form.setValue("photo", data.url); // Set the photo field value in the form
+          console.log("Image uploaded successfully!", data.url);
+        } else {
+          console.error("Image upload failed.");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error.message);
+      }
+    };
+  };
+
+
+
   const onSubmit = async (data) => {
+    await handleImageUpload();
     console.log(data);
     console.log("role: ", role);
     try {
@@ -174,9 +222,7 @@ const OnboardingFreelancer = () => {
     }
   };
 
-  const handlePhotoChange = (e) => {
-    setPhoto(URL.createObjectURL(e.target.files[0]));
-  };
+
 
   useEffect(() => {
     switch (form.watch("professionalTitle")) {
@@ -235,9 +281,9 @@ const OnboardingFreelancer = () => {
                   htmlFor="photoUpload"
                   className="flex items-center justify-center w-24 h-24 border border-dashed border-gray-400 rounded-full cursor-pointer relative"
                 >
-                  {photo ? (
+                  {profileImageUrl ? (
                     <img
-                      src={photo}
+                      src={profileImageUrl}
                       alt="Profile"
                       className="w-full h-full object-cover rounded-full"
                     />
@@ -248,7 +294,7 @@ const OnboardingFreelancer = () => {
                     id="photoUpload"
                     type="file"
                     accept="image/*"
-                    onChange={handlePhotoChange}
+                    onChange={handleFileChange}
                     className="absolute inset-0 opacity-0 cursor-pointer"
                   />
                 </label>

@@ -22,10 +22,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FaEnvelopeOpenText } from "react-icons/fa";
-import { setProjects } from "@/app/(redux)/features/projectDataSlice";
 
 const JobDetails = () => {
-  const [jobData, setJobData] = useState(null);
+  const [jobData, setJobData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
@@ -34,7 +33,7 @@ const JobDetails = () => {
   const [project, setProject] = useState();
   const [userData, setUserData] = useState();
   const [isApplied, setisApplied] = useState(false);
-  // const [loading,setLoading]=useState(true);
+  const [freelancerId, setFreelancerId] = useState("");
 
   const { jobId } = useParams();
   // console.log("id", jobId);
@@ -48,12 +47,15 @@ const JobDetails = () => {
   //   );
   // }
 
+  //To fetch user details from Session Storage
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
-    // onSubmit();
-
+    setFreelancerId(data?.id);
   }, [])
+
+  //To fetch project data by projectId
+  
   useEffect(() => {
     // setData();
     const fetchJobData = async () => {
@@ -63,7 +65,9 @@ const JobDetails = () => {
         const response = await fetch(`http://localhost:3000/api/project/${jobId[0]}`);
         if (response.ok) {
           const data = await response.json();
+          //console.log("Project Data from MongoDB", data.project);
           setJobData(data.project);
+          //console.log(jobData, "Printing State Variable which holds project Details");
           return;
         }
         if (!response.ok) {
@@ -75,6 +79,7 @@ const JobDetails = () => {
           throw new Error('Failed to fetch job data');
         }
         setJobData(data.project || {});
+
       } catch (error) {
         setError(error.message);
       } finally {
@@ -85,20 +90,30 @@ const JobDetails = () => {
     fetchJobData();
   }, [jobId]);
 
-
+  const appliedArray = jobData.applied || [] ;
+  const hasFreelancerApplied = appliedArray.includes(freelancerId);  // Returns true
+  useEffect(()=>{
+  if(appliedArray.length > 0){
+    //console.log("Some Freelancer have applied for this project")
+    if(hasFreelancerApplied){
+      setisApplied(true);
+      console.log("You have already applied for this job");
+    }
+  }
+  }, [isApplied, hasFreelancerApplied])
+  // console.log(appliedArray, "It will contain freelancer id who have applied for this project");
+  // console.log(jobData, "Printing State Variable which holds project Details, Outiside UseEffect");
   if (loading) return <p>Loading...</p>;
 
   const role = "freelancer";
 
-  // const isApplied = false;
-  // console.log("DATA", jobData);
 
+  //To fetch freelancer details
   const fetchUserData = async (id) => {
     try {
       const response = await axios.get(`/api/user/${id}`);
       if (response.status === 200) {
         setFreelancer(response.data.user);
-
         return response.data.user;
       }
     } catch (error) {
@@ -119,6 +134,7 @@ const JobDetails = () => {
       return null;
     }
   };
+  
   async function submitApplication(applicationData) {
     try {
       // Send a POST request to the backend API route
@@ -155,30 +171,31 @@ const JobDetails = () => {
   const setData = async () => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     setUserData(data);
-    console.log("Client id:", jobData?.clientId);
-    console.log("Message: ", message);
-    console.log("Freelancer id: ", data?.id);
+    // console.log("Client id:", jobData?.clientId);
+    // console.log("Message: ", message);
+    // console.log("Freelancer id: ", data?.id);
+
     await fetchUserData(data?.id);
-    console.log("Freelancer data: ", freelancer);
-    console.log("Project id: ", jobData?._id);
+    // console.log("Freelancer data: ", freelancer);
+    // console.log("Project id: ", jobData?._id);
     await fetchProjectData(jobData?._id);
-    console.log("Project: ", project);
+    //console.log("Project: ", project);
   }
+
+  //console.log(freelancerId, "Freelancer ID");
 
   // Modify the onSubmit function
   const onSubmit = async () => {
     setLoading(true);
-
     // Ensure that data is set before proceeding
-    // 
-    console.log("Client id:", jobData?.clientId);
-    console.log("Message: ", message);
-    console.log("Freelancer id: ", userData?.id);
+    // console.log("Client id:", jobData?.clientId);
+    // console.log("Message: ", message);
+    // console.log("Freelancer id: ", userData?.id);
     // await fetchUserData(data?.id);
-    console.log("Freelancer data: ", freelancer);
-    console.log("Project id: ", jobData?._id);
+    // console.log("Freelancer data: ", freelancer);
+    // console.log("Project id: ", jobData?._id);
     // await fetchProjectData(jobData?._id);
-    console.log("Project: ", project);
+    // console.log("Project: ", project);
 
     const applicationData = {
       clientId: jobData?.clientId,

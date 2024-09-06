@@ -1,3 +1,4 @@
+import cloudinary from '@/lib/cloudinary';
 import User from "@/app/(models)/User";
 // import User from "../../(models)/User";
 import { NextResponse } from "next/server";

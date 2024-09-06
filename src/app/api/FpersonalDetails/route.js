@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { email, PhoneNumber, age, gender, address, bio, socialMedia, professionalTitle, skills, portfolioLink, role, coordinates } = body;
+        const { email, PhoneNumber, age, gender, address, bio, socialMedia, professionalTitle, skills, portfolioLink, role, coordinates, photo } = body;
 
         if (!email) {
             return NextResponse.json({ message: "Email is required" }, { status: 400 });
@@ -26,6 +26,7 @@ export async function POST(req) {
         if (skills) user.skill = skills;
         if (portfolioLink) user.portfolio = portfolioLink;
         if (role) user.role = role;
+        if(photo) user.imageLink = photo;
 
         // Update coordinates if they are passed and valid
         if (coordinates) {
