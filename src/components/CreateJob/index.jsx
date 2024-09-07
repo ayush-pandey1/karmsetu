@@ -32,7 +32,7 @@ import {
   DialogClose,
   DialogDescription,
 } from "../ui/dialog.jsx";
-  
+
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -79,10 +79,40 @@ const createJobSchema = z.object({
 const CreateJobForm = () => {
   const [userData, setUserData] = useState();
   const [count, setCount] = useState(0);
+  const [error, setError] = useState(false);
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
   });
+
+  // MileStone Feature
+  const [milestones, setMilestones] = useState([]);
+  const [totalPercentage, setTotalPercentage] = useState(0);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [milestoneData, setMilestoneData] = useState({
+    title: "",
+    description: "",
+    amount: 0,
+  });
+  useEffect(() => {
+    // console.log("milestone: ", milestones);
+    // console.log("MilestoneData: ", milestoneData);
+    let totalAmount = 0;
+    milestones && milestones.forEach(item => {
+      totalAmount += parseFloat(item.amount);
+    });
+    setTotalPercentage(totalAmount);
+    // console.log(
+    //   "work; ", totalAmount
+    // )
+    if ((totalAmount > 100 || totalAmount < 100) || milestones.length == 0) {
+      setError(true);
+    }
+    else {
+      setError(false);
+    }
+  }, [milestones, milestoneData])
   useEffect(() => {
     if (!userData) {
       const data = JSON.parse(sessionStorage.getItem("karmsetu"));
@@ -131,12 +161,16 @@ const CreateJobForm = () => {
       clientId: userData?.id,
     },
   });
-  console.log("Errors:", form.formState.errors);
+  // console.log("Errors:", form.formState.errors);
   const { reset } = form;
   const router = useRouter();
 
   const onSubmitForm = async (values) => {
-    console.log("Form Values:", values);
+    if (error) {
+      return;
+    }
+    console.log("Form Values:", values, milestones);
+    // return;
     try {
       console.log("asas: ", values);
       if (!coordinates.latitude || !coordinates.longitude) {
@@ -150,6 +184,7 @@ const CreateJobForm = () => {
         values,
         clientName,
         coordinates,
+        milestones
       });
       // console.log(values);
       // setTags([]);
@@ -199,16 +234,7 @@ const CreateJobForm = () => {
     }
   }, [form.watch("projectCategory")]);
 
-  // MileStone Feature
-  const [milestones, setMilestones] = useState([]);
-  const [totalPercentage, setTotalPercentage] = useState(0);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedMilestone, setSelectedMilestone] = useState(null);
-  const [milestoneData, setMilestoneData] = useState({
-    title: "",
-    description: "",
-    amount: "",
-  });
+
 
   const handleAddMilestone = () => {
     const { percentage } = newMilestone;
@@ -512,8 +538,10 @@ const CreateJobForm = () => {
                     name="amount"
                     value={milestoneData.amount}
                     onChange={handleChangeMilestone}
-                    placeholder="Amount"
+                    placeholder="Amount(In percentage)"
                     className="input"
+                    min="1"
+                    max="100"
                   />
                 </div>
                 <div className="mt-4 flex justify-end space-x-2">
@@ -530,9 +558,22 @@ const CreateJobForm = () => {
                     Save
                   </Button>
                 </div>
+
               </DialogContent>
+              {error ? (milestones == 0 ? (
+                <p style={{ color: "red", fontSize: "12px" }}>You must set at least one milestone for the project.</p>
+              ) :
+                totalPercentage > 100 ? (
+                  <p style={{ color: "red", fontSize: "12px" }}>The total percentage exceeds 100%.</p>
+                ) : totalPercentage < 100 ? (
+                  <p style={{ color: "red", fontSize: "12px" }}>The total percentage is less than 100%.</p>
+                ) : (
+                  <></>
+                )
+              ) : null}
             </Dialog>
           </div>
+
 
           <FormField
             control={form.control}

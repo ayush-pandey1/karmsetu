@@ -35,15 +35,19 @@ const HeaderMobile = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const userDetails = sessionStorage.getItem("karmsetu");
-    // console.log(userDetails, 'Session Storage Data');
-    if (userDetails && session?.user) {
-    } else if (session?.user && !(userDetails)) {
-      router.push('/auth/redirect');
-    } else if (!(session?.user) && !(userDetails)) {
-      router.push('/auth/signin');
-    }
-  }, []);
+    const userDetails = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const timeoutId = setTimeout(() => {
+      // console.log(userDetails, session, 'Session Storage Data');
+      if (!session) {
+        sessionStorage.removeItem('karmsetu');
+        router.push('/auth/signin');
+      }
+      else if (!userDetails) {
+        router.push('/auth/redirect');
+      }
+    }, 5000);
+    return () => clearTimeout(timeoutId);
+  }, [session, router]);
 
   return (<motion.nav initial={false} animate={isOpen ? 'open' : 'closed'} custom={height} className={`fixed inset-0 z-50 w-full md:hidden ${isOpen ? '' : 'pointer-events-none'}`} ref={containerRef}>
     <motion.div className="absolute inset-0 right-0 w-full bg-white" variants={sidebar} />
