@@ -1,8 +1,6 @@
 import CreateJobForm from "@/components/CreateJob";
 import { Button } from "@/components/ui/button";
 import { GoPlus } from "react-icons/go";
-// import { Button } from "../../../../components/ui/button";
-// import CreateJobForm from "../../../../components/CreateJob/index";
 import React from "react";
 
 const CreateJob = () => {

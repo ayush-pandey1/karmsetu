@@ -14,15 +14,17 @@ const initialState = {
   empty: false,
   freelancer: [],
   filteredFreelancer: [],
-  freelancerDetailsFetched: false
+  freelancerDetailsFetched: false,
+  refresh : false,
+  rating : 0,
 };
 
 //Calling API to fetch the projects data from the database
-export const fetchProjects = createAsyncThunk(
-  'projects/fetchProjects',
+export const fetchClientProjects = createAsyncThunk(
+  'projects/fetchClientProjects',
   async (clientId, { getState, rejectWithValue }) => {
     const { projects } = getState();
-    if (!(projects.fetched)) {
+    if ((!(projects.fetched)) || projects.refresh) {
       try {
         const apiUrl = `/api/projects/Project?clientId=${clientId}`;
         const response = await axios.get(apiUrl);
@@ -72,16 +74,21 @@ const projects = createSlice({
       state.filteredFreelancer = state.freelancer.filter(freelancer =>
         freelancer.fullname.toLowerCase().includes(action.payload.toLowerCase())
       );
+    },
+    modifyRefresh : (state) =>{
+      state.refresh = true;
     }
-  },
+  }, 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProjects.pending, (state) => {
+      .addCase(fetchClientProjects.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(fetchProjects.fulfilled, (state, action) => {
+      .addCase(fetchClientProjects.fulfilled, (state, action) => {
         const projectsData = action.payload;
+        state.refresh = false;
         if (Array.isArray(projectsData)) {
+          //console.log(projectsData);
           state.projects = projectsData;
           state.completed = state.projects.filter(project => project.status === "Completed");
           state.ongoing = state.projects.filter(project => project.status === "In Progress");
@@ -96,7 +103,7 @@ const projects = createSlice({
           state.fetched = true;
         }
       })
-      .addCase(fetchProjects.rejected, (state, action) => {
+      .addCase(fetchClientProjects.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })
@@ -119,5 +126,5 @@ const projects = createSlice({
   },
 });
 
-export const { filterByRating, filterByCategory, filterBySearch } = projects.actions;
+export const { filterByRating, filterByCategory, filterBySearch, modifyRefresh } = projects.actions;
 export default projects.reducer;

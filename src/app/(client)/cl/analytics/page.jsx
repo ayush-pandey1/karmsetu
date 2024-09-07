@@ -1,5 +1,5 @@
 "use client";
-
+import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,28 +22,76 @@ import {
   LabelList,
 } from "recharts";
 import { TbDeviceDesktopAnalytics } from "react-icons/tb";
+import { useSelector } from "react-redux";
 
 const AnalyticsPage = () => {
+  const [projectCounts, setProjectCounts] = useState({
+    completedProjects: 0,
+      ongoingProjects: 0,
+      allProjects: 0,
+      pendingProjects: 0
+  });
+
   // Dummy data
   const projectCount = {
-    allProjects: 25,
-    ongoingProjects: 10,
-    completedProjects: 15,
     totalSpend: 5000,
     avgProjectCost: 200,
     avgRating: 4.5,
     totalFreelancers: 12,
   };
 
-  // Dummy charts data
+  const completedProjects = useSelector(
+    (state) => state.projects.completedProjects
+  );
+  const ongoingProjects = useSelector(
+    (state) => state.projects.ongoingProjects
+  );
+  const allProjects = useSelector((state) => state.projects.allProjects);
+
+  //Updating state variables to store number of projects on the basis of status
+  useEffect(() => {
+    setProjectCounts({
+      completedProjects: completedProjects,
+      ongoingProjects: ongoingProjects,
+      allProjects: allProjects,
+      pendingProjects : (allProjects - (completedProjects + ongoingProjects))
+    });
+  }, [completedProjects, ongoingProjects, allProjects]);
+
+  const [UserRating, setUserRating] = useState(0);
+  const [clientId, setClientId] = useState("");
+  
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    console.log(data);
+    setClientId(data?.id);
+  }, [])
+
+  useEffect(() => {
+    if (!clientId) return; // Exit early if clientId is not available
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/api/user/${clientId}`);
+        const rating = response.data.user.rating || 4;
+        setUserRating(rating);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      } 
+    };
+
+    fetchUserData();
+  }, [clientId]);
+
+  // Actual charts data
   const projectStatusData = [
     {
       name: "Completed",
-      value: projectCount.completedProjects,
+      value: projectCounts.completedProjects==0 ? 15 : projectCounts.completedProjects,
       color: "#4CAF50", // Green
     },
-    { name: "Ongoing", value: projectCount.ongoingProjects, color: "#FFC107" }, // Amber
-    { name: "Pending", value: 8, color: "#F44336" }, // Red
+    { name: "Ongoing", value: projectCounts.ongoingProjects == 0? 10 : projectCounts.ongoingProjects, color: "#FFC107" }, // Amber
+    { name: "Pending", value: projectCounts.pendingProjects == 0? 5: projectCounts.pendingProjects, color: "#F44336" }, // Red
   ];
 
   const budgetData = [
@@ -67,7 +115,7 @@ const AnalyticsPage = () => {
     <>
       <div className="flex flex-col gap-5    bg-white p-4 rounded-lg shadow-lg">
         <div className="text-black text-2xl md:text-3xl font-semibold mb-2 flex flex-row gap-1 items-center leading-none">
-        <TbDeviceDesktopAnalytics className="text-green-500" />
+          <TbDeviceDesktopAnalytics className="text-green-500" />
           Analytics Overview
         </div>
 
@@ -81,17 +129,17 @@ const AnalyticsPage = () => {
             },
             {
               title: "Total Projects",
-              value: projectCount.allProjects,
+              value: projectCounts.allProjects,
               lastUpdated: "10 August",
             },
             {
               title: "Active Projects",
-              value: projectCount.ongoingProjects,
+              value: projectCounts.ongoingProjects,
               lastUpdated: "10 August",
             },
             {
               title: "Completed Projects",
-              value: projectCount.completedProjects,
+              value: projectCounts.completedProjects,
               lastUpdated: "10 August",
             },
             {
@@ -106,7 +154,7 @@ const AnalyticsPage = () => {
             },
             {
               title: "Average Rating",
-              value: projectCount.avgRating,
+              value: UserRating? UserRating :projectCount.avgRating,
               lastUpdated: "10 August",
             },
           ].map((item, index) => (

@@ -16,22 +16,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchProjects, filterByBudget, filterByCategory, filterByRating, filterBySearch} from "@/app/(redux)/features/freelancerProjects"
-import { useRouter } from 'next/navigation';
+import { fetchProjects, filterByBudget, filterByCategory, filterBySearch } from "@/app/(redux)/features/freelancerProjects"
 
 export default function Home() {
   const dispatch = useDispatch();
-  // const [projects, setProjects] = useState([]);
+  const [projectCounts, setProjectCounts] = useState({
+    allProjects: 0,
+    completedProjects: 0,
+    ongoingProjects: 0
+  });
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState();
   // const [count, setCount] = useState(0);
-  const router = useRouter();
+  // const router = useRouter();
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
   });
+
+  const allProject = useSelector((state) => state.freelancer.allFreelancerProjects);
+  const completedProject = useSelector((state) => state.freelancer.CompletedProjects);
+  const ongoingProject = useSelector((state) => state.freelancer.OngoingProjects);
+
+  useEffect(() => {
+    setProjectCounts({
+      completedProjects: completedProject,
+      ongoingProjects: ongoingProject,
+      allProjects: allProject,
+    });
+  }, [completedProject, ongoingProject, allProject]);
+
 
   useEffect(() => {
     dispatch(fetchProjects());
@@ -40,7 +56,7 @@ export default function Home() {
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     console.log(data, 'Session Storage Data');
-    if(data){
+    if (data) {
       setUserData(data);
     }
   }, []);
@@ -51,11 +67,10 @@ export default function Home() {
 
 
   // const [count, setCount] = useState(0);
-  
+
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
-
 
     const getLocation = () => {
       if (navigator.geolocation) {
@@ -116,7 +131,7 @@ export default function Home() {
   // }, [projectsData]);
 
   const filteredProjectsData = useSelector((state) => state.freelancer.filteredProjects);
-  useEffect(() => {    
+  useEffect(() => {
     setFilteredProjects(filteredProjectsData);
   }, [filteredProjectsData]);
   // console.log(filteredProjectsData, "From FL page Redux Store");
@@ -143,7 +158,7 @@ export default function Home() {
                 <TbAdjustmentsStar className="h-5 w-5  text-primary" />
               </CardHeader>
               <CardContent className="px-3">
-                <div className="text-2xl font-bold text-primary">{"99"}</div>
+                <div className="text-2xl font-bold text-primary">{projectCounts.allProjects}</div>
                 <p className="text-xs pt-2 text-gray-400">
                   last posted on 27 July
                 </p>
@@ -170,7 +185,7 @@ export default function Home() {
                 </svg>
               </CardHeader>
               <CardContent className="px-3">
-                <div className="text-2xl font-bold text-primary">{"89"}</div>
+                <div className="text-2xl font-bold text-primary">{projectCounts.ongoingProjects}</div>
                 <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
@@ -196,7 +211,7 @@ export default function Home() {
                 </svg>
               </CardHeader>
               <CardContent className="px-3">
-                <div className="text-2xl font-bold text-primary">{"79"}</div>
+                <div className="text-2xl font-bold text-primary">{projectCounts.completedProjects}</div>
                 <p className="text-xs pt-2 text-gray-400">
                   Updated on 10 August
                 </p>
@@ -231,11 +246,11 @@ export default function Home() {
         </div>
 
         <div className="md:text-4xl text-3xl text-black font-semibold flex flex-row items-center">
-            <p className="px-3  border-l-4 border-l-secondary font-bold">
-              {" "}
-              Gigs
-            </p>
-          </div>
+          <p className="px-3  border-l-4 border-l-secondary font-bold">
+            {" "}
+            Gigs
+          </p>
+        </div>
 
         <div className=" flex flex-col lg:flex-row gap-2    items-center border-double bg-white shadow-sm border border-gray-200 p-2 w-full h-full rounded-lg">
           <div className="flex flex-col lg:flex-row gap-2   justify-between w-full">
@@ -260,10 +275,10 @@ export default function Home() {
             <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2 ">
               <div className="flex flex-col md:flex-row  gap-2">
                 <Select
-                name="titleSelect"
-                onValueChange={(value) =>
-                  handleFilterChange("category", value)
-                }
+                  name="titleSelect"
+                  onValueChange={(value) =>
+                    handleFilterChange("category", value)
+                  }
                 >
                   <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                     <SelectValue className="k" placeholder="Select title" />
@@ -300,8 +315,8 @@ export default function Home() {
                 </Select>
 
                 <Select
-                name="ratingSelect"
-                onValueChange={(value) => handleFilterChange("rating", value)}
+                  name="ratingSelect"
+                  onValueChange={(value) => handleFilterChange("rating", value)}
                 >
                   <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                     <SelectValue className="k" placeholder="Rating" />
@@ -349,7 +364,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-       
+
         <div className="flex justify-between">
           <div className=" inline-flex flex-row  justify-center sm:justify-start flex-wrap gap-4">
             {filteredProjects.length > 0 ? (
@@ -362,7 +377,7 @@ export default function Home() {
           </div>
         </div>
 
-        
+
       </div>
     </>
   );

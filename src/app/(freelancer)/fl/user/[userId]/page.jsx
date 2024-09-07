@@ -50,7 +50,7 @@ const FreelancerProfilePage = () => {
     );
   }
 
-  console.log("User: ", userData);
+  //console.log("User: ", userData);
   return (
     <>
       <div className="flex flex-col gap-20 mx-0 md:mx-15">

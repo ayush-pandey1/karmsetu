@@ -1,11 +1,27 @@
 "use client";
-import React from "react";
+import React, {useState, useEffect} from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import useScroll from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+
 const Header = () => {
+  const [imgLink, setImgLink] = useState("");
+
+    //To get user details from sessionStorage
+    useEffect(() => {
+      const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+      if (data) {
+        try {
+          console.log(data, "User data from session");
+          setImgLink(data?.profileImage);
+        } catch (error) {
+          console.error("Invalid session storage data", error);
+        }
+      }
+    }, []);
+
   const scrolled = useScroll(5);
   const selectedLayout = useSelectedLayoutSegment();
   return (
@@ -49,7 +65,7 @@ const Header = () => {
 
         <div className="hidden md:block">
           <div className="flex items-center justify-center w-8 h-8 text-center rounded-full bg-zinc-300">
-            <span className="text-sm font-semibold">HQ</span>
+            <img className="text-sm font-semibold " style={{overflow : "hidden"}} src = {imgLink? imgLink : "HQ"}></img>
           </div>
         </div>
       </div>

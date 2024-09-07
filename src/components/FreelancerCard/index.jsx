@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createChat } from "@/services/chatRequest";
 import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 import { useRouter } from 'next/navigation';
-const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id, rating }) => {
+const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id, rating, imageLink }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
   const receiverId = id;
@@ -36,7 +36,7 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id, rating })
   return (
     <div className="p-4 flex flex-col gap-4  border bg-white border-gray-200  w-72 rounded-xl">
       <div className="flex flex-row items-center gap-3">
-        <Image src="/images/user/user-02.png" height="45" width="45" alt="Freelancer Photo" className="border border-green-500 rounded-full" />
+        <Image src={imageLink? imageLink : "/images/user/user-02.png"} height="45" width="45" alt="Freelancer Photo" className="border border-green-500 rounded-full" />
         <div className="flex flex-col">
           <span className="text-black text-lg font-semibold">{fullname}</span>
           <span className="text-xs">{professionalTitle}</span>

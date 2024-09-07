@@ -10,6 +10,7 @@ const redirect = () => {
     const [role, setRole] = useState("")
     const [userData, setUserData] = useState();
     const [user, setUser] = useState();
+    const [profileImage, setProfileImage] = useState("");
     const router = useRouter();
     if (userData?.role === "client") {
         router.push("/cl");
@@ -32,7 +33,6 @@ const redirect = () => {
                             },
                             body: JSON.stringify({ data: { email } })
                         });
-
                         const result = await response.json();
 
                         if (response.ok) {
@@ -44,7 +44,9 @@ const redirect = () => {
                                 name: user.fullname,
                                 id: user._id,
                                 role: user.role,
+                                profileImage : user.imageLink
                             };
+                            setProfileImage(user?.imageLink || "")
                             setRole(sessionData?.role);
                             console.log("sdsd", role);
                             sessionStorage.setItem('karmsetu', JSON.stringify(sessionData));
@@ -52,7 +54,6 @@ const redirect = () => {
                             const data = JSON.parse(sessionStorage.getItem('karmsetu'));
                             setRole(data?.role);
                             setUserData(data);
-
                         } else {
                             console.error("Error:", result.message);
 
@@ -64,11 +65,7 @@ const redirect = () => {
                     }
                 }
 
-
-
                 fetchUserData(session.user.email);
-
-
 
             }
             else {
@@ -80,6 +77,7 @@ const redirect = () => {
             }
         }
     }, [session, role, user, userData]);
+
     useEffect(() => {
         const userData = JSON.parse(sessionStorage.getItem('karmsetu'));
         setUserData(userData);
@@ -93,6 +91,7 @@ const redirect = () => {
         //     router.push("/");
         // }
     }, [user, userData])
+    
     return (
         <div className="h-screen w-screen"><Loader /></div>
     )

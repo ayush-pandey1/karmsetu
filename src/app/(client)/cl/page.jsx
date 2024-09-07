@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchProjects,
+  fetchClientProjects,
   freelancerDetails,
 } from "../../(redux)/features/projectDataSlice";
 import {
@@ -51,12 +51,14 @@ const Home = () => {
     latitude: 0,
     longitude: 0,
   });
+  const [loading2, setLoading2] = useState(true);
 
   //To get user details from sessionStorage
   useEffect(() => {
     const data = sessionStorage.getItem("karmsetu");
     if (data) {
       try {
+        console.log(data, "User data from session");
         setUserData(JSON.parse(data));
       } catch (error) {
         console.error("Invalid session storage data", error);
@@ -64,7 +66,7 @@ const Home = () => {
     }
   }, []);
 
-  const projects = useSelector((state) => state.projects.allProjects);
+  // const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
     completedProjects: 0,
     ongoingProjects: 0,
@@ -98,7 +100,7 @@ const Home = () => {
   };
 
 
-  const user = userData?.name;
+  const user = userData?.fullname;
   const clientId = userData?.id;
 
   //To fetch freelancer details
@@ -115,7 +117,7 @@ const Home = () => {
   //Calling API to fetch client projects
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchProjects(clientId));
+      dispatch(fetchClientProjects(clientId));
     }
   }, [clientId, dispatch]);
 
@@ -432,6 +434,7 @@ const Home = () => {
                   bio={filteredFreelancer.bio}
                   id={filteredFreelancer._id}
                   rating={filteredFreelancer.rating}
+                  imageLink = {filteredFreelancer.imageLink}
                 />
               ))
             ) : (

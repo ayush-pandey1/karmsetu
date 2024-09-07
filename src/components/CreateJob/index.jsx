@@ -35,6 +35,7 @@ import {
   
 
 import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import { useRouter } from "next/navigation.js";
 import { LuClipboardList } from "react-icons/lu";
@@ -57,6 +58,7 @@ import {
 } from "./skills.js";
 import { Checkbox } from "../ui/checkbox.jsx";
 import { Label } from "../ui/label.jsx";
+import {fetchProjects} from "@/app/(redux)/features/projectDataSlice.js"
 
 const createJobSchema = z.object({
   title: z
@@ -78,11 +80,14 @@ const createJobSchema = z.object({
 
 const CreateJobForm = () => {
   const [userData, setUserData] = useState();
+  //const [formSubmitted, setFormSubmitted] = useState(false);
   const [count, setCount] = useState(0);
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
   });
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (!userData) {
       const data = JSON.parse(sessionStorage.getItem("karmsetu"));
@@ -131,9 +136,19 @@ const CreateJobForm = () => {
       clientId: userData?.id,
     },
   });
+  
   console.log("Errors:", form.formState.errors);
   const { reset } = form;
   const router = useRouter();
+  
+  // useEffect(() => {
+  //   if(formSubmitted){
+  //     if (userData?.id) {
+  //       dispatch(fetchProjects(userData?.id));
+  //     }
+  //   }
+  // }, [userData?.id, dispatch, formSubmitted]);
+
 
   const onSubmitForm = async (values) => {
     console.log("Form Values:", values);
@@ -154,6 +169,9 @@ const CreateJobForm = () => {
       // console.log(values);
       // setTags([]);
       console.log(response);
+      if(userData?.id){
+        dispatch(fetchProjects(userData?.id))
+      }
       // resetForm();
       router.push("/cl/jobs");
     } catch (error) {
