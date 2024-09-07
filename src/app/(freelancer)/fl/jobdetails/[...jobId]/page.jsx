@@ -50,6 +50,7 @@ const JobDetails = () => {
   //To fetch user details from Session Storage
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    console.log(data);
     setUserData(data);
     setFreelancerId(data?.id);
   }, [])
@@ -91,7 +92,10 @@ const JobDetails = () => {
   }, [jobId]);
 
   const appliedArray = jobData.applied || [] ;
+  console.log(appliedArray, "APplied  Freelancer Id");
+  console.log(freelancerId, "FreelancerId");
   const hasFreelancerApplied = appliedArray.includes(freelancerId);  // Returns true
+  console.log(hasFreelancerApplied, "THis freelancer has applied or not");
   useEffect(()=>{
   if(appliedArray.length > 0){
     //console.log("Some Freelancer have applied for this project")
@@ -111,7 +115,9 @@ const JobDetails = () => {
   //To fetch freelancer details
   const fetchUserData = async (id) => {
     try {
+      console.log("Freelancer Id", id);
       const response = await axios.get(`/api/user/${id}`);
+      console.log("Freelancer Details", response.data);
       if (response.status === 200) {
         setFreelancer(response.data.user);
         return response.data.user;
@@ -125,7 +131,9 @@ const JobDetails = () => {
   const fetchProjectData = async (id) => {
     try {
       const response = await axios.get(`/api/project/${id}`);
+      console.log(response);
       if (response.status === 200) {
+        console.log(response.data.project,"Inside freelance Job Details Page");
         setProject(response.data.project);
         return response.data.project;
       }
@@ -134,6 +142,7 @@ const JobDetails = () => {
       return null;
     }
   };
+  
   
   async function submitApplication(applicationData) {
     try {
@@ -170,6 +179,7 @@ const JobDetails = () => {
 
   const setData = async () => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    console.log(data, "Data from sessionStorage")
     setUserData(data);
     // console.log("Client id:", jobData?.clientId);
     // console.log("Message: ", message);
@@ -179,10 +189,10 @@ const JobDetails = () => {
     // console.log("Freelancer data: ", freelancer);
     // console.log("Project id: ", jobData?._id);
     await fetchProjectData(jobData?._id);
-    //console.log("Project: ", project);
+    //console.log("Project: ", jobData);
   }
-
-  //console.log(freelancerId, "Freelancer ID");
+  console.log("Project: ", jobData);
+  console.log(freelancerId, "Freelancer ID");
 
   // Modify the onSubmit function
   const onSubmit = async () => {

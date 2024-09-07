@@ -168,6 +168,7 @@ const OnboardingFreelancer = () => {
     if (e.target.files) {
       console.log(e.target.files[0]);
       setSelectedFile(e.target.files[0]);
+      handleImageUpload();
     }
   };
 
@@ -206,7 +207,6 @@ const OnboardingFreelancer = () => {
   };
 
   const onSubmit = async (data) => {
-    await handleImageUpload();
     console.log(data);
     console.log("role: ", role);
     try {

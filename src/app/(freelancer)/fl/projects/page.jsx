@@ -5,7 +5,7 @@ import Link from "next/link";
 import JobCardClient from '@/components/JobCardClient';
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from '@/components/ui/button';
-import { fetchFreelancerProjects } from '../../../(redux)/features/freelancerProjects';
+import { fetchFreelancerProjects , modifyRefresh} from '../../../(redux)/features/freelancerProjects';
 
 const ProjectsPage = () => {
   const dispatch = useDispatch();
@@ -27,6 +27,15 @@ const ProjectsPage = () => {
     }
   }, [freelancerId, dispatch]);
 
+  const handleRefresh = ()=>{
+    if (freelancerId) {
+      console.log(freelancerId, "FreelancerId");
+      dispatch(modifyRefresh());
+      dispatch(fetchFreelancerProjects(freelancerId));
+      console.log("API called again");
+    }
+  }
+
   const projects = useSelector((state) => state.freelancer.freelancerprojects);
   const empty = useSelector((state) => state.freelancer.empty);
   console.log(projects, "From Inside Freelancer Project page");
@@ -46,6 +55,7 @@ const ProjectsPage = () => {
             <div className="font-medium md:text-base text-sm">
               Review, Manage, and Create New Jobs/Gigs
             </div>
+            <button onClick={handleRefresh}>Reload</button>
           </div>
           <div className="flex items-center">
             {/* Uncomment if needed */}
