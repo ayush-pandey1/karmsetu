@@ -5,7 +5,7 @@ import Link from "next/link";
 import JobCardClient from '@/components/JobCardClient';
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from '@/components/ui/button';
-import { fetchProjects } from '../../../(redux)/features/projectDataSlice';
+import { fetchClientProjects , modifyRefresh} from '../../../(redux)/features/projectDataSlice';
 
 const JobPage = () => {
   const dispatch = useDispatch();
@@ -24,9 +24,19 @@ const JobPage = () => {
   const clientId = userData?.id;
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchProjects(clientId));
+      dispatch(fetchClientProjects(clientId));
     }
   }, [clientId, dispatch]);
+
+  const handleRefresh = ()=>{
+    console.log("refresh button clicked");
+    console.log(clientId, "Client Id");
+    if (clientId) {
+      dispatch(modifyRefresh());
+      dispatch(fetchClientProjects(clientId));
+      console.log("API called again")
+    }
+  }
 
   const projects = useSelector((state) => state.projects?.projects || []);
   const empty = useSelector((state) => state.projects?.empty);
@@ -42,6 +52,7 @@ const JobPage = () => {
             <div className="font-medium md:text-base text-sm">
               Review, Manage, and Create New Jobs/Gigs
             </div>
+            <button onClick={handleRefresh}>Reload</button>
           </div>
           <div className="flex items-center">
             <Button className="flex item-center gap-1 text-white  bg-primary hover:bg-primaryho">

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { GoPlus } from 'react-icons/go';
 import { useSelector, useDispatch } from "react-redux";
-import { fetchFreelancerProjects } from '../../../../(redux)/features/freelancerProjects';
+import { fetchFreelancerProjects , modifyRefresh} from '../../../../(redux)/features/freelancerProjects';
 
 
 const CompletedProjectsPage = () => {
@@ -18,7 +18,14 @@ const CompletedProjectsPage = () => {
   }, [])
 
   const freelancerId = userData?.id;
-  // const freelancerId = `66c429e4a585734fc5a2fe31`;
+  const handleRefresh = ()=>{
+    if (freelancerId) {
+      console.log(freelancerId, "FreelancerId");
+      dispatch(modifyRefresh());
+      dispatch(fetchFreelancerProjects(freelancerId));
+      console.log("API called again");
+    }
+  }
   const projects = useSelector((state) => state.freelancer.freelancerCompletedProjects);
   const empty = useSelector((state) => state.freelancer.empty);
 
@@ -39,6 +46,7 @@ const CompletedProjectsPage = () => {
             <div className="font-medium md:text-base text-sm">
               Review, Manage, and Create New Jobs/Gigs
             </div>
+            <button onClick={handleRefresh}>Reload</button>
           </div>
           <div className="flex items-center">
             {/* <Button className="flex item-center gap-1 text-white  bg-primary hover:bg-primaryho">

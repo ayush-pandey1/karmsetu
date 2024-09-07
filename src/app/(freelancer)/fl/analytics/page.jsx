@@ -1,5 +1,5 @@
 "use client";
-
+import axios from 'axios';
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,17 +20,61 @@ import {
   Line,
   LabelList,
 } from "recharts";
+import {useSelector} from "react-redux"
 
 const FreelancerAnalyticsPage = () => {
+  const [projectCounts, setProjectCounts] = useState({
+    allProjects: 0,
+    completedProjects : 0,
+    ongoingProjects : 0,
+    pendingProjects : 0
+    });
+
   // Dummy data
   const freelancerStats = {
     totalEarnings: 12000,
-    activeProjects: 3,
-    completedProjects: 25,
     avgRating: 4.8,
     totalClients: 15,
-    totalProjects: 28,
   };
+  const [UserRating, setUserRating] = useState(0);
+  const [freelancerId, setFreelancerId] = useState("");
+  
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    console.log(data);
+    setFreelancerId(data?.id);
+  }, [])
+
+  useEffect(() => {
+    if (!freelancerId) return; // Exit early if freelancerId is not available
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`/api/user/${freelancerId}`);
+        const rating = response.data.user.rating || 3.5;
+        setUserRating(rating);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [freelancerId]);
+
+
+  const allProject = useSelector((state)=> state.freelancer.allFreelancerProjects);
+  const completedProject = useSelector((state)=> state.freelancer.CompletedProjects);
+  const ongoingProject = useSelector((state)=> state.freelancer.OngoingProjects);
+
+  useEffect(() => {
+    setProjectCounts({
+      completedProjects: completedProject,
+      ongoingProjects: ongoingProject,
+      allProjects: allProject,
+      pendingProjects : (allProject - (completedProject + ongoingProject))
+    });
+  }, [completedProject, ongoingProject, allProject]);
+
 
   const earningsData = [
     { name: "Jan", earnings: 1200 },
@@ -43,15 +87,15 @@ const FreelancerAnalyticsPage = () => {
   const projectStatusData = [
     {
       name: "Completed",
-      value: freelancerStats.completedProjects,
+      value: projectCounts.completedProjects == 0? 12 : projectCounts.completedProjects,
       color: "#4CAF50",
     },
     {
       name: "Ongoing",
-      value: freelancerStats.activeProjects,
+      value: projectCounts.ongoingProjects==0? 5 : projectCounts.ongoingProjects,
       color: "#FFC107",
     },
-    { name: "Pending", value: 5, color: "#F44336" },
+    { name: "Pending", value: projectCounts.pendingProjects == 0 ? 6 : projectCounts.pendingProjects, color: "#F44336" },
   ];
 
   const hourlyRateData = [
@@ -90,17 +134,17 @@ const FreelancerAnalyticsPage = () => {
             },
             {
               title: "Active Projects",
-              value: freelancerStats.activeProjects,
+              value: projectCounts.ongoingProjects,
               lastUpdated: "10 August",
             },
             {
               title: "Completed Projects",
-              value: freelancerStats.completedProjects,
+              value: projectCounts.completedProjects,
               lastUpdated: "10 August",
             },
             {
               title: "Average Rating",
-              value: freelancerStats.avgRating,
+              value: UserRating ? UserRating :freelancerStats.avgRating,
               lastUpdated: "10 August",
             },
             {
@@ -110,7 +154,7 @@ const FreelancerAnalyticsPage = () => {
             },
             {
               title: "Total Projects",
-              value: freelancerStats.totalProjects,
+              value: projectCounts.allProjects,
               lastUpdated: "10 August",
             },
           ].map((item, index) => (

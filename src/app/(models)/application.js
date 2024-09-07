@@ -10,7 +10,8 @@ const ApplicationSchema = new Schema({
     email: { type: String, required: true },
     phone: { type: String },
     professionalTitle: { type: String },
-    skill: { type: [String] }
+    skill: { type: [String] },
+    imageLink : {type : String}
   },
   project: {
     id:String,

@@ -22,7 +22,7 @@ const ApplicationsPage = () => {
   const [senderId, setSenderId] = useState();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
-  console.log("newuser: ", user)
+  //console.log("newuser: ", user)
   // const receiverId = id;
   // const senderId = user.id;
   useEffect(() => {
@@ -63,8 +63,6 @@ const ApplicationsPage = () => {
 
   // Function to handle the accept click
   const handleStatus = async (appId, projectId, freelancerId, newStatus) => {
-
-
     try {
       // Update the status immediately for the button change
       //console.log(newStatus, freelancerId);
@@ -86,6 +84,9 @@ const ApplicationsPage = () => {
 
         setStatus((prev) => ({ ...prev, [appId]: null }));
         console.error("Failed to accept the application");
+      }else{
+        setStatus((prev) => ({ ...prev, [appId]: newStatus }));
+        console.log("Application Status updated successfully");
       }
     } catch (error) {
 
@@ -93,6 +94,16 @@ const ApplicationsPage = () => {
       console.error("Error accepting application:", error);
     }
   };
+  //Function to handle refresh
+  const handleRefresh = ()=>{
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    console.log("refresh button clicked");
+    console.log(data?.id, "Id");
+    if (data?.id) {
+      fetchApplications(data.id);
+      console.log("API called to fetch Appilcations");
+    }
+  }
 
   if (loading) {
     return (
@@ -129,6 +140,7 @@ const ApplicationsPage = () => {
             <span className="flex flex-row items-center gap-1 text-2xl mb-4">
               <FaClipboardList className="text-green-500 text-xl" />
               <p className="font-bold text-black">Freelancer Applications</p>
+              <button onClick={handleRefresh}>Reload</button>
             </span>
 
             {applications.length === 0 ? (
@@ -141,7 +153,7 @@ const ApplicationsPage = () => {
                       <div className="flex flex-row gap-2">
                         <Avatar>
                           <Link href={`/fl/user/${app.freelancer?.email}`}>
-                            <AvatarImage src="/images/user/user-02.png" alt="Freelancer" />
+                          <AvatarImage src={app.freelancer.imageLink? app.freelancer.imageLink : "/images/user/user-02.png" } alt="Freelancer" />
                           </Link>
                           <AvatarFallback>{app.freelancer?.fullname?.charAt(0)}</AvatarFallback>
                         </Avatar>

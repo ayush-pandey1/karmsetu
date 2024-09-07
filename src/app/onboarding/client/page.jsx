@@ -84,9 +84,10 @@ const OnboardingClient = () => {
         name: session.user.name,
         id: session.user.id,
         role: extractedRole,
+        imageLink : profileImageUrl
       };
       setRole(sessionData?.role);
-      console.log("sdsd", role);
+      console.log("Role", role);
       sessionStorage.setItem('karmsetu', JSON.stringify(sessionData));
       console.log('Session data stored in sessionStorage:', sessionData);
       const data = JSON.parse(sessionStorage.getItem('karmsetu'));
@@ -115,7 +116,7 @@ const OnboardingClient = () => {
       gender: "",
       industry: "",
       role: role,
-      photo: "", // New photo default value
+      photo: profileImageUrl, // New photo default value
     },
   });
 
@@ -131,13 +132,6 @@ const OnboardingClient = () => {
     }
   }, [userEmail, form]);
 
-    // Handle file change for image upload
-    const handleFileChange = (e) => {
-      if(e.target.files){
-      console.log(e.target.files[0])
-      setSelectedFile(e.target.files[0]);
-      }
-    };
 
     // Handle image upload to Cloudinary
   const handleImageUpload = async () => {
@@ -145,6 +139,7 @@ const OnboardingClient = () => {
       console.log("Please select an image first.");
       return;
     }
+    console.log("Image Selected Successfully");
 
     const reader = new FileReader();
     reader.readAsDataURL(selectedFile);
@@ -160,9 +155,10 @@ const OnboardingClient = () => {
         });
 
         const data = await response.json();
+        console.log(data, "Response after uploading the image")
         if (data.success) {
           setProfileImageUrl(data.url); // Set the image URL for submission
-          form.setValue("photo", data.url); // Set the photo field value in the form
+          form.setValue("photo", (data.url)); // Set the photo field value in the form
           console.log("Image uploaded successfully!", data.url);
         } else {
           console.error("Image upload failed.");
@@ -173,10 +169,19 @@ const OnboardingClient = () => {
     };
   };
 
+      // Handle file change for image upload
+      const handleFileChange = (e) => {
+        if(e.target.files){
+        console.log(e.target.files[0])
+        setSelectedFile(e.target.files[0]);
+        handleImageUpload();
+        }
+      };
 
   const onSubmit = async (values) => {
     try {
-      await handleImageUpload();
+      //console.log("Image Upload Function called");
+      console.log("Form Values Updated", form)
       const response = await fetch("/api/CpersonalDetails", {
         method: "PUT",
         headers: {
