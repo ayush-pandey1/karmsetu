@@ -14,14 +14,15 @@ const initialState = {
   empty : false,
   projects : [],
   filteredProjects : [],
-  projectsFetched : false
+  projectsFetched : false,
+  refresh : false
 };
 
 export const fetchFreelancerProjects = createAsyncThunk(
   'projects/fetchFreelancerProjects',
   async (freelancerId, { getState, rejectWithValue }) => {
     const { freelancer } = getState();
-    if(!(freelancer.fetched)){
+    if((!(freelancer.fetched))|| freelancer.refresh){
       try {
         const apiUrl = `/api/projects/Freelancer?freelancerId=${freelancerId}`;
         const response = await axios.get(apiUrl);
@@ -45,7 +46,7 @@ export const fetchFreelancerProjects = createAsyncThunk(
 export const fetchProjects = createAsyncThunk(
   'projects/fetchProjects',
   async (_, { getState, rejectWithValue }) => {
-    const { projects } = getState();
+    const { freelancer } = getState();
     if (!(freelancer.projectsFetched)) {
       try {
         //console.log("API called to fetch projects for fl page")
@@ -80,6 +81,9 @@ const freelancer = createSlice({
       state.filteredProjects = state.projects.filter(freelancer =>
         freelancer.title.toLowerCase().includes(action.payload.toLowerCase())
       );
+    },
+    modifyRefresh : (state) =>{
+      state.refresh = true;
     }
   },
   extraReducers: (builder) => {
@@ -89,6 +93,7 @@ const freelancer = createSlice({
       })
       .addCase(fetchFreelancerProjects.fulfilled, (state, action) => {
         const freelancer = action.payload;
+        state.refresh = false;
         if(Array.isArray(freelancer)){
           state.freelancerprojects = freelancer;
           const completed = freelancer.filter(project => project.status === "Completed");
@@ -136,6 +141,6 @@ const freelancer = createSlice({
   },
 });
 
-export  const {filterByBudget, filterByCategory, filterBySearch} = freelancer.actions;
+export  const {filterByBudget, filterByCategory, filterBySearch, modifyRefresh} = freelancer.actions;
 
 export default freelancer.reducer;

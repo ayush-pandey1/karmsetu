@@ -5,7 +5,7 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { GoPlus } from 'react-icons/go';
 import { useSelector, useDispatch } from "react-redux";
-import { fetchProjects } from '../../../../(redux)/features/projectDataSlice';
+import { fetchClientProjects, modifyRefresh } from '../../../../(redux)/features/projectDataSlice';
 
 
 const CompletedJobPage = () => {
@@ -20,9 +20,19 @@ const CompletedJobPage = () => {
   const empty = useSelector((state) => state.projects.empty);
   useEffect(() => {
     if (clientId) {
-      dispatch(fetchProjects(clientId));
+      dispatch(fetchClientProjects(clientId));
     }
   }, [clientId, dispatch]);
+
+  const handleRefresh = ()=>{
+    console.log("refresh button clicked");
+    console.log(clientId, "Client Id");
+    if (clientId) {
+      dispatch(modifyRefresh());
+      dispatch(fetchClientProjects(clientId));
+      console.log("API called again")
+    }
+  }
   return (
     <>
       <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
@@ -34,6 +44,7 @@ const CompletedJobPage = () => {
             <div className="font-medium md:text-base text-sm">
               Review, Manage, and Create New Jobs/Gigs
             </div>
+            <button onClick={handleRefresh}>Reload</button>
           </div>
           <div className="flex items-center">
             <Button className="flex item-center gap-1 text-white  bg-primary hover:bg-primaryho">
