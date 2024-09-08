@@ -50,6 +50,11 @@ export const SIDENAV_ITEMS = [
         icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24" />,
 
     },
+    {
+        title: 'Portfolio',
+        path: '/fl/portfolio',
+        icon: <Icon icon="lucide:briefcase-business" width="24" height="24" />,
+    },
     // {
     //     title: 'Settings',
     //     path: '/fl/settings',
