@@ -8,11 +8,16 @@ connect();
 export async function POST(NextRequest) {
   try {
     const reqBody = await NextRequest.json();
-    const { values, tags , clientName, coordinates} = reqBody;
+    const { values, tags , clientName, coordinates, milestones} = reqBody;
     const { description, budget, projectCategory, duration, title,clientId,   } = values;
 
     if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
       return NextResponse.json({ error: "Invalid coordinates" }, { status: 400 });
+    }
+
+     // Ensure milestones data is valid
+     if (!Array.isArray(milestones)) {
+      return NextResponse.json({ error: "Invalid milestones data" }, { status: 400 });
     }
 
     // const tagTexts = tags.map(tag => tag.text);
@@ -29,9 +34,10 @@ export async function POST(NextRequest) {
       clientId,
       clientName,
       coordinates: {
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude
-      }
+        latitude: coordinates?.latitude,
+        longitude: coordinates?.longitude
+      },
+      milestones
     });
     
 

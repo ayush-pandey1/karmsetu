@@ -18,7 +18,18 @@ const ProjectSchema = new Schema({
   coordinates: {
     latitude:  { type: Number ,default: null },
     longitude: { type: Number ,default: null },
-  }
+  },
+  milestones: [{ 
+    title: { type: String },
+    description: { type: String },
+    amount: { type: String }, 
+    status: { type: String, enum: ['Not Applied', 'Pending Approval', 'Approved'], default: 'Not Applied' },
+    statusDate:{type:Date, default: null},
+    paymentStatus:{ type: String, enum: ['Pending', 'Completed'], default: 'Pending' }, 
+    paymentDate:{type:Date, default: null},
+    message:{type:String, default:""}
+
+  }]
   
 },{
   timestamps: true,
