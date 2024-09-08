@@ -21,8 +21,8 @@ export default function RootLayout({ children, }) {
   return (<html lang="en">
     <body className={`bg-white ${inter.className}`}>
       <div className="flex">
-        <Provider store={store}>
-          <SessionProvider>
+        <SessionProvider>
+          <Provider store={store}>
             <SideNav />
             <main className="flex-1">
               <MarginWidthWrapper>
@@ -31,8 +31,8 @@ export default function RootLayout({ children, }) {
                 <PageWrapper>{children}</PageWrapper>
               </MarginWidthWrapper>
             </main>
-          </SessionProvider>
-        </Provider>
+          </Provider>
+        </SessionProvider>
       </div>
     </body>
   </html>);

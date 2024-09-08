@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { IoIosArrowForward } from "react-icons/io";
 import {
@@ -19,6 +19,14 @@ import { useSelector } from "react-redux";
 
 const JobCardClient = ({ projects, empty, role }) => {
   // const empty = useSelector((state) => state.projects.projects);
+  const [userData, setUserData] = useState();
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    console.log(data);
+    setUserData(data);
+    // setFreelancerId(data?.id);
+  }, [])
+
   return (
     <>
       {((projects.length > 0 || (!(empty))) ? (
@@ -29,8 +37,8 @@ const JobCardClient = ({ projects, empty, role }) => {
                 <div className="flex flex-row gap-4">
                   <div>
                     <span className="text-xs font-medium flex flex-row gap-1">
-                      assigned to
-                      <p className="text-blue-500 cursor-pointer">alex734</p>
+                      assigned by
+                      <p className="text-blue-500 cursor-pointer">{project?.clientName}</p>
                     </span>
                     <div className="text-black text-base sm:text-lg font-bold leading-tight">
                       {project?.title}
@@ -42,11 +50,16 @@ const JobCardClient = ({ projects, empty, role }) => {
                     </div>
                   </div>
                   <div>
-                    <Link href={`/cl/jobdetails/${project?._id}`} >
+                    {userData?.role === "client" ? <Link href={`/cl/projectDashboard/${project?._id}`} >
                       <Button className="flex flex-row gap- items-center bg-primary active:bg-primaryho hover:bg-primary mt-4">
                         Details <IoIosArrowForward className="text-white text-base" />
                       </Button>
-                    </Link>
+                    </Link> : <Link href={`/fl/projectDashboard/${project?._id}`} >
+                      <Button className="flex flex-row gap- items-center bg-primary active:bg-primaryho hover:bg-primary mt-4">
+                        Details <IoIosArrowForward className="text-white text-base" />
+                      </Button>
+                    </Link>}
+
                   </div>
                 </div>
                 <div className="flex flex-row gap-6 text-sm items-center">
