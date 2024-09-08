@@ -29,6 +29,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { CiCircleCheck } from "react-icons/ci";
 import { FaEnvelopeOpenText } from "react-icons/fa";
+import { format, parseISO } from 'date-fns';
 
 const ProjectDashboard = () => {
 
@@ -386,14 +387,14 @@ const ProjectDashboard = () => {
                                             </div>
                                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                 {milestone.status === "Approved" && (
-                                                    <span>Approved: {milestone.statusDate}</span>
+                                                    <span>Approved: {format(parseISO(milestone.statusDate), 'yyyy-MM-dd')}</span>
                                                 )}
                                                 {milestone.status === "Under Review" && (
-                                                    <span>Under Review: {milestone.statusDate}</span>
+                                                    <span>Under Review: {format(parseISO(milestone.statusDate), 'yyyy-MM-dd')}</span>
                                                 )}
                                                 {milestone.status === "Pending Approval" && (
                                                     <span>
-                                                        Pending Approval: {milestone.statusDate}
+                                                        Pending Approval: {format(parseISO(milestone.statusDate), 'yyyy-MM-dd')}
                                                     </span>
                                                 )}
                                             </div>
@@ -413,7 +414,7 @@ const ProjectDashboard = () => {
                                                 )}
                                                 {milestone.paymentDate && (
                                                     <span className="text-xs text-muted-foreground">
-                                                        {milestone.paymentDate}
+                                                        {format(parseISO(milestone.paymentDate), 'yyyy-MM-dd')}
                                                     </span>
                                                 )}
                                             </div>
