@@ -56,8 +56,6 @@ const redirect = () => {
                             setUserData(data);
                         } else {
                             console.error("Error:", result.message);
-
-
                         }
                     } catch (error) {
                         console.error("Fetch Error:", error);

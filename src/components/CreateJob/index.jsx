@@ -58,7 +58,7 @@ import {
 } from "./skills.js";
 import { Checkbox } from "../ui/checkbox.jsx";
 import { Label } from "../ui/label.jsx";
-import { fetchProjects } from "@/app/(redux)/features/projectDataSlice.js"
+import { fetchClientProjects } from "@/app/(redux)/features/projectDataSlice.js"
 
 const createJobSchema = z.object({
   title: z
@@ -201,9 +201,10 @@ const CreateJobForm = () => {
       });
       // console.log(values);
       // setTags([]);
-      console.log(response);
+      console.log(response, "Response");
       if (userData?.id) {
-        dispatch(fetchProjects(userData?.id))
+        dispatch(fetchClientProjects(userData?.id))
+        router.push("/cl/jobs");
       }
       // resetForm();
       router.push("/cl/jobs");

@@ -13,9 +13,9 @@ export async function POST(req) {
     const { image } = await req.json();
 
     const uploadResponse = await cloudinary.uploader.upload(image, {
-      upload_preset: 'karmsetu', // Replace with your preset
+      upload_preset: 'karmsetu', 
     });
-    console.log(uploadResponse.secure_url, "Image URL");
+    console.log(uploadResponse.secure_url, "Image URL from API to upload image to CLoudinary");
     return NextResponse.json({ success: true, url: uploadResponse.secure_url });
   } catch (error) {
     console.error("Error uploading to Cloudinary:", error.message);

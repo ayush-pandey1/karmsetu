@@ -86,10 +86,10 @@ const ApplicationsPage = () => {
         console.error("Failed to accept the application");
       }else{
         setStatus((prev) => ({ ...prev, [appId]: newStatus }));
+        handleRefresh();
         console.log("Application Status updated successfully");
       }
     } catch (error) {
-
       setStatus((prev) => ({ ...prev, [appId]: null }));
       console.error("Error accepting application:", error);
     }

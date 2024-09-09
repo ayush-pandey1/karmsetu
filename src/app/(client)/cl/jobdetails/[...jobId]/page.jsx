@@ -23,7 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FaEnvelopeOpenText } from "react-icons/fa";
-
+import Loader2 from "@/components/Loader2";
 
 const JobDetails = () => {
   const [jobData, setJobData] = useState(null);
@@ -62,7 +62,7 @@ const JobDetails = () => {
     fetchJobData();
   }, [jobId]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return (<Loader2/>);
 
   const role = "client";
   const isApplied = false;
