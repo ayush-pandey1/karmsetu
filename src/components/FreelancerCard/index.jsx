@@ -13,7 +13,7 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id, rating, i
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
   const receiverId = id;
-  const senderId = user.id;
+  const senderId = user?.id;
   const router = useRouter();
   // console.log("senderId: ", senderId, "receiverId: ", receiverId);
   const handleCreateChat = async () => {
@@ -36,7 +36,7 @@ const FreelancerCard = ({ fullname, professionalTitle, skill, bio, id, rating, i
   return (
     <div className="p-4 flex flex-col gap-4  border bg-white border-gray-200  w-72 rounded-xl">
       <div className="flex flex-row items-center gap-3">
-        <Image src={imageLink? imageLink : "/images/user/user-02.png"} height="45" width="45" alt="Freelancer Photo" className="border border-green-500 rounded-full" />
+        <Image src={imageLink ? imageLink : "/images/user/user-02.png"} height="45" width="45" alt="Freelancer Photo" className="border border-green-500 rounded-full" />
         <div className="flex flex-col">
           <span className="text-black text-lg font-semibold">{fullname}</span>
           <span className="text-xs">{professionalTitle}</span>

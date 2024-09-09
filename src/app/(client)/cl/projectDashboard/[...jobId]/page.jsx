@@ -154,7 +154,7 @@ const ProjectDashboard = () => {
                 console.log("Project Data from MongoDB", data.project);
                 setJobData(data.project);
                 console.log(data.project.milestones)
-                setMilestones(data.project.milestones);
+                setMilestones(data.project.milestones || []);
                 const totalReceived = data.project.milestones
                     .filter(milestone => milestone.paymentStatus === "Completed") // Filter out items with paymentStatus "Completed"
                     .reduce((total, milestone) => total + parseInt(milestone.amount, 10), 0);

@@ -59,6 +59,7 @@ import {
 import { Checkbox } from "../ui/checkbox.jsx";
 import { Label } from "../ui/label.jsx";
 import { fetchClientProjects } from "@/app/(redux)/features/projectDataSlice.js"
+import { checkout } from "@/checkout.js";
 
 const createJobSchema = z.object({
   title: z
@@ -201,13 +202,21 @@ const CreateJobForm = () => {
       });
       // console.log(values);
       // setTags([]);
-      console.log(response, "Response");
-      if (userData?.id) {
-        dispatch(fetchClientProjects(userData?.id))
+      console.log(response.data.savedProject._id, "Response");
+      // return;
+      if (response?.data?.savedProject?._id) {
+        stripe(response.data.savedProject._id);
+      }
+      else {
         router.push("/cl/jobs");
       }
+      // if (userData?.id) {
+      //   dispatch(fetchClientProjects(userData?.id))
+      //   router.push("/cl/jobs");
+      // }
       // resetForm();
-      router.push("/cl/jobs");
+      // stripe(projectId);
+      // router.push("/cl/jobs");
     } catch (error) {
       console.error(
         "Error occurred:",
@@ -217,6 +226,10 @@ const CreateJobForm = () => {
   };
   const [selectedSkills, setSelectedSkills] = useState([]); //This is the project category selected, I (Ayush) made this to only determine which project category is selected
   // ohk(suraj)
+  const stripe = (projectId) => {
+    checkout({ lineItems: [{ price: "price_1PwtGCBgUZPJOEsGdnpQouDx", quantity: 1 }], projectId })
+    return;
+  }
 
   useEffect(() => {
     switch (form.watch("projectCategory")) {
