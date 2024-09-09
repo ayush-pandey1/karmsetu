@@ -14,13 +14,15 @@ import { SessionProvider } from "next-auth/react";
 export default function RootLayout({ children, }) {
   return (<html lang="en" suppressHydrationWarning className="no-scrollbar">
     <body className={`dark:bg-black ${inter.className}`}>
-      <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
-        <SessionProvider>
+      <SessionProvider>
+        <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
+
           <ToasterContext />
           {children}
           <ScrollToTop />
-        </SessionProvider>
-      </ThemeProvider>
+        </ThemeProvider>
+      </SessionProvider>
+
     </body>
   </html>);
 }

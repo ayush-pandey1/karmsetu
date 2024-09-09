@@ -10,13 +10,16 @@ import MarginWidthWrapper from '@/components/mainClient/margin-width-wrapper';
 import PageWrapper from '@/components/mainClient/page-wrapper';
 import SideNav from '@/components/mainClient/side-nav';
 const inter = Inter({ subsets: ['latin'] });
-import { Provider, useDispatch } from 'react-redux'
+import { Provider, useDisispatch } from 'react-redux'
 import store from "../../(redux)/store/store";
 
 import { SessionProvider } from "next-auth/react";
+import { getLocaleCookie } from '../../../utils/cookieUtils';
+import { setLanguage } from '../../(redux)/features/languageSlice';
 
 export default function RootLayout({ children, }) {
-
+  const locale = getLocaleCookie(); // Retrieve locale from cookies
+  store.dispatch(setLanguage(locale));
 
   return (<html lang="en">
     <body className={`bg-white ${inter.className}`}>
