@@ -19,12 +19,6 @@ export async function PUT(req, { params }) {
     console.log(freelancerId, id, newStatus, "From Backend API which would update the application newStatus");
     
     const project = await Project.findById(id);
-    const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
-    const clientName = project.clientName;
-    const projectName = project.title;
-
-    // console.log(project, "Project Details from applicationAccepted API")
-    // console.log("Freelancer Name from applicationAccepted API", freelancerName);
 
     // const freelancerDetails = await axios.get(`/api/user?id=${freelancerId}`)
     // const freelancerEmail = freelancerDetails.email;
@@ -37,6 +31,9 @@ export async function PUT(req, { params }) {
       );
     }
     console.log("Project found");
+    const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
+    const clientName = project.clientName;
+    const projectName = project.title;
 
     const updateApplicationStatus = async (newStatus)=>{
       console.log(newStatus, freelancerId, id, "Inside the updateApplicationStatus function in the API");
@@ -58,6 +55,7 @@ export async function PUT(req, { params }) {
     };
     
     if (newStatus === 'accepted') {
+      const freelancerEmail = "lakshay12290@gmail.com";
       console.log("Application newStatus to be updated to Accepted");
       //Update the freelancerId and set the newStatus to "In Progress"
       console.log(freelancerId, "If Status is accepted in the Backend");
@@ -68,7 +66,7 @@ export async function PUT(req, { params }) {
       await project.save();
       console.log(newStatus, "if the application newStatus is accepted and after saving the changes in the project document");
       await updateApplicationStatus(newStatus);
-      //const mail = await applicationStatusEmail(freelancerEmail, newStatus, freelancerName, clientName, projectName);
+      const mail = await applicationStatusEmail(freelancerEmail, newStatus, freelancerName, clientName, projectName);
       return NextResponse.json(
         {
           message: "Freelancer assigned, project newStatus updated to In Progress, and Updated Application Status.",

@@ -6,7 +6,7 @@ export async function POST(req) {
         const body = await req.json();
         const { email, phoneNumber, age, gender, address, bio, socialMedia, professionalTitle, skills, portfolioLink, role, coordinates, photo } = body;
         // console.log(coordinates, "Params")
-        console.log("Image Link from Params", photo);
+        //console.log("Image Link from Params", photo);
         if (!email) {
             return NextResponse.json({ message: "Email is required" }, { status: 400 });
         }
