@@ -46,7 +46,7 @@ const HeaderMobile = () => {
       else if (!userDetails) {
         router.push('/auth/redirect');
       }
-    }, 5000);
+    }, 10000);
     return () => clearTimeout(timeoutId);
   }, [session, router]);
 

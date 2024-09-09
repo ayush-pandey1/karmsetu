@@ -54,7 +54,7 @@ const Header = () => {
 
         <div className="hidden md:block">
           <div className="flex items-center justify-center w-8 h-8 text-center rounded-full bg-zinc-300">
-            <img className="text-sm font-semibold" style={{overflow : "hidden"}} src ={imgLink?imgLink:"HQ"}></img>
+          <img className="rounded-lg" alt="Profile Image" style={{ overflow : "hidden"}} src = {imgLink? imgLink : "HQ"}/>
           </div>
         </div>
       </div>

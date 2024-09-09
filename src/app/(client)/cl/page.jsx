@@ -51,7 +51,7 @@ const Home = () => {
     latitude: 0,
     longitude: 0,
   });
-  const [loading2, setLoading2] = useState(true);
+  const [freelancerDataLoading, setFreelancerDataLoading] = useState(true);
 
   //To get user details from sessionStorage
   useEffect(() => {
@@ -73,15 +73,6 @@ const Home = () => {
     allProjects: 0,
   });
 
-  const filteredFreelancersData = useSelector(
-    (state) => state.projects.filteredFreelancer
-  );
-  useEffect(() => {
-    setFilteredFreelancer(filteredFreelancersData);
-    // console.log(freelancers, "All freelancers State Variable")
-    // console.log(freelancerData, "All freelancers Redux Variable")
-    // console.log(filteredFreelancers, "After filtering the data");
-  }, [filteredFreelancersData]);
 
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
@@ -100,7 +91,7 @@ const Home = () => {
   };
 
 
-  const user = userData?.fullname;
+  const user = userData?.name;
   const clientId = userData?.id;
 
   //To fetch freelancer details
@@ -108,11 +99,7 @@ const Home = () => {
     dispatch(freelancerDetails());
   }, [dispatch]);
 
-  //To set freelancer data fetched from the database in the state variable to display it
-  const freelancerData = useSelector((state) => state.projects.freelancer);
-  useEffect(() => {
-    setFreelancers(freelancerData);
-  }, [freelancerData]);
+
 
   //Calling API to fetch client projects
   useEffect(() => {
@@ -136,7 +123,21 @@ const Home = () => {
       ongoingProjects: ongoingProjects,
       allProjects: allProjects,
     });
+    setLoading(false);
   }, [completedProjects, ongoingProjects, allProjects]);
+
+  const filteredFreelancersData = useSelector(
+    (state) => state.projects.filteredFreelancer
+  );
+
+  useEffect(() => {
+    setFilteredFreelancer(filteredFreelancersData);
+    setFreelancerDataLoading(false);
+    // console.log(freelancers, "All freelancers State Variable")
+    // console.log(freelancerData, "All freelancers Redux Variable")
+    // console.log(filteredFreelancers, "After filtering the data");
+  }, [filteredFreelancersData]);
+
 
   //To get geolocation of the client
   useEffect(() => {
@@ -178,6 +179,9 @@ const Home = () => {
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
+    {loading ? (
+      <div><Loader2/></div>
+    ): (
       <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
         <div className="flex  flex-col sm:flex-row gap-4 sm:gap-0  sm:justify-between sm:items-center">
           <span className="font-semibold text-black text-4xl">
@@ -301,7 +305,6 @@ const Home = () => {
           <div className="md:text-4xl text-3xl text-black font-semibold flex flex-row items-center">
             {/* <span><MdWorkspacePremium className="text-secondaryho md:text-4xl text-3xl " /></span> */}
             <p className="px-3  border-l-4 border-l-secondary font-bold">
-              {" "}
               Freelancers
             </p>
           </div>
@@ -418,13 +421,11 @@ const Home = () => {
             </div>
           </div>
 
-          <div className=" inline-flex flex-row flex-wrap   justify-start   gap-4">
-            {/* {loading ? (
-              <div className="h-80 w-full">
-                <Loader2 />
-              </div> */}
-            {/* ) : */}
-            {filteredFreelancers.length > 0 ? (
+          <div className="inline-flex flex-row flex-wrap justify-start gap-4">
+            {freelancerDataLoading ? (
+              <Loader2/>
+            ) :  (
+            ((filteredFreelancers.length > 0) )  ? (
               filteredFreelancers.map((filteredFreelancer) => (
                 <FreelancerCard
                   key={filteredFreelancer._id}
@@ -433,17 +434,19 @@ const Home = () => {
                   skill={filteredFreelancer.skill}
                   bio={filteredFreelancer.bio}
                   id={filteredFreelancer._id}
-                  rating={filteredFreelancer.rating}
+                  rating={filteredFreelancer.rating || "4"}
                   imageLink = {filteredFreelancer.imageLink}
                 />
               ))
             ) : (
               <div>No freelancers</div>
-            )}
-            {/* } */}
+            ))}
           </div>
+
         </div>
+
       </div>
+    )}
     </>
   );
 };

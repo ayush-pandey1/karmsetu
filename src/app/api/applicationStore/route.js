@@ -27,7 +27,8 @@ export async function POST(req) {
                 email: freelancer.email,
                 phone: freelancer.phone,
                 professionalTitle: freelancer.professionalTitle,
-                skill: freelancer.skill
+                skill: freelancer.skill,
+                imageLink : freelancer.imageLink
             },
             project: {
                 id:project._id,

@@ -82,6 +82,7 @@ const formSchema = z.object({
   bio: z.string().min(10, { message: "Bio should be at least 10 words" }),
   socialMedia: z.string(),
   role: z.string(),
+  photo: z.any().optional(), // New photo field
 });
 
 const OnboardingFreelancer = () => {
@@ -116,6 +117,7 @@ const OnboardingFreelancer = () => {
         name: session.user.name,
         id: session.user.id,
         role: extractedRole,
+        imageLink : profileImageUrl
       };
       setRole(sessionData?.role);
       console.log("sdsd", role);
@@ -147,7 +149,7 @@ const OnboardingFreelancer = () => {
       professionalTitle: "",
       skills: [],
       role: role,
-      photo: "",
+      photo: profileImageUrl,
     },
   });
 
@@ -163,51 +165,54 @@ const OnboardingFreelancer = () => {
     }
   }, [userEmail, form]);
 
+
   // Handle file change for image upload
   const handleFileChange = (e) => {
     if (e.target.files) {
       console.log(e.target.files[0]);
       setSelectedFile(e.target.files[0]);
-      handleImageUpload();
-    }
-  };
-
-  // Handle image upload to Cloudinary
-  const handleImageUpload = async () => {
-    if (!selectedFile) {
-      console.log("Please select an image first.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(selectedFile);
-
-    reader.onloadend = async () => {
-      const imageData = reader.result;
-
-      try {
-        const response = await fetch("/api/imageUpload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: imageData }),
-        });
-
-        const data = await response.json();
-        if (data.success) {
-          setProfileImageUrl(data.url); // Set the image URL for submission
-          form.setValue("photo", data.url); // Set the photo field value in the form
-          console.log("Image uploaded successfully!", data.url);
-        } else {
-          console.error("Image upload failed.");
-        }
-      } catch (error) {
-        console.error("Error uploading image:", error.message);
+      const reader = new FileReader();
+      if (!selectedFile) {
+        console.log("Please select an image first.");
+        return;
       }
-    };
+  
+      
+      reader.readAsDataURL(selectedFile);
+  
+      reader.onloadend = async () => {
+        const imageData = reader.result;
+  
+        try {
+          const response = await fetch("/api/imageUpload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: imageData }),
+          });
+          // console.log(response, "API response");
+          const data = await response.json();
+          if (data.success) {
+            setProfileImageUrl(data.url); // Set the image URL for submission
+            console.log("Image uploaded successfully!", data.url);
+          } else {
+            console.error("Image upload failed.");
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error.message);
+        }
+      };
+    }
   };
+
+  useEffect(() => {
+    if (profileImageUrl) {
+      form.setValue("photo", profileImageUrl);
+    }
+  }, [profileImageUrl]);
 
   const onSubmit = async (data) => {
-    console.log(data);
+    console.log(profileImageUrl, "ProfileImageURL from inside onsubmit function")
+    console.log(data, "From Inside onSubmit function, first line of the function");
     console.log("role: ", role);
     try {
       const response = await fetch("/api/FpersonalDetails", {
@@ -221,13 +226,13 @@ const OnboardingFreelancer = () => {
       const result = await response.json();
       if (response.ok) {
         console.log("User updated successfully");
-
+        console.log(response);
         router.push("/auth/redirect");
       } else {
         console.log(`Error: ${result.message}`);
       }
     } catch (error) {
-      console.error("Error submitting form", error);
+      console.error("Error submitting form", error.message);
       console.log("Something went wrong");
     }
   };
