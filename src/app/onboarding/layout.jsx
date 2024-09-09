@@ -17,6 +17,7 @@ export default function RootLayout({ children, }) {
       <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
         <SessionProvider>
           <ToasterContext />
+       
           {children}
           <ScrollToTop />
         </SessionProvider>
