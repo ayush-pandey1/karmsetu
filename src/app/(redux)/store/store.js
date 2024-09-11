@@ -3,6 +3,7 @@ import projectDataReducer from '../features/projectDataSlice';
 import freelancerProjects from '../features/freelancerProjects';
 import chatDataReducer from '../features/chatDataSlice'; 
 import socketReducer from "../features/socketSlice";
+import languageReducer from '../features/languageSlice';
 
 const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ const store = configureStore({
     freelancer: freelancerProjects,
     chatData: chatDataReducer,
     socket: socketReducer,     
+    language: languageReducer,
   },
 });
 

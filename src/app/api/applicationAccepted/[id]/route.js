@@ -1,8 +1,6 @@
 import Project from "@/app/(models)/project";
 import { NextResponse } from "next/server";
 import Application from "@/app/(models)/application";
-import {sendEmail} from "@/utils/applicationStatusEmail"
-import axios from 'axios';
 
 export async function PUT(req, { params }) {
   try {
@@ -66,7 +64,6 @@ export async function PUT(req, { params }) {
       await project.save();
       console.log(newStatus, "if the application newStatus is accepted and after saving the changes in the project document");
       await updateApplicationStatus(newStatus);
-      const mail = await applicationStatusEmail(freelancerEmail, newStatus, freelancerName, clientName, projectName);
       return NextResponse.json(
         {
           message: "Freelancer assigned, project newStatus updated to In Progress, and Updated Application Status.",
@@ -79,8 +76,6 @@ export async function PUT(req, { params }) {
       console.log(newStatus);
       console.log("Application newStatus to be updated to Rejected");
       await updateApplicationStatus(newStatus);
-      const mail = await sendEmail(freelancerEmail, newStatus, freelancerName, clientName, projectName);
-      console.log(mail, "REsponse of sending mail");
       return NextResponse.json(
         {
           message: "Updated Application Status.",

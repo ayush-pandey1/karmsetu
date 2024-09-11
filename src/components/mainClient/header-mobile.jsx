@@ -38,15 +38,16 @@ const HeaderMobile = () => {
   useEffect(() => {
     const userDetails = JSON.parse(sessionStorage.getItem('karmsetu'));
     console.log(userDetails, session, 'Session Storage Data');
-    if (status !== "loading" && !session) {
-      sessionStorage.removeItem('karmsetu');
-      router.push('/auth/signin');
+    if (status !== "loading") {
+      if (!session) {
+        sessionStorage.removeItem('karmsetu');
+        router.push('/auth/signin');
+      }
+      else if (!userDetails) {
+        router.push('/auth/redirect');
+      }
     }
-    else if (!userDetails) {
-      router.push('/auth/redirect');
-    }
-
-  }, [session, router]);
+  }, [session, router]);
 
   return (
     <motion.nav

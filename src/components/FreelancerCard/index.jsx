@@ -33,6 +33,7 @@ const FreelancerCard = ({
   const user = useSelector((state) => state.chatData.userData);
   const receiverId = id;
   const senderId = user?.id;
+  
   const router = useRouter();
   // console.log("senderId: ", senderId, "receiverId: ", receiverId);
   const handleCreateChat = async () => {
