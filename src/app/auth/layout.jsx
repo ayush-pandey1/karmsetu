@@ -6,6 +6,7 @@ import { ThemeProvider } from "next-themes";
 import { Inter } from "next/font/google";
 import "../globals.css";
 import { SessionProvider } from "next-auth/react";
+import NextNProgress from 'nextjs-progressbar';
 const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({ children, }) {
@@ -15,6 +16,7 @@ export default function RootLayout({ children, }) {
         <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
           <Lines />
           <ToasterContext />
+          <NextNProgress />
           {children}
           <ScrollToTop />
         </ThemeProvider>

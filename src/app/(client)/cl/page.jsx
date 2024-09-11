@@ -184,7 +184,7 @@ const Home = () => {
     ): (
       <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
         <div className="flex  flex-col sm:flex-row gap-4 sm:gap-0  sm:justify-between sm:items-center">
-          <span className="font-semibold text-black text-4xl">
+          <span className="font-semibold text-black text-2xl sm:text-3xl md:text-4xl">
             Welcome Back, <span className="text-primary">{user}</span> 👋
           </span>
           <div className="flex items-center">
@@ -309,7 +309,7 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-2 justify-between">
+          <div className="flex flex-col lg:flex-row gap-2 justify-between mb-4">
             <div className="flex flex-row gap-2 items-center">
               <div className="bg-white max-h-10 min-w-64 flex flex-row items-center gap-1 pl-2 rounded-md ">
                 <HiMiniMagnifyingGlass className="text-xl" />
@@ -392,36 +392,10 @@ const Home = () => {
                 </Select>
               </div>
 
-              <div className="max-w-72">
-                <div className="price-range">
-                  <span className="text-sm text-black font-medium">
-                    Budget:{" "}
-                  </span>
-                  <span className="text-sm">₹</span>
-                  <span className="text-sm">{maxBudget}</span>
-                  <input
-                    className="w-full accent-primary"
-                    type="range"
-                    defaultValue="1000"
-                    name="budgetRange"
-                    min="0"
-                    max="20000"
-                    step="500"
-                    onChange={(e) => {
-                      setMaxBudget(e.target.value);
-                      handleFilterChange("budget", e.target.value);
-                    }}
-                  />
-                  <div className="-mt-2 flex w-full justify-between">
-                    <span className="text-sm text-gray-600">0</span>
-                    <span className="text-sm text-gray-600">20000</span>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
-          <div className="inline-flex flex-row flex-wrap justify-start gap-4">
+          <div className="inline-flex flex-col  justify-center gap-4">
             {freelancerDataLoading ? (
               <Loader2/>
             ) :  (

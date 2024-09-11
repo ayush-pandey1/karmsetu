@@ -6,11 +6,11 @@ export const SIDENAV_ITEMS = [
         path: '/fl',
         icon: <Icon icon="lucide:home" width="24" height="24" />,
     },
-    // {
-    //     title: 'Nearby',
-    //     path: '/fl/nearby',
-    //     icon: <Icon icon="lucide:map-pinned" width="24" height="24" />,
-    // },
+    {
+        title: 'Nearby',
+        path: '/fl/nearby',
+        icon: <Icon icon="lucide:map-pinned" width="24" height="24" />,
+    },
     {
         title: 'Projects',
         path: '/fl/projects',

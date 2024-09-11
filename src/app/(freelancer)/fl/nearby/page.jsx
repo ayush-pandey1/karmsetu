@@ -19,6 +19,8 @@ const NearbyFreelancersPage = () => {
     const fetchNearbyFreelancers = async () => {
       const data1 = JSON.parse(sessionStorage.getItem('karmsetu'));
       const id = data1?.id;
+      // console.log(id," : ", data1);
+      
 
       if (id) {
         // loading(true);

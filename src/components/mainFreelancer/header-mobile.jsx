@@ -1,26 +1,26 @@
-'use client';
-import React, { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { SIDENAV_ITEMS } from '@/constants/freelancer/constants';
-import { Icon } from '@iconify/react';
-import { motion, useCycle } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+"use client";
+import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { SIDENAV_ITEMS } from "@/constants/freelancer/constants";
+import { Icon } from "@iconify/react";
+import { motion, useCycle } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const sidebar = {
   open: (height = 1000) => ({
     clipPath: `circle(${height * 2 + 200}px at 100% 0)`,
     transition: {
-      type: 'spring',
+      type: "spring",
       stiffness: 20,
       restDelta: 2,
     },
   }),
   closed: {
-    clipPath: 'circle(0px at 100% 0)',
+    clipPath: "circle(0px at 100% 0)",
     transition: {
-      type: 'spring',
+      type: "spring",
       stiffness: 400,
       damping: 40,
     },
@@ -60,64 +60,108 @@ const HeaderMobile = () => {
             </Link>
           </MenuItem>)}
 
-          {!isLastItem && (<MenuItem className="my-3 h-px w-full bg-gray-300" />)}
-        </div>);
-      })}
-    </motion.ul>
-    <MenuToggle toggle={toggleOpen} />
-  </motion.nav>);
+              {!isLastItem && (
+                <MenuItem className="my-3 h-px w-full bg-gray-300" />
+              )}
+            </div>
+          );
+        })}
+      </motion.ul>
+      <MenuToggle toggle={toggleOpen} />
+    </motion.nav>
+  );
 };
 export default HeaderMobile;
-const MenuToggle = ({ toggle }) => (<button onClick={toggle} className="pointer-events-auto absolute right-4 top-[14px] z-30">
-  <svg width="23" height="23" viewBox="0 0 23 23">
-    <Path variants={{
-      closed: { d: 'M 2 2.5 L 20 2.5' },
-      open: { d: 'M 3 16.5 L 17 2.5' },
-    }} />
-    <Path d="M 2 9.423 L 20 9.423" variants={{
-      closed: { opacity: 1 },
-      open: { opacity: 0 },
-    }} transition={{ duration: 0.1 }} />
-    <Path variants={{
-      closed: { d: 'M 2 16.346 L 20 16.346' },
-      open: { d: 'M 3 2.5 L 17 16.346' },
-    }} />
-  </svg>
-</button>);
-const Path = (props) => (<motion.path fill="transparent" strokeWidth="2" stroke="hsl(0, 0%, 18%)" strokeLinecap="round" {...props} />);
-const MenuItem = ({ className, children, }) => {
-  return (<motion.li variants={MenuItemVariants} className={className}>
-    {children}
-  </motion.li>);
+const MenuToggle = ({ toggle }) => (
+  <button
+    onClick={toggle}
+    className="pointer-events-auto absolute right-4 top-[14px] z-30"
+  >
+    <svg width="23" height="23" viewBox="0 0 23 23">
+      <Path
+        variants={{
+          closed: { d: "M 2 2.5 L 20 2.5" },
+          open: { d: "M 3 16.5 L 17 2.5" },
+        }}
+      />
+      <Path
+        d="M 2 9.423 L 20 9.423"
+        variants={{
+          closed: { opacity: 1 },
+          open: { opacity: 0 },
+        }}
+        transition={{ duration: 0.1 }}
+      />
+      <Path
+        variants={{
+          closed: { d: "M 2 16.346 L 20 16.346" },
+          open: { d: "M 3 2.5 L 17 16.346" },
+        }}
+      />
+    </svg>
+  </button>
+);
+const Path = (props) => (
+  <motion.path
+    fill="transparent"
+    strokeWidth="2"
+    stroke="hsl(0, 0%, 18%)"
+    strokeLinecap="round"
+    {...props}
+  />
+);
+const MenuItem = ({ className, children }) => {
+  return (
+    <motion.li variants={MenuItemVariants} className={className}>
+      {children}
+    </motion.li>
+  );
 };
-const MenuItemWithSubMenu = ({ item, toggleOpen, }) => {
+const MenuItemWithSubMenu = ({ item, toggleOpen }) => {
   const pathname = usePathname();
   const [subMenuOpen, setSubMenuOpen] = useState(false);
-  return (<>
-    <MenuItem>
-      <button className="flex w-full text-2xl" onClick={() => setSubMenuOpen(!subMenuOpen)}>
-        <div className="flex flex-row justify-between w-full items-center">
-          <span className={`${pathname.includes(item.path) ? 'font-bold' : ''}`}>
-            {item.title}
-          </span>
-          <div className={`${subMenuOpen && 'rotate-180'}`}>
-            <Icon icon="lucide:chevron-down" width="24" height="24" />
+  return (
+    <>
+      <MenuItem>
+        <button
+          className="flex w-full text-2xl"
+          onClick={() => setSubMenuOpen(!subMenuOpen)}
+        >
+          <div className="flex flex-row justify-between w-full items-center">
+            <span
+              className={`${pathname.includes(item.path) ? "font-bold" : ""}`}
+            >
+              {item.title}
+            </span>
+            <div className={`${subMenuOpen && "rotate-180"}`}>
+              <Icon icon="lucide:chevron-down" width="24" height="24" />
+            </div>
           </div>
-        </div>
-      </button>
-    </MenuItem>
-    <div className="mt-2 ml-2 flex flex-col space-y-2">
-      {subMenuOpen && (<>
-        {item.subMenuItems?.map((subItem, subIdx) => {
-          return (<MenuItem key={subIdx}>
-            <Link href={subItem.path} onClick={() => toggleOpen()} className={` ${subItem.path === pathname ? 'font-bold' : ''}`}>
-              {subItem.title}
-            </Link>
-          </MenuItem>);
-        })}
-      </>)}
-    </div>
-  </>);
+        </button>
+      </MenuItem>
+      <div className="mt-2 ml-2 flex flex-col space-y-2">
+        {subMenuOpen && (
+          <>
+            {item.subMenuItems?.map((subItem, subIdx) => {
+              return (
+                <MenuItem key={subIdx}>
+                  <Link
+                    href={subItem.path}
+                    onClick={() => toggleOpen()}
+                    className={` ${
+                      subItem.path === pathname ? "font-bold" : ""
+                    }`}
+                  >
+                    {subItem.title}
+                  </Link>
+                </MenuItem>
+              );
+            })}
+          </>
+        )}
+      </div>
+    </>
+  );
 };
 const MenuItemVariants = {
   open: {
