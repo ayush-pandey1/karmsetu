@@ -52,7 +52,7 @@ const MapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
         className: "icon ",
       });
 
-      // const customIcon1 = new L.Icon({
+      // const customIcon1 = new L.Icon({ 
       //   iconUrl: "/marker-shadow.png",
       //   iconSize: [30, 40], // Adjusted size
       //   iconAnchor: [15, 40], // Adjusted anchor position

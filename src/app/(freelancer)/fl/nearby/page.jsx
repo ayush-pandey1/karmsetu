@@ -1,8 +1,10 @@
 "use client";
 
-import FmapComponent from '@/components/FmapComponent';
-import JobCardFreelancer from '@/components/JobCardFreelancer';
-import React, { useEffect, useState } from 'react';
+import FmapComponent from "@/components/FmapComponent";
+import JobCardFreelancer from "@/components/JobCardFreelancer";
+import Loader2 from "@/components/Loader2";
+import React, { useEffect, useState } from "react";
+import { GrMap } from "react-icons/gr";
 
 const NearbyFreelancersPage = () => {
   const [nearByProject, setNearByProject] = useState([]);
@@ -17,23 +19,24 @@ const NearbyFreelancersPage = () => {
 
   useEffect(() => {
     const fetchNearbyFreelancers = async () => {
-      const data1 = JSON.parse(sessionStorage.getItem('karmsetu'));
+      const data1 = JSON.parse(sessionStorage.getItem("karmsetu"));
       const id = data1?.id;
       // console.log(id," : ", data1);
-      
 
       if (id) {
         // loading(true);
         try {
-          const response = await fetch(`/api/nearby/freelancer/${id}?distance=${selectedDistance}`);
+          const response = await fetch(
+            `/api/nearby/freelancer/${id}?distance=${selectedDistance}`
+          );
           if (response.ok) {
             const data = await response.json();
             setNearByProject(data);
           } else {
-            console.error('Failed to fetch data:', response.statusText);
+            console.error("Failed to fetch data:", response.statusText);
           }
         } catch (error) {
-          console.error('Error fetching nearby freelancers:', error);
+          console.error("Error fetching nearby freelancers:", error);
         } finally {
           setLoading(false);
         }
@@ -65,43 +68,86 @@ const NearbyFreelancersPage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading nearby projects...</div>;
+    return (
+      <div className="w-full h-full">
+        <Loader2 />
+      </div>
+    );
   }
 
   return (
     <>
-      <div>NearbyFreelancersPage</div>
-      <div className="App">
-        <h1>My Leaflet Map</h1>
-        {coordinates.latitude ? (
-          <FmapComponent
-            myCoordinate={coordinates}
-            othersCoordinates={nearByProject}
-            distance={selectedDistance}
-          />
-        ) : (
-          <h1>Page is loading...</h1>
-        )}
-      </div>
-      <div>
-        <label htmlFor="distance">Select distance (km): </label>
-        <select id="distance" value={selectedDistance} onChange={handleDistanceChange}>
-          {distances.map((distance) => (
-            <option key={distance} value={distance}>
-              {distance} km
-            </option>
-          ))}
-        </select>
-        <p>Selected distance: {selectedDistance} km</p>
-      </div>
-      <div style={{ display: "flex", flexDirection: "row", gap: "2", width: "100%", flexWrap: "wrap" }}>
-        {nearByProject.length > 0 ? (
-          nearByProject.map(project => (
-            <JobCardFreelancer key={project._id} project={project} />
-          ))
-        ) : (
-          <p>No projects available</p>
-        )}
+      <div className="flex flex-col gap-5  mx-3 sm:mx-10 mt-2">
+        <div className="flex flex-col gap-2">
+          <div className="text-black font-bold text-lg sm:text-2xl  border-l-4 border-l-sky-500 px-2 leading-none ">
+            Discover Projects in{" "}
+            <span className="underline decoration-wavy decoration-sky-500">
+              Proximity
+            </span>
+          </div>
+          <div className=" font-medium text-xs sm:text-md  leading-none pl-[14px]">
+            Find projects/gigs in your area.
+          </div>
+        </div>
+        <div className="App">
+          {/* <h1>My Leaflet Map</h1> */}
+          {coordinates.latitude ? (
+            <FmapComponent
+              myCoordinate={coordinates}
+              othersCoordinates={nearByProject}
+              distance={selectedDistance}
+            />
+          ) : (
+            <h1>Page is loading...</h1>
+          )}
+        </div>
+
+        <div>
+          <span className="text-black font-bold text-xl md:text-3xl  flex flex-row items-center gap-1">
+            <GrMap className="text-sky-500" />
+            Projects within{" "}
+            <span className="text-sky-500 ">{selectedDistance} km</span> range
+          </span>
+        </div>
+
+        <div>
+          <label htmlFor="distance" className="text-black font-medium text-xl">
+            Select distance (km):{" "}
+          </label>
+          <select
+            id="distance"
+            value={selectedDistance}
+            onChange={handleDistanceChange}
+            className=" rounded-md text-lg px-2 py-1 border "
+          >
+            {distances.map((distance) => (
+              <option key={distance} value={distance} className="">
+                {distance} km
+              </option>
+            ))}
+          </select>
+          
+        </div>
+
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            gap: "2",
+            width: "100%",
+            flexWrap: "wrap",
+          }}
+          className="gap-2 mb-3"
+        >
+          {nearByProject.length > 0 ? (
+            nearByProject.map((project) => (
+              <JobCardFreelancer key={project._id} project={project} />
+            ))
+          ) : (
+            <p>No projects available</p>
+          )}
+        </div>
       </div>
     </>
   );
