@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, filterByBudget, filterByCategory, filterBySearch } from "@/app/(redux)/features/freelancerProjects"
+import Loader2 from "@/components/Loader2";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -27,6 +28,7 @@ export default function Home() {
   });
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(true);
   const [error, setError] = useState(null);
   const [userData, setUserData] = useState();
   // const [count, setCount] = useState(0);
@@ -35,6 +37,14 @@ export default function Home() {
     latitude: 0,
     longitude: 0,
   });
+
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    console.log(data, 'Session Storage Data');
+    if (data) {
+      setUserData(data);
+    }
+  }, []);
 
   const allProject = useSelector((state) => state.freelancer.allFreelancerProjects);
   const completedProject = useSelector((state) => state.freelancer.CompletedProjects);
@@ -46,20 +56,13 @@ export default function Home() {
       ongoingProjects: ongoingProject,
       allProjects: allProject,
     });
+    setLoading(false);
   }, [completedProject, ongoingProject, allProject]);
-
 
   useEffect(() => {
     dispatch(fetchProjects());
   }, [dispatch]);
 
-  useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    console.log(data, 'Session Storage Data');
-    if (data) {
-      setUserData(data);
-    }
-  }, []);
 
   // if (userData) {
   //   setCount(count++);
@@ -125,14 +128,11 @@ export default function Home() {
     }
   };
 
-  // const projectsData = useSelector((state) => state.freelancer.projects);
-  // useEffect(() => {    
-  //   setProjects(projectsData);
-  // }, [projectsData]);
-
+  
   const filteredProjectsData = useSelector((state) => state.freelancer.filteredProjects);
   useEffect(() => {
     setFilteredProjects(filteredProjectsData);
+    setLoading2(false);
   }, [filteredProjectsData]);
   // console.log(filteredProjectsData, "From FL page Redux Store");
   // console.log(filteredProjects, "From FL page State Variable");
@@ -141,9 +141,13 @@ export default function Home() {
   return (
     <>
       <div className="flex p-4 flex-col gap-3">
-        <span className="font-semibold text-black text-4xl mb-5">
-          Welcome Back,{" "}
-          <span className="text-primary font-bold">{"Ayush"}</span> 👋
+        {loading2 ? (
+          <Loader2/>
+        ) : (
+          <div>
+          <span className="font-semibold text-black text-4xl mb-5">
+          Welcome Back
+          <span className="text-primary font-bold">{userData?.name}</span> 👋
         </span>
 
 
@@ -247,7 +251,6 @@ export default function Home() {
 
         <div className="md:text-4xl text-3xl text-black font-semibold flex flex-row items-center">
           <p className="px-3  border-l-4 border-l-secondary font-bold">
-            {" "}
             Gigs
           </p>
         </div>
@@ -367,17 +370,26 @@ export default function Home() {
 
         <div className="flex justify-between">
           <div className=" inline-flex flex-row  justify-center sm:justify-start flex-wrap gap-4">
-            {filteredProjects.length > 0 ? (
-              filteredProjects.map((filteredProject) => (
-                <JobCardFreelancer key={filteredProject._id} project={filteredProject} />
-              ))
+            {loading2 ? (
+              <Loader2/>
             ) : (
-              <p>No projects available</p>
-            )}
+              filteredProjects.length > 0 ? (
+                filteredProjects.map((filteredProject) => (
+                  <JobCardFreelancer key={filteredProject._id} project={filteredProject} />
+                ))
+              ) : (
+                <p>No projects available</p>
+              )   
+            )
+          }
           </div>
         </div>
 
 
+        </div>
+        )
+      }
+      
       </div>
     </>
   );

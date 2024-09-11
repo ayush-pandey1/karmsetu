@@ -1,26 +1,28 @@
 "use client";
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSelectedLayoutSegment } from "next/navigation";
 import useScroll from "@/hooks/use-scroll";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Separator } from "../ui/separator";
 
 const Header = () => {
   const [imgLink, setImgLink] = useState("");
 
-    //To get user details from sessionStorage
-    useEffect(() => {
-      const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-      if (data) {
-        try {
-          console.log(data, "User data from session");
-          setImgLink(data?.profileImage);
-        } catch (error) {
-          console.error("Invalid session storage data", error);
-        }
+  //To get user details from sessionStorage
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    if (data) {
+      try {
+        console.log(data, "User data from session");
+        setImgLink(data?.profileImage);
+      } catch (error) {
+        console.error("Invalid session storage data", error);
       }
-    }, []);
+    }
+  }, []);
 
   const scrolled = useScroll(5);
   const selectedLayout = useSelectedLayoutSegment();
@@ -63,9 +65,38 @@ const Header = () => {
           </Link>
         </div>
 
-        <div className="hidden md:block">
-          <div className="flex items-center justify-center w-8 h-8 text-center rounded-full bg-zinc-300">
-            <img className="text-sm font-semibold " style={{overflow : "hidden"}} src = {imgLink? imgLink : "HQ"}></img>
+        <div className="hidden md:block h-full">
+          {/* <div className="flex items-center justify-center text-center rounded-full ">
+            <Avatar>
+              <AvatarImage
+                alt="Profile Image"
+                src={imgLink ? imgLink : "/images/user/nouser.png"}
+                className="h-11 w-11 object-contain"
+              />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
+          </div> */}
+          <div className="flex flex-row w-full items-center h-full opacity-90">
+            <Image
+              alt="Profile Image"
+              src="/min-edu.png"
+              className=" w-20 object-contain "
+              height="0"
+              width="0"
+              unoptimized
+            />
+            <span className="h-full py-2 pl-2 pr-1">
+            <Separator orientation="vertical" className="" />
+            </span>
+           
+            <Image
+              alt="Profile Image"
+              src="/sih-logo.png"
+              className=" w-27 object-contain "
+              height="0"
+              width="0"
+              unoptimized
+            />
           </div>
         </div>
       </div>

@@ -6,10 +6,17 @@ import { SIDENAV_ITEMS } from "@/constants/client/constants";
 //import { SIDENAV_ITEMS } from '../../constants/client/constants';
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { io } from 'socket.io-client';
+import { io } from "socket.io-client";
 import { useDispatch, useSelector } from "react-redux";
 import { setOnlineUsers } from "@/app/(redux)/features/socketSlice";
-import { setReceiveMessage, setSendMessage, setUserData } from "@/app/(redux)/features/chatDataSlice"; // Make sure to import setSendMessage
+import {
+  setReceiveMessage,
+  setSendMessage,
+  setUserData,
+} from "@/app/(redux)/features/chatDataSlice"; // Make sure to import setSendMessage
+import { Separator } from "../ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { BsThreeDotsVertical } from "react-icons/bs";
 
 const SideNav = () => {
   const dispatch = useDispatch();
@@ -17,16 +24,17 @@ const SideNav = () => {
   const userData = useSelector((state) => state.chatData.userData);
   const userId = userData?.id;
   const socket = useRef();
+  const [imgLink, setImgLink] = useState(null);
   // const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
-    const data = sessionStorage.getItem('karmsetu');
+    const data = sessionStorage.getItem("karmsetu");
     if (data) {
       try {
         const parsedData = JSON.parse(data);
         dispatch(setUserData(parsedData));
       } catch (error) {
-        console.error('Invalid session storage data', error);
+        console.error("Invalid session storage data", error);
       }
     }
   }, [dispatch]);
@@ -58,26 +66,44 @@ const SideNav = () => {
 
   useEffect(() => {
     if (sendMessage !== null && socket.current) {
-      socket.current.emit('send-message', sendMessage);
+      socket.current.emit("send-message", sendMessage);
     }
   }, [sendMessage]);
-
 
   return (
     <div className="fixed flex-1 hidden h-screen bg-white border-r md:w-60 border-zinc-200 md:flex">
       <div className="flex flex-col w-full space-y-6 ">
+        <span>
         <Link
           href="/cl"
           className="flex flex-row items-center justify-center w-full h-12 space-x-1 border-b md:justify-start md:px-6 border-zinc-200"
         >
-          <span className="rounded-lg"> <Image src="/karmsetu.png" alt="Gov Punjab Logo" className="" width="34" height="34"/> </span>
-    
+          {/* <span className="rounded-lg">
+            {" "}
+            <Image
+              src="/karmsetu.png"
+              alt="Gov Punjab Logo"
+              className=""
+              width="34"
+              height="34"
+            />{" "}
+          </span> */}
+
           {/* <p className="hidden text-2xl font-bold text-black md:flex dark:text-white">
             Karm<span className="text-primary">Setu</span>
           </p> */}
-          <span className="flex w-32"><Image src="/images/karmsetuLogo-cropped.svg" width="0" height="0" alt="karmsetu Logo" className="w-auto h-auto"/></span>
-
+          <span className="flex w-32">
+            <Image
+              src="/images/karmsetuLogo-cropped.svg"
+              width="0"
+              height="0"
+              alt="karmsetu Logo"
+              className="w-auto h-auto "
+            />
+          </span>
         </Link>
+        </span>
+      
 
         <div className="flex flex-col space-y-2 md:px-6 ">
           {SIDENAV_ITEMS.map((item, idx) => {
@@ -85,6 +111,36 @@ const SideNav = () => {
           })}
         </div>
 
+        <div className="flex h-full flex-col  justify-between">
+          <div className="px-4"></div>
+          <div>
+            <div className="px-5 mb-4">
+            <Separator className="h-0.5 opacity-50 rounded-full"/>
+            </div>
+            <div className="md:px-4 mb-6 flex flex-row items-center gap-3">
+              <div className="flex items-center justify-center text-center rounded-full h-9 w-9 ">
+                <Avatar className="h-9 w-9">
+                  <AvatarImage
+                    alt="Profile Image"
+                    src={imgLink ? imgLink : "/images/user/user-01.png"}
+                    className="h-9 w91 object-contain"
+                  />
+                  <AvatarFallback>CL</AvatarFallback>
+                </Avatar>
+              </div>
+              <div className="flex flex-row justify-between">
+                <div className="flex flex-col leading-none">
+                <span className="text-black text-sm font-semibold flex flex-row justify-between items-center">
+                  {"John Doe"}
+                 
+                </span>
+                <span className="text text-xs text-opacity-75">{"johndoework@gmail.com"}</span>
+                </div>
+                <BsThreeDotsVertical className="cursor-pointer text-black text-sm mt-1" />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -102,10 +158,11 @@ const MenuItem = ({ item }) => {
         <>
           <button
             onClick={toggleSubMenu}
-            className={`flex transition-all ease-in-out flex-row items-center p-2 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${pathname.includes(item.path)
-              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
-              : ""
-              }`}
+            className={`flex transition-all ease-in-out flex-row items-center p-2 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
+              pathname.includes(item.path)
+                ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
+                : ""
+            }`}
           >
             <div className="flex flex-row items-center space-x-4">
               {item.icon}
@@ -124,10 +181,11 @@ const MenuItem = ({ item }) => {
                   <Link
                     key={idx}
                     href={subItem.path}
-                    className={`${subItem.path === pathname
-                      ? "font-semibold text-primary"
-                      : ""
-                      }`}
+                    className={`${
+                      subItem.path === pathname
+                        ? "font-semibold text-primary"
+                        : ""
+                    }`}
                   >
                     <span>{subItem.title}</span>
                   </Link>
@@ -139,10 +197,11 @@ const MenuItem = ({ item }) => {
       ) : (
         <Link
           href={item.path}
-          className={`flex flex-row transition-all ease-in-out space-x-4 items-center p-2  rounded-lg hover:bg-zinc-100 ${item.path === pathname
-            ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
-            : ""
-            }`}
+          className={`flex flex-row transition-all ease-in-out space-x-4 items-center p-2  rounded-lg hover:bg-zinc-100 ${
+            item.path === pathname
+              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
+              : ""
+          }`}
         >
           {item.icon}
           <span className="flex text-xl font-semibold">{item.title}</span>

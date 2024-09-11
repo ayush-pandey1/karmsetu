@@ -96,6 +96,7 @@ const JobDetails = () => {
   console.log(freelancerId, "FreelancerId");
   const hasFreelancerApplied = appliedArray.includes(freelancerId);  // Returns true
   console.log(hasFreelancerApplied, "THis freelancer has applied or not");
+  
   useEffect(()=>{
   if(appliedArray.length > 0){
     //console.log("Some Freelancer have applied for this project")

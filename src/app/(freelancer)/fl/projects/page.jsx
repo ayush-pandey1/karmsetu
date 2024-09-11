@@ -6,11 +6,13 @@ import JobCardClient from '@/components/JobCardClient';
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from '@/components/ui/button';
 import { fetchFreelancerProjects , modifyRefresh} from '../../../(redux)/features/freelancerProjects';
+import Loader2 from "@/components/Loader2";
 
 const ProjectsPage = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState(null); // Default to null
-
+  const [loading, setLoading]  = useState(true);
+  
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     if (data) {
