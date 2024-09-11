@@ -90,7 +90,7 @@ const NearbyFreelancersPage = () => {
   }, [userData]);
 
   if (loading) {
-    return <div>Loading nearby freelancers...</div>;
+    return <div >Loading nearby freelancers...</div>;
   }
 
   return (
@@ -121,12 +121,15 @@ const NearbyFreelancersPage = () => {
         <div>
           <span className="text-black font-bold text-xl md:text-3xl  flex flex-row items-center gap-1">
             <GrMap className="text-primary" />
-            Freelancers within <span className="text-green-600">{selectedDistance} km</span> range
+            Freelancers within{" "}
+            <span className="text-green-600">{selectedDistance} km</span> range
           </span>
         </div>
 
         <div>
-          <label htmlFor="distance" className="text-black font-medium text-xl">Select distance (km): </label>
+          <label htmlFor="distance" className="text-black font-medium text-xl">
+            Select distance (km):{" "}
+          </label>
           <select
             id="distance"
             value={selectedDistance}
@@ -139,7 +142,7 @@ const NearbyFreelancersPage = () => {
               </option>
             ))}
           </select>
-         
+
         </div>
 
         <div
@@ -168,6 +171,7 @@ const NearbyFreelancersPage = () => {
             <p>No freelancers available</p>
           )}
         </div>
+        
       </div>
     </>
   );
