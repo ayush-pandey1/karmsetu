@@ -5,15 +5,24 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import Loader2 from "../Loader2";
 
 const Signup = () => {
   const router = useRouter();
   const [role, setRole] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const url = new URL(window.location.href);
     setRole(url.searchParams.get("role"));
+    setLoading(true);
   }, []);
+
+  useEffect(() => {
+    if (loading && (role !== "freelancer" && role !== "client")) {
+      router.push("/auth/select");
+    }
+  }, [loading])
 
   const [data, setData] = useState({
     firstName: "",
@@ -69,7 +78,7 @@ const Signup = () => {
     const callbackUrl = `/onboarding/${role}`;
     signIn(provider, { callbackUrl });
   };
-
+  // if (!loading) return (<Loader2 />);
   return (
     <>
       {/* <!-- ===== SignUp Form Start ===== --> */}
@@ -91,9 +100,9 @@ const Signup = () => {
               y: 0,
             },
           }} initial="hidden" whileInView="visible" transition={{ duration: 1, delay: 0.1 }} viewport={{ once: true }} className="animate_top border border-primary border-opacity-25 rounded-lg bg-white px-7.5 pt-7.5 shadow-solid-8 dark:border dark:border-strokedark dark:bg-black xl:px-15 xl:pt-15">
-             <div className=" w-full  p-2 flex justify-center ">
-        <Image src="/images/karmsetuLogo-cropped.svg" width="0" height="0" className="w-[12rem] h-auto"/>
-        </div>
+            <div className=" w-full  p-2 flex justify-center ">
+              <Image src="/images/karmsetuLogo-cropped.svg" width="0" height="0" className="w-[12rem] h-auto" />
+            </div>
             <div className="mb-10 text-center text-xl font-semibold text-black dark:text-white xl:text-2xl flex justify-center">
               Create an Account
             </div>
@@ -116,7 +125,7 @@ const Signup = () => {
                   </svg>
                 </span>
                 <span className="hidden sm:block">
-                Signup with Google
+                  Signup with Google
                 </span>
               </button>
 
@@ -127,7 +136,7 @@ const Signup = () => {
                   </svg>
                 </span>
                 <span className="hidden sm:block">
-                Signup with Github
+                  Signup with Github
                 </span>
               </button>
             </div>
