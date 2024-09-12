@@ -31,7 +31,7 @@ export async function POST(req) {
 
         // Update coordinates if they are passed and valid
         if (coordinates) {
-            if (typeof coordinates.latitude === 'number' && typeof coordinates.longitude === 'number') {
+            if (coordinates.latitude &&  coordinates.longitude) {
                 user.coordinates = {
                     latitude: coordinates.latitude,
                     longitude: coordinates.longitude
