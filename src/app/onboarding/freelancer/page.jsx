@@ -117,7 +117,7 @@ const OnboardingFreelancer = () => {
         name: session.user.name,
         id: session.user.id,
         role: extractedRole,
-        imageLink : profileImageUrl
+        imageLink: profileImageUrl
       };
       setRole(sessionData?.role);
       console.log("sdsd", role);
@@ -176,13 +176,13 @@ const OnboardingFreelancer = () => {
         console.log("Please select an image first.");
         return;
       }
-  
-      
+
+
       reader.readAsDataURL(selectedFile);
-  
+
       reader.onloadend = async () => {
         const imageData = reader.result;
-  
+
         try {
           const response = await fetch("/api/imageUpload", {
             method: "POST",
@@ -274,7 +274,7 @@ const OnboardingFreelancer = () => {
         break;
     }
   }, [form.watch("professionalTitle")]);
-  
+
   return (
     <div className="flex justify-center w-full h-full pt-0  font-inter">
       <div className="flex flex-col h-full w-[40rem] border border-gray-300 pb-4 sm:py-4 bg-white dark:bg-gray-800  ">

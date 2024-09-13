@@ -17,6 +17,7 @@ const FreelancerProfilePage = () => {
     "Tailwind",
     "MongoDB",
   ];
+  const [portfolioProjects, setPortfolioProjects] = useState([]);
 
   // Get the current URL
   const path = window.location.pathname;
@@ -36,6 +37,7 @@ const FreelancerProfilePage = () => {
       try {
         const response = await axios.get(`/api/user/${userId}`);
         setUserData(response.data.user);
+        setPortfolioProjects(response.data.user.portfolioDetails || []);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
@@ -131,44 +133,26 @@ const FreelancerProfilePage = () => {
                     </span> */}
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <h4 className="text-lg font-semibold">Portfolio</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="rounded-md overflow-hidden">
-                      <img
-                        src="/images/hero/hero-light.svg"
-                        alt="Project 1"
-                        className="w-full h-full object-cover"
-                        width="200"
-                        height="150"
-                        style={{ aspectRatio: "200/150", objectFit: "cover" }}
-                      />
-                      <p className="text-sm text-gray-500 mt-2">Project 1</p>
-                    </div>
-                    <div className="rounded-md overflow-hidden">
-                      <img
-                        src="/images/hero/hero-light.svg"
-                        alt="Project 2"
-                        className="w-full h-full object-cover"
-                        width="200"
-                        height="150"
-                        style={{ aspectRatio: "200/150", objectFit: "cover" }}
-                      />
-                      <p className="text-sm text-gray-500 mt-2">Project 2</p>
-                    </div>
-                    <div className="rounded-md overflow-hidden">
-                      <img
-                        src="/images/hero/hero-light.svg"
-                        alt="Project 3"
-                        className="w-full h-full object-cover"
-                        width="200"
-                        height="150"
-                        style={{ aspectRatio: "200/150", objectFit: "cover" }}
-                      />
-                      <p className="text-sm text-gray-500 mt-2">Project 3</p>
-                    </div>
-                  </div>
-                </div>
+                {/* <div className="space-y-2"> */}
+                <h4 className="text-lg font-semibold">Portfolio</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  {portfolioProjects.length > 0 ? (
+                    portfolioProjects.map((portfolioProject) => {
+                      <div className="rounded-md overflow-hidden">
+                        <img
+                          src={portfolioProject.imageLink}
+                          alt={portfolioProject.title}
+                          className="w-full h-full object-cover"
+                          width="200"
+                          height="150"
+                          style={{ aspectRatio: "200/150", objectFit: "cover" }}
+                        />
+                      </div>
+                    })
+                  ) : (
+                    <div>No Projects</div>
+                  )
+                  }</div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <span className="text-sm font-medium text-green-500">₹ 500/hr</span>

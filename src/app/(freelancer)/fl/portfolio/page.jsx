@@ -6,68 +6,130 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { InfoCircledIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { BsInfoCircle } from "react-icons/bs";
+import axios from 'axios'
+
 
 const ManagePortfolio = () => {
   const [previewImage, setPreviewImage] = useState("");
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "Website Redesign",
-      description:
-        "Redesign the company website with a modern and responsive layout.",
-      tags: ["web design", "responsive", "ux"],
-      image: "/images/portfolio/portfolio1.jpg",
-    },
-    {
-      id: 2,
-      title: "Mobile App Development",
-      description: "Build a cross-platform mobile app for iOS and Android.",
-      tags: ["mobile", "app development", "react native"],
-      image: "/images/portfolio/portfolio2.jpg",
-    },
-    {
-      id: 3,
-      title: "E-commerce Platform",
-      description:
-        "Develop a scalable e-commerce platform with advanced features.",
-      tags: ["e-commerce", "backend", "frontend"],
-      image: "/images/portfolio/portfolio3.jpg",
-    },
-  ]);
+ const [projects, setProjects] = useState([]);
+ const [selectedFile, setSelectedFile] = useState(null);
+ const [image, setImage] = useState("");
+ const [freelancerId, setFreelancerId] = useState("");
+  // const [projects, setProjects] = useState([
+  //   {
+  //     id: 1,
+  //     title: "Website Redesign",
+  //     description:
+  //       "Redesign the company website with a modern and responsive layout.",
+  //     tags: ["web design", "responsive", "ux"],
+  //     imageLink: "/images/portfolio/portfolio1.jpg",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Mobile App Development",
+  //     description: "Build a cross-platform mobile app for iOS and Android.",
+  //     tags: ["mobile", "app development", "react native"],
+  //     imageLink: "/images/portfolio/portfolio2.jpg",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "E-commerce Platform",
+  //     description:
+  //       "Develop a scalable e-commerce platform with advanced features.",
+  //     tags: ["e-commerce", "backend", "frontend"],
+  //     imageLink: "/images/portfolio/portfolio3.jpg",
+  //   },
+  // ]);
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
     tags: [],
-    image: null,
+    imageLink: null,
   });
+
+  //To get freelancerId from sessionStorage
+  useEffect(() => {
+    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    console.log(data);
+    setFreelancerId(data?.id);
+    fetchUserData(data?.id);
+  }, [])
+
+  //To fetch freelancer details
+  const fetchUserData = async (id) => {
+    try {
+      // console.log("Freelancer Id", id);
+      const response = await axios.get(`/api/user/${id}`);
+      // console.log("Freelancer Details", response.data);
+      if (response.status === 200) {
+        setProjects(response.data.user?.portfolioDetails || [])
+        return response.data.user;
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error.response ? error.response.data.message : error.message);
+      return null;
+    }
+  };
+
   const handleProjectChange = (field, value) => {
     setNewProject((prevProject) => ({
       ...prevProject,
       [field]: value,
     }));
   };
-  const handleImageUpload = (e) => {
-    setNewProject((prevProject) => ({
-      ...prevProject,
-      image: e.target.files[0],
-    }));
-    const file = e.target.files[0];
-    const fileReader = new FileReader();
-    
-    fileReader.addEventListener("load", () => {
-        setPreviewImage(fileReader.result);
-        
-        
-    });
-   
-    // setPortfolioImage(file.name)
-    // console.log(portfolioImage)
-    fileReader.readAsDataURL(file);
+
+  const handleImageUpload = async (e) => {
+    if(e.target.files){
+      console.log(e.target.files[0]);
+      setSelectedFile(e.target.files[0]);
+      const reader = new FileReader();
+      if(!(e.target.files[0])){
+        console.log("Please select a image first");
+        return
+      }
+
+
+      reader.readAsDataURL(selectedFile);
+      reader.addEventListener("load", () => {
+          setPreviewImage(selectedFile); 
+      });
+     reader.onloadend = async()=>{
+      const imageData = reader.result;  
+      try {
+        console.log(imageData, "Image Data");      
+        const response = await fetch("/api/imageUpload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: imageData }),
+        });
+        console.log(response, "API response");
+        const data = await response.json();
+        if (data.success) {
+          setImage(data.url); // Set the image URL for submission
+          setNewProject((prevProject) => ({
+            ...prevProject,
+            imageLink: data.url,
+          }));
+          console.log("Image uploaded successfully!", data.url);
+        } else {
+          console.error("Image upload failed.", data);
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error.message);
+      }
+     }
+
+    }
         
   };
-  const handleProjectSubmit = () => {
+
+  const handleProjectSubmit = async () => {
+    try {
+      console.log(newProject, "newProject details from portfolio form");
+    const response = await axios.put("/api/portfolioProject", {newProject, freelancerId})
+    console.log(response);
     setProjects((prevProjects) => [
       ...prevProjects,
       {
@@ -79,8 +141,13 @@ const ManagePortfolio = () => {
       title: "",
       description: "",
       tags: [],
-      image: previewImage,
+      imageLink: previewImage,
     });
+    setImage("");
+    await fetchUserData(freelancerId);
+    } catch (error) {
+      console.log("Error in creating the portfolio project",error.message);
+    }
   };
   const handleProjectEdit = (projectId) => {};
   const handleProjectDelete = (projectId) => {};
@@ -134,21 +201,17 @@ const ManagePortfolio = () => {
                   <span className="text-xs text-gray-400">Enter comma (,) seprated project tags</span>
                 </div>
                 <div>
-                  <Label htmlFor="image">Project Image</Label>
+                  <Label htmlFor="imageLink">Project Image</Label>
                   <div className="flex flex-col ">
-                    
-                  
-
                     <Input
-                      id="image"
+                      id="imageLink"
                       type="file"
-                      accept="image/*"
+                      accept="imageLink/*"
                       onChange={handleImageUpload}
                       className="border border-gray-300 rounded-lg cursor-pointer bg-gray-50 mb-3"
                     />
                     <Button
                       variant="default"
-
                       className="bg-purple-600 text-white "
                       onClick={handleProjectSubmit}
                     >
@@ -160,9 +223,9 @@ const ManagePortfolio = () => {
               </div>
               <div className="space-y-4">
                 <div className="aspect-[3/2] bg-gray-100 rounded-md overflow-hidden flex justify-center items-center">
-                  {newProject.image ? (
+                  {newProject.imageLink ? (
                     <img
-                      src={previewImage}
+                      src={image}
                       alt="Project Image"
                       width={300}
                       height={200}
@@ -185,14 +248,14 @@ const ManagePortfolio = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {projects.map((project) => (
+              {projects.length> 0 ? projects.map((project) => (
                 <div
-                  key={project.id}
+                  key={project._id}
                   className="bg-white rounded-md shadow-md overflow-hidden"
                 >
                   <div className="aspect-[3/2] bg-gray-100">
                     <img
-                      src={project.image}
+                      src={project.imageLink}
                       alt={project.title}
                       width="300"
                       height="200"
@@ -233,7 +296,9 @@ const ManagePortfolio = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div>No projects</div>
+              )}
             </div>
           </CardContent>
         </Card>
