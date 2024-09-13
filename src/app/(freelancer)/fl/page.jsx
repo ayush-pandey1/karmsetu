@@ -103,7 +103,11 @@ export default function Home() {
 
 
     getLocation();
+  }, []);
+
+  useEffect(() => {
     const updateCoordinates = async () => {
+      const data = JSON.parse(sessionStorage.getItem("karmsetu"));
       try {
         const res = await fetch("/api/FpersonalDetails", {
           method: "POST",
@@ -112,19 +116,18 @@ export default function Home() {
         });
         console.log(
           res.ok
-            ? `Coordinates updated ${
-                (coordinates.latitude, coordinates.longitude)
-              }`
+            ? `Coordinates updated (${coordinates.latitude}, ${coordinates.longitude})`
             : "Failed to update"
         );
       } catch {
         console.log("Error updating coordinates");
       }
     };
-    if (!coordinates.latitude === 0) {
+
+    if (coordinates.latitude && coordinates.longitude) {
       updateCoordinates();
     }
-  }, []);
+  }, [coordinates]);
 
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
