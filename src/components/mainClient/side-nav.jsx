@@ -74,36 +74,21 @@ const SideNav = () => {
     <div className="fixed flex-1 hidden h-screen bg-white border-r md:w-60 border-zinc-200 md:flex">
       <div className="flex flex-col w-full space-y-6 ">
         <span>
-        <Link
-          href="/cl"
-          className="flex flex-row items-center justify-center w-full h-12 space-x-1 border-b md:justify-start md:px-6 border-zinc-200"
-        >
-          {/* <span className="rounded-lg">
-            {" "}
-            <Image
-              src="/karmsetu.png"
-              alt="Gov Punjab Logo"
-              className=""
-              width="34"
-              height="34"
-            />{" "}
-          </span> */}
-
-          {/* <p className="hidden text-2xl font-bold text-black md:flex dark:text-white">
-            Karm<span className="text-primary">Setu</span>
-          </p> */}
-          <span className="flex w-32">
-            <Image
-              src="/images/karmsetuLogo-cropped.svg"
-              width="0"
-              height="0"
-              alt="karmsetu Logo"
-              className="w-auto h-auto "
-            />
-          </span>
-        </Link>
+          <Link
+            href="/cl"
+            className="flex flex-row items-center justify-center w-full h-12 space-x-1 border-b md:justify-start md:px-6 border-zinc-200"
+          >
+            <span className="flex w-32">
+              <Image
+                src="/images/karmsetuLogo-cropped.svg"
+                width="0"
+                height="0"
+                alt="karmsetu Logo"
+                className="w-auto h-auto "
+              />
+            </span>
+          </Link>
         </span>
-      
 
         <div className="flex flex-col space-y-2 md:px-6 ">
           {SIDENAV_ITEMS.map((item, idx) => {
@@ -115,7 +100,7 @@ const SideNav = () => {
           <div className="px-4"></div>
           <div>
             <div className="px-5 mb-4">
-            <Separator className="h-0.5 opacity-50 rounded-full"/>
+              <Separator className="h-0.5 opacity-50 rounded-full" />
             </div>
             <div className="md:px-4 mb-6 flex flex-row items-center gap-3">
               <div className="flex items-center justify-center text-center rounded-full h-9 w-9 ">
@@ -130,11 +115,12 @@ const SideNav = () => {
               </div>
               <div className="flex flex-row justify-between">
                 <div className="flex flex-col leading-none">
-                <span className="text-black text-sm font-semibold flex flex-row justify-between items-center">
-                  {"John Doe"}
-                 
-                </span>
-                <span className="text text-xs text-opacity-75">{"johndoework@gmail.com"}</span>
+                  <span className="text-black text-sm font-semibold flex flex-row justify-between items-center">
+                    {"John Doe"}
+                  </span>
+                  <span className="text text-xs text-opacity-75">
+                    {"johndoework@gmail.com"}
+                  </span>
                 </div>
                 <BsThreeDotsVertical className="cursor-pointer text-black text-sm mt-1" />
               </div>

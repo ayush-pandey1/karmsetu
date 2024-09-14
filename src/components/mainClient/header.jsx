@@ -66,16 +66,7 @@ const Header = () => {
         </div>
 
         <div className="hidden md:block h-full">
-          {/* <div className="flex items-center justify-center text-center rounded-full ">
-            <Avatar>
-              <AvatarImage
-                alt="Profile Image"
-                src={imgLink ? imgLink : "/images/user/nouser.png"}
-                className="h-11 w-11 object-contain"
-              />
-              <AvatarFallback>CN</AvatarFallback>
-            </Avatar>
-          </div> */}
+          
           <div className="flex flex-row w-full items-center h-full opacity-90">
             <Image
               alt="Profile Image"

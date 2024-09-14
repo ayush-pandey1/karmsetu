@@ -158,7 +158,7 @@ export default function Home() {
   const [maxBudget, setMaxBudget] = useState(1000);
   return (
     <>
-      <div className="flex p-4 flex-col gap-3">
+      <div className="flex  flex-col gap-3">
         {loading2 ? (
           <Loader2 />
         ) : (
@@ -403,7 +403,7 @@ export default function Home() {
             </div>
 
             <div className="flex justify-between">
-              <div className=" inline-flex flex-row  justify-center sm:justify-start flex-wrap gap-4">
+              <div className=" inline-flex flex-row h-full w-full   justify-center sm:justify-start flex-wrap gap-4">
                 {loading2 ? (
                   <Loader2 />
                 ) : filteredProjects.length > 0 ? (
@@ -414,7 +414,7 @@ export default function Home() {
                     />
                   ))
                 ) : (
-                  <p>No projects available</p>
+                  <div className="h-full w-full flex justify-center items-center"><Loader2 /></div>
                 )}
               </div>
             </div>

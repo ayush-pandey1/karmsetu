@@ -22,6 +22,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FaEnvelopeOpenText } from "react-icons/fa";
+import { Separator } from "@/components/ui/separator";
 
 const JobDetails = () => {
   const [jobData, setJobData] = useState({});
@@ -294,6 +295,7 @@ const JobDetails = () => {
               ""
             )}
           </div>
+          <Separator/>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Description */}

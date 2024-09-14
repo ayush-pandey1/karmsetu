@@ -44,12 +44,12 @@ export const SIDENAV_ITEMS = [
         path: '/fl/analytics',
         icon: <Icon icon="lucide:trending-up" width="24" height="24" />,
     },
-    {
-        title: 'Transactions',
-        path: '/fl/transactions',
-        icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24" />,
+    // {
+    //     title: 'Transactions',
+    //     path: '/fl/transactions',
+    //     icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24" />,
 
-    },
+    // },
     {
         title: 'Portfolio',
         path: '/fl/portfolio',

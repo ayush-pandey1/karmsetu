@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ClockIcon, GlobeIcon, StarIcon } from "@radix-ui/react-icons";
 import axios from "axios";
+import Loader2 from "@/components/Loader2";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -18,9 +19,8 @@ const FreelancerProfilePage = () => {
     "MongoDB",
   ];
   const path = window.location.pathname;
-  const pathSegments = path.split('/');
+  const pathSegments = path.split("/");
   const userId = pathSegments[pathSegments.length - 1];
-
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,7 +45,7 @@ const FreelancerProfilePage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p>Loading...</p>
+        <Loader2/>
       </div>
     );
   }
@@ -68,8 +68,12 @@ const FreelancerProfilePage = () => {
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="text-xl font-bold">{userData?.fullname}</h3>
-                      <p className="text-sm text-gray-500">{userData?.professionalTitle}</p>
+                      <h3 className="text-xl font-bold">
+                        {userData?.fullname}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {userData?.professionalTitle}
+                      </p>
                       <div className="flex items-center space-x-2 text-sm text-gray-500">
                         <span>San Francisco, USA</span>
                         <span>•</span>
@@ -89,9 +93,7 @@ const FreelancerProfilePage = () => {
                 </div>
                 <div className="space-y-2">
                   <h4 className="text-lg font-semibold">About</h4>
-                  <p className="text-gray-600">
-                    {userData?.bio}
-                  </p>
+                  <p className="text-gray-600">{userData?.bio}</p>
                   {/* <p className="text-gray-600">Years of Experience: 5</p> */}
                 </div>
                 <div className="space-y-2">
@@ -107,24 +109,7 @@ const FreelancerProfilePage = () => {
                         </span>
                       );
                     })}
-                    {/* <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                      HTML
-                    </span>
-                    <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                      CSS
-                    </span>
-                    <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                      JavaScript
-                    </span>
-                    <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                      React
-                    </span>
-                    <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                      Node.js
-                    </span>
-                    <span className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full">
-                      MongoDB
-                    </span> */}
+                    
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -167,7 +152,9 @@ const FreelancerProfilePage = () => {
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-green-500">₹ 500/hr</span>
+                    <span className="text-sm font-medium text-green-500">
+                      ₹ 500/hr
+                    </span>
                     <span className="text-sm text-gray-500">•</span>
                     <span className="text-sm text-gray-500">3.67</span>
                     <span className="text-sm text-gray-500">•</span>
