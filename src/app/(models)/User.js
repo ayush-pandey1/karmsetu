@@ -26,11 +26,22 @@ const userSchema = new Schema({
         latitude:  { type: Number ,default: null },
         longitude: { type: Number ,default: null },
       },
-    imageLink : {type : String, default : ""}
+    imageLink : {type : String, default : ""},
+    portfolioDetails : [{
+        title : String,
+        description : String,
+        imageLink : String,
+        tags : [String]
+    }]
 }, {
     timestamps: true,
 });
 
+// Set default value after schema definition
+userSchema.path('portfolioDetails').set(function(v) {
+    return v || [];
+  });
+  
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;

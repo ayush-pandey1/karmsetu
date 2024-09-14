@@ -44,7 +44,6 @@ import Loader2 from "@/components/Loader2";
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
-  const [freelancers, setFreelancers] = useState([]);
   const [filteredFreelancers, setFilteredFreelancer] = useState([]);
   const [loading, setLoading] = useState(true);
   const [coordinates, setCoordinates] = useState({
@@ -132,7 +131,9 @@ const Home = () => {
 
   useEffect(() => {
     setFilteredFreelancer(filteredFreelancersData);
+    console.log(filteredFreelancersData, "FreelancerData");
     setFreelancerDataLoading(false);
+    //console.log(filteredFreelancersData);
     // console.log(freelancers, "All freelancers State Variable")
     // console.log(freelancerData, "All freelancers Redux Variable")
     // console.log(filteredFreelancers, "After filtering the data");
@@ -410,6 +411,7 @@ const Home = () => {
                   id={filteredFreelancer._id}
                   rating={filteredFreelancer.rating || "4"}
                   imageLink = {filteredFreelancer.imageLink}
+                  portfolioDetails = {filteredFreelancer.portfolioDetails || []}
                 />
               ))
             ) : (
