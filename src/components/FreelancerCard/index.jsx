@@ -106,7 +106,8 @@ const FreelancerCard = ({
 
       {/* Portfolio Projects Small Screen Carousel */}
       {/* <div className="block w-full sm:hidden"> */}
-      {portfolioDetails.length > 0 ? (
+      {/* {portfolioDetails ? ( */}
+      {portfolioDetails.length > 0 ?
         <div className="">
           <Carousel
             opts={{
@@ -115,24 +116,27 @@ const FreelancerCard = ({
             className=" "
           >
             <CarouselContent className="h-50 w-80 pb-3 ">
-              {portfolioDetails.map((portfolioDetail) => {
-                <CarouselItem className=" ">
-                  <Image
-                    src={portfolioDetail.imageLink}
-                    alt="Project Image"
-                    height="auto"
-                    width="auto"
-                    className="h-full w-full rounded-lg"
-                    unoptimized
-                  />
-                </CarouselItem>
+              {portfolioDetails && portfolioDetails.map((portfolioDetail) => {
+                return (
+                  <CarouselItem className="">
+                    {/* {console.log("iage: ", portfolioDetail.imageLink)} */}
+                    <Image
+                      src={portfolioDetail.imageLink}
+                      alt="Project Image"
+                      height={200}
+                      width={150}
+                      className="h-full w-full rounded-lg"
+                    />
+                  </CarouselItem>
+                );
               })}
             </CarouselContent>
+
           </Carousel>
-        </div>
-      ) : (
-        <div>No Portfolio Projects</div>
-      )}
+        </div> : <></>}
+      {/* ) : ( */}
+      {/* <div>No Portfolio Projects</div> */}
+      {/* )} */}
 
 
       {/* Portfolio Projects big screen static */}
