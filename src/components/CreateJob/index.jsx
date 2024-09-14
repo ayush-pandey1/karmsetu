@@ -118,6 +118,7 @@ const CreateJobForm = () => {
       setError(false);
     }
   }, [milestones, milestoneData])
+  
   useEffect(() => {
     if (!userData) {
       const data = JSON.parse(sessionStorage.getItem("karmsetu"));

@@ -28,12 +28,14 @@ const FreelancerCard = ({
   id,
   rating,
   imageLink,
+  portfolioDetails
 }) => {
+  console.log(portfolioDetails);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
   const receiverId = id;
   const senderId = user?.id;
-  
+
   const router = useRouter();
   // console.log("senderId: ", senderId, "receiverId: ", receiverId);
   const handleCreateChat = async () => {
@@ -104,58 +106,34 @@ const FreelancerCard = ({
 
       {/* Portfolio Projects Small Screen Carousel */}
       {/* <div className="block w-full sm:hidden"> */}
-      <div className="">
-        <Carousel
-          opts={{
-            align: "center",
-          }}
-          className=" "
-        >
-          <CarouselContent className="h-50 w-80 pb-3 ">
-            <CarouselItem className=" ">
-              <Image
-                src="/images/portfolio/portfolio4.png"
-                alt="Project Image"
-                height="0"
-                width="0"
-                className="h-full w-full rounded-lg"
-                unoptimized
-              />
-            </CarouselItem>
+      {portfolioDetails.length > 0 ? (
+        <div className="">
+          <Carousel
+            opts={{
+              align: "center",
+            }}
+            className=" "
+          >
+            <CarouselContent className="h-50 w-80 pb-3 ">
+              {portfolioDetails.map((portfolioDetail) => {
+                <CarouselItem className=" ">
+                  <Image
+                    src={portfolioDetail.imageLink}
+                    alt="Project Image"
+                    height="auto"
+                    width="auto"
+                    className="h-full w-full rounded-lg"
+                    unoptimized
+                  />
+                </CarouselItem>
+              })}
+            </CarouselContent>
+          </Carousel>
+        </div>
+      ) : (
+        <div>No Portfolio Projects</div>
+      )}
 
-            <CarouselItem className="">
-              <Image
-                src="/images/portfolio/portfolio2.jpg"
-                alt="Project Image"
-                height="0"
-                width="0"
-                className="h-full w-full rounded-lg"
-                unoptimized
-              />
-            </CarouselItem>
-            <CarouselItem>
-              <Image
-                src="/images/portfolio/portfolio5.png"
-                alt="Project Image"
-                height="0"
-                width="0"
-                className="h-full w-full rounded-lg"
-                unoptimized
-              />
-            </CarouselItem>
-            <CarouselItem>
-              <Image
-                src="/images/portfolio/portfolio3.jpg"
-                alt="Project Image"
-                height="0"
-                width="0"
-                className="h-full w-full rounded-lg"
-                unoptimized
-              />
-            </CarouselItem>
-          </CarouselContent>
-        </Carousel>
-      </div>
 
       {/* Portfolio Projects big screen static */}
       {/* <div className="sm:flex sm:overflow-scroll hidden   gap-3">
