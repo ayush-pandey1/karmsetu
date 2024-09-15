@@ -64,7 +64,7 @@ export async function GET(NextRequest) {
  
     return NextResponse.json({ message: "Fetched Data Successfully", success: true, data }, { status: 200 });
     }else{
-      const data = await ProjectSchema.find();
+      const data = await ProjectSchema.find({ status: "Pending" });
     if(data.length == 0){
       return NextResponse.json({ message: "No Projects", success: true, empty : true}, { status: 200 });  
     }

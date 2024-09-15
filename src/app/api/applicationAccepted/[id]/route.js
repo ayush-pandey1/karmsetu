@@ -58,7 +58,7 @@ export async function PUT(req, { params }) {
       //Update the freelancerId and set the newStatus to "In Progress"
       console.log(freelancerId, "If Status is accepted in the Backend");
       project.freelancerId = freelancerId;
-      project.newStatus = "In Progress";
+      project.status = "In Progress";
       console.log("Updated Project Status, and freelancerId when newStatus is accepted")
       // Save the updated project
       await project.save();
