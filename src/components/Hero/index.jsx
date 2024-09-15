@@ -60,7 +60,7 @@ const Hero = () => {
               <Image src="/images/shape/shape-02.svg" alt="shape" width={21.64} height={21.66} className="absolute -right-6.5 bottom-0 z-1" />
               <div className=" relative aspect-[700/444] w-full">
                 {/* <Image className="shadow-solid-l dark:hidden" src="/images/hero/hero-light.svg" alt="Hero" fill/> */}
-                <Image className=" dark:hidden" src="/hero2.svg" fill />
+                <Image className=" dark:hidden" src="/hero2.svg" alt="hero" fill />
                 <Image className="hidden dark:block" src="/hero2.svg" alt="Hero" fill />
               </div>
             </div>

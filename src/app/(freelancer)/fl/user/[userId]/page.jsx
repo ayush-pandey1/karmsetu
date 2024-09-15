@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { ClockIcon, GlobeIcon, StarIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import Loader2 from "@/components/Loader2";
+import { SiHyperskill } from "react-icons/si";
+import { BiSolidUserDetail } from "react-icons/bi";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -45,27 +47,30 @@ const FreelancerProfilePage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader2/>
+        <Loader2 />
       </div>
     );
   }
 
   //console.log("User: ", userData);
+
   return (
     <>
-      <div className="flex flex-col gap-20 mx-0 md:mx-15">
+      <div className="flex flex-col gap-20 mx-0 ">
         <main className="flex-1 w-full">
           <section className="mt-">
-            <div className="grid grid-cols-1 gap-4 mt-4">
-              <Card className="flex flex-col p-4 space-y-4">
+            <div className="grid grid-cols-1 gap-4 ">
+              <Card className="flex flex-col p-4 space-y-4 rounded-none ">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-0">
                   <div className="flex items-center space-x-4">
-                    <Avatar>
+                    <Avatar className="rounded-xl h-15 w-15">
                       <AvatarImage
-                        src="/images/user/user-01.png"
+                        // src={userData?.profileImage}
+                        src="https://res.cloudinary.com/dya4imi67/image/upload/v1726067570/p5i2zikqfy89xnanrgro.jpg"
                         alt="Freelancer"
+                        
                       />
-                      <AvatarFallback>JD</AvatarFallback>
+                      <AvatarFallback>PFP</AvatarFallback>
                     </Avatar>
                     <div>
                       <h3 className="text-xl font-bold">
@@ -92,62 +97,107 @@ const FreelancerProfilePage = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-lg font-semibold">About</h4>
+                  <h4 className="text-lg font-semibold flex flex-row gap-1 items-center"><BiSolidUserDetail  className="text-blue-500"/>About</h4>
                   <p className="text-gray-600">{userData?.bio}</p>
                   {/* <p className="text-gray-600">Years of Experience: 5</p> */}
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-lg font-semibold">Skills</h4>
+                  <h4 className="text-lg font-semibold flex flex-row gap-1 items-center"> <SiHyperskill className="text-green-500" />Skills</h4>
                   <div className="flex flex-wrap gap-2">
                     {userData?.skill.map((skill, index) => {
                       return (
                         <span
                           key={index}
-                          className="bg-purple-100 text-purple-600 px-3 py-1 rounded-full"
+                          className="bg-purple-100 text-purple-600 px-3 py-1 rounded-lg"
                         >
                           {skill}
                         </span>
                       );
                     })}
-                    
                   </div>
                 </div>
+
                 <div className="space-y-2">
                   <h4 className="text-lg font-semibold">Portfolio</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="rounded-md overflow-hidden">
+
+                  <div className="flex flex-col gap-4">
+
+                    <div className="rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200 p-4 gap-4">
+                      <span className="text-md sm:text-lg lg:text-2xl text-black font-bold">
+                        {"Project Title"}
+                      </span>
+                      <span className="text-gray-400 text-xs sm:text-base text-justify">
+                        {
+                          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt eos consequuntur similique dolor vel non adipisci excepturi modi animi temporibus cum amet illum enim unde minus voluptatem, provident eveniet laboriosam consequatur et?"
+                        }
+                      </span>
+                      <div className="flex flex-row gap-2 items-center overflow-x-scroll no-scrollbar">
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                      </div>
                       <img
-                        src="/images/hero/hero-light.svg"
+                        src="/images/portfolio/portfolio2.jpg"
                         alt="Project 1"
-                        className="w-full h-full object-cover"
-                        width="200"
-                        height="150"
-                        style={{ aspectRatio: "200/150", objectFit: "cover" }}
+                        className="h-auto w-full rounded-lg  aspect-auto"
+                        width="0"
+                        height="0"
+                       
                       />
-                      <p className="text-sm text-gray-500 mt-2">Project 1</p>
+                    
                     </div>
-                    <div className="rounded-md overflow-hidden">
+
+                    <div className="rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200 p-4 gap-4">
+                      <span className="text-md sm:text-lg lg:text-2xl text-black font-bold">
+                        {"Project Title"}
+                      </span>
+                      <span className="text-gray-400 text-xs sm:text-base text-justify">
+                        {
+                          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt eos consequuntur similique dolor vel non adipisci excepturi modi animi temporibus cum amet illum enim unde minus voluptatem, provident eveniet laboriosam consequatur et?"
+                        }
+                      </span>
+                      <div className="flex flex-row gap-2 items-center overflow-x-scroll no-scrollbar">
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
+                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        </span>
+                      </div>
                       <img
-                        src="/images/hero/hero-light.svg"
-                        alt="Project 2"
-                        className="w-full h-full object-cover"
-                        width="200"
-                        height="150"
-                        style={{ aspectRatio: "200/150", objectFit: "cover" }}
+                        src="/images/portfolio/portfolio1.jpg"
+                        alt="Project 1"
+                        className="h-auto w-full rounded-lg  aspect-auto"
+                        width="0"
+                        height="0"
+                       
                       />
-                      <p className="text-sm text-gray-500 mt-2">Project 2</p>
+                    
                     </div>
-                    <div className="rounded-md overflow-hidden">
-                      <img
-                        src="/images/hero/hero-light.svg"
-                        alt="Project 3"
-                        className="w-full h-full object-cover"
-                        width="200"
-                        height="150"
-                        style={{ aspectRatio: "200/150", objectFit: "cover" }}
-                      />
-                      <p className="text-sm text-gray-500 mt-2">Project 3</p>
-                    </div>
+
+                    
+                  
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between">

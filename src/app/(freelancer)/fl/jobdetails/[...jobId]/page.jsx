@@ -28,7 +28,7 @@ const JobDetails = () => {
   const [jobData, setJobData] = useState({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [client, setClient] = useState();
   const [freelancer, setFreelancer] = useState();
   const [project, setProject] = useState();
@@ -37,34 +37,24 @@ const JobDetails = () => {
   const [freelancerId, setFreelancerId] = useState("");
 
   const { jobId } = useParams();
-  // console.log("id", jobId);
-
-  // if (loading) {
-  //   return (
-  //     <div className="loading-screen">
-  //       <p>Loading...</p>
-  //       {/* Optionally add a spinner or more styling */}
-  //     </div>
-  //   );
-  // }
-
-  //To fetch user details from Session Storage
   useEffect(() => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     console.log(data);
     setUserData(data);
     setFreelancerId(data?.id);
-  }, [])
+  }, []);
 
   //To fetch project data by projectId
-  
+
   useEffect(() => {
     // setData();
     const fetchJobData = async () => {
       try {
         if (!jobId) return;
 
-        const response = await fetch(`http://localhost:3000/api/project/${jobId[0]}`);
+        const response = await fetch(
+          `http://localhost:3000/api/project/${jobId[0]}`
+        );
         if (response.ok) {
           const data = await response.json();
           //console.log("Project Data from MongoDB", data.project);
@@ -73,15 +63,14 @@ const JobDetails = () => {
           return;
         }
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
 
         const data = await response.json();
         if (!data.success) {
-          throw new Error('Failed to fetch job data');
+          throw new Error("Failed to fetch job data");
         }
         setJobData(data.project || {});
-
       } catch (error) {
         setError(error.message);
       } finally {
@@ -92,27 +81,26 @@ const JobDetails = () => {
     fetchJobData();
   }, [jobId]);
 
-  const appliedArray = jobData.applied || [] ;
+  const appliedArray = jobData.applied || [];
   console.log(appliedArray, "APplied  Freelancer Id");
   console.log(freelancerId, "FreelancerId");
-  const hasFreelancerApplied = appliedArray.includes(freelancerId);  // Returns true
+  const hasFreelancerApplied = appliedArray.includes(freelancerId); // Returns true
   console.log(hasFreelancerApplied, "THis freelancer has applied or not");
-  
-  useEffect(()=>{
-  if(appliedArray.length > 0){
-    //console.log("Some Freelancer have applied for this project")
-    if(hasFreelancerApplied){
-      setisApplied(true);
-      console.log("You have already applied for this job");
+
+  useEffect(() => {
+    if (appliedArray.length > 0) {
+      //console.log("Some Freelancer have applied for this project")
+      if (hasFreelancerApplied) {
+        setisApplied(true);
+        console.log("You have already applied for this job");
+      }
     }
-  }
-  }, [isApplied, hasFreelancerApplied])
+  }, [isApplied, hasFreelancerApplied]);
   // console.log(appliedArray, "It will contain freelancer id who have applied for this project");
   // console.log(jobData, "Printing State Variable which holds project Details, Outiside UseEffect");
   if (loading) return <p>Loading...</p>;
 
   const role = "freelancer";
-
 
   //To fetch freelancer details
   const fetchUserData = async (id) => {
@@ -125,7 +113,10 @@ const JobDetails = () => {
         return response.data.user;
       }
     } catch (error) {
-      console.error("Error fetching user data:", error.response ? error.response.data.message : error.message);
+      console.error(
+        "Error fetching user data:",
+        error.response ? error.response.data.message : error.message
+      );
       return null;
     }
   };
@@ -135,24 +126,26 @@ const JobDetails = () => {
       const response = await axios.get(`/api/project/${id}`);
       console.log(response);
       if (response.status === 200) {
-        console.log(response.data.project,"Inside freelance Job Details Page");
+        console.log(response.data.project, "Inside freelance Job Details Page");
         setProject(response.data.project);
         return response.data.project;
       }
     } catch (error) {
-      console.error("Error fetching project data:", error.response ? error.response.data.message : error.message);
+      console.error(
+        "Error fetching project data:",
+        error.response ? error.response.data.message : error.message
+      );
       return null;
     }
   };
-  
-  
+
   async function submitApplication(applicationData) {
     try {
       // Send a POST request to the backend API route
-      const response = await fetch('/api/applicationStore', {
-        method: 'POST',
+      const response = await fetch("/api/applicationStore", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(applicationData),
       });
@@ -160,28 +153,27 @@ const JobDetails = () => {
       // Check if the response is successful
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error submitting application:', errorData);
-        throw new Error(errorData.error || 'Failed to submit application');
+        console.error("Error submitting application:", errorData);
+        throw new Error(errorData.error || "Failed to submit application");
       }
 
       // Parse the response data
       const responseData = await response.json();
       setisApplied(true);
       setMessage("");
-      console.log('Application submitted successfully:', responseData);
+      console.log("Application submitted successfully:", responseData);
 
       // Return the response data
       return responseData;
-
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
       return { error: error.message };
     }
   }
 
   const setData = async () => {
-    const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-    console.log(data, "Data from sessionStorage")
+    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+    console.log(data, "Data from sessionStorage");
     setUserData(data);
     // console.log("Client id:", jobData?.clientId);
     // console.log("Message: ", message);
@@ -192,7 +184,7 @@ const JobDetails = () => {
     // console.log("Project id: ", jobData?._id);
     await fetchProjectData(jobData?._id);
     //console.log("Project: ", jobData);
-  }
+  };
   console.log("Project: ", jobData);
   console.log(freelancerId, "Freelancer ID");
 
@@ -213,16 +205,12 @@ const JobDetails = () => {
       clientId: jobData?.clientId,
       message,
       freelancer,
-      project
+      project,
     };
 
     await submitApplication(applicationData);
     setLoading(false);
-  }
-
-
-
-
+  };
 
   return (
     <div className="container mx-auto md:p-6">
@@ -237,7 +225,10 @@ const JobDetails = () => {
               <Dialog>
                 <DialogTrigger asChild>
                   <div>
-                    <Button className="bg-primary  px-6 hover:bg-primaryho " onClick={setData}>
+                    <Button
+                      className="bg-primary  px-6 hover:bg-primaryho "
+                      onClick={setData}
+                    >
                       Apply
                     </Button>
                   </div>
@@ -287,7 +278,10 @@ const JobDetails = () => {
               </Dialog>
             ) : role === "freelancer" && isApplied ? (
               <div>
-                <Button className="bg-transparent hover:bg-transparent shadow-none text-green-500 border border-dashed border-green-500  px-6  " disabled>
+                <Button
+                  className="bg-transparent hover:bg-transparent shadow-none text-green-500 border border-dashed border-green-500  px-6  "
+                  disabled
+                >
                   Applied
                 </Button>
               </div>
@@ -295,7 +289,7 @@ const JobDetails = () => {
               ""
             )}
           </div>
-          <Separator/>
+          <Separator  />
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Description */}
@@ -323,11 +317,12 @@ const JobDetails = () => {
               Required Skills
             </h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {jobData && jobData?.technologies?.map((skill, index) => (
-                <Badge key={index} variant="secondary">
-                  {skill}
-                </Badge>
-              ))}
+              {jobData &&
+                jobData?.technologies?.map((skill, index) => (
+                  <Badge key={index} variant="secondary">
+                    {skill}
+                  </Badge>
+                ))}
             </div>
           </div>
 
