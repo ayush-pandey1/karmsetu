@@ -104,10 +104,7 @@ const FreelancerCard = ({
         </span>
       </div>
 
-      {/* Portfolio Projects Small Screen Carousel */}
-      {/* <div className="block w-full sm:hidden"> */}
-      {/* {portfolioDetails ? ( */}
-      {portfolioDetails.length > 0 ?
+      {portfolioDetails && portfolioDetails.length > 0 ? (
         <div className="">
           <Carousel
             opts={{
@@ -116,24 +113,30 @@ const FreelancerCard = ({
             className=" "
           >
             <CarouselContent className="h-50 w-80 pb-3 ">
-              {portfolioDetails && portfolioDetails.map((portfolioDetail) => {
+              {portfolioDetails.map((portfolioDetail, index) => {
                 return (
-                  <CarouselItem className="">
-                    {/* {console.log("iage: ", portfolioDetail.imageLink)} */}
-                    <Image
-                      src={portfolioDetail.imageLink}
-                      alt="Project Image"
-                      height={200}
-                      width={150}
-                      className="h-full w-full rounded-lg"
-                    />
+                  <CarouselItem key={index} className="">
+                    {portfolioDetail && portfolioDetail.imageLink ? (
+                      <Image
+                        src={portfolioDetail.imageLink}
+                        alt="Project Image"
+                        height={200}
+                        width={150}
+                        className="h-full w-full rounded-lg"
+                      />
+                    ) : (
+                      <p>No Image Available</p>
+                    )}
                   </CarouselItem>
                 );
               })}
             </CarouselContent>
-
           </Carousel>
-        </div> : <></>}
+        </div>
+      ) : (
+        <></>
+      )}
+
       {/* ) : ( */}
       {/* <div>No Portfolio Projects</div> */}
       {/* )} */}

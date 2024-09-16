@@ -11,9 +11,12 @@ import {
 } from "@/components/ui/select";
 import { GrMap } from "react-icons/gr";
 import { PiMapPinAreaFill } from "react-icons/pi";
+import HeatMapComponent from "@/components/HeatMapComponent";
+// import clHeatMap from "@/components/clHeatMap";
 
 const NearbyFreelancersPage = () => {
   const [freelancers, setFreelancers] = useState([]);
+  const [allFreelancers, setAllFreelancers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState();
   const [coordinates, setCoordinates] = useState({
@@ -64,6 +67,37 @@ const NearbyFreelancersPage = () => {
   }, [selectedDistance]);
 
   useEffect(() => {
+    const data1 = JSON.parse(sessionStorage.getItem("karmsetu"));
+    setUserData(data1);
+    const id = data1?.id;
+
+    const fetchFreelancers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          `/api/nearby/client/${id}?distance=2000`
+        );
+        const result = await response.json();
+
+        if (response.ok) {
+          console.log("newnewnewn: ", result.nearbyFreelancers);
+          setAllFreelancers(result.nearbyFreelancers);
+        } else {
+          console.error("Error fetching freelancers:", result.error);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchFreelancers();
+    }
+  }, []);
+
+  useEffect(() => {
     const getLocation = async () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -106,13 +140,17 @@ const NearbyFreelancersPage = () => {
         </div>
         <div className="App">
           {/* <h1>Nearby</h1> */}
-          {coordinates.latitude ? (
+          {coordinates.latitude ? (<>
+            {/* <clHeatMap myCoordinate={coordinates}
+              othersCoordinates={freelancers} /> */}
+            <HeatMapComponent myCoordinate={coordinates}
+              othersCoordinates={allFreelancers} />
             <MapComponent
               myCoordinate={coordinates}
               othersCoordinates={freelancers}
               distance={selectedDistance}
               selectedFreelancerId={selectedFreelancerId} // Pass the selected ID to MapComponent
-            />
+            /></>
           ) : (
             <h1>Page is loading...</h1>
           )}
@@ -171,7 +209,7 @@ const NearbyFreelancersPage = () => {
             <p>No freelancers available</p>
           )}
         </div>
-        
+
       </div>
     </>
   );
