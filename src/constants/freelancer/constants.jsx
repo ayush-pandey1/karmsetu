@@ -23,6 +23,12 @@ export const SIDENAV_ITEMS = [
         ],
     },
     {
+        title: 'Guilds',
+        path: '/fl/guilds',
+        icon: <Icon icon="iconoir:group" width="24" height="24" />,
+
+    },
+    {
         title: 'Notifications',
         path: '/fl/notifications',
         icon: <Icon icon="lucide:bell" width="24" height="24" />,
@@ -44,35 +50,21 @@ export const SIDENAV_ITEMS = [
         path: '/fl/analytics',
         icon: <Icon icon="lucide:trending-up" width="24" height="24" />,
     },
-    // {
-    //     title: 'Transactions',
-    //     path: '/fl/transactions',
-    //     icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24" />,
-
-    // },
+   
     {
         title: 'Portfolio',
         path: '/fl/portfolio',
         icon: <Icon icon="lucide:briefcase-business" width="24" height="24" />,
     },
-    // {
-    //     title: 'Settings',
-    //     path: '/fl/settings',
-    //     icon: <Icon icon="lucide:settings" width="24" height="24"/>,
-    //     submenu: true,
-    //     subMenuItems: [
-    //         { title: 'Profile', path: `/user/${userid}` },
-    //         { title: 'Privacy', path: '/fl/settings/privacy' },
-    //     ],
-    // },
+    
     {
         title: 'Profile',
         path: `/fl/user/${userid}`,
         icon: <Icon icon="lucide:settings" width="24" height="24" />,
     },
-    {
-        title: 'Help',
-        path: '/fl/help',
-        icon: <Icon icon="lucide:help-circle" width="24" height="24" />,
-    },
+    // {
+    //     title: 'Help',
+    //     path: '/fl/help',
+    //     icon: <Icon icon="lucide:help-circle" width="24" height="24" />,
+    // },
 ];

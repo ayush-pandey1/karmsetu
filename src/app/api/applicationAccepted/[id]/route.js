@@ -15,7 +15,7 @@ export async function PUT(req, { params }) {
     }
     console.log("FreelancerId, id received in the backend");
     console.log(freelancerId, id, newStatus, "From Backend API which would update the application newStatus");
-    
+
     const project = await Project.findById(id);
 
     // const freelancerDetails = await axios.get(`/api/user?id=${freelancerId}`)
@@ -28,22 +28,36 @@ export async function PUT(req, { params }) {
         { newStatus: 404 }
       );
     }
+    if (project.freelancer.id) {
+      await updateApplicationStatus("rejected");
+      throw new Error('A freelancer has already been accepted for this project.');
+    }
     console.log("Project found");
-    const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
-    const clientName = project.clientName;
-    const projectName = project.title;
 
-    const updateApplicationStatus = async (newStatus)=>{
+    // const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
+    // const clientName = project.clientName;
+    // const projectName = project.title;
+
+    const updateApplicationStatus = async (newStatus) => {
       console.log(newStatus, freelancerId, id, "Inside the updateApplicationStatus function in the API");
       const application = await Application.findOneAndUpdate(
         {
-        "freelancer.id": freelancerId,
-        "project.id": id
-      },
-      {$set : {applicationStatus : newStatus}},
-      {new : true}
-    );
-      
+          "freelancer.id": freelancerId,
+          "project.id": id
+        },
+        { $set: { applicationStatus: newStatus } },
+        { new: true }
+      );
+      if (newStatus === 'accepted') {
+        // Find and reject all other pending applications for the project
+        await Application.updateMany(
+          { id, status: 'pending', freelancerId: { $ne: freelancerId } },
+          { status: 'rejected' }
+        );
+      }
+
+
+
       if (!application) {
         return NextResponse.json(
           { message: "Application not found." },
@@ -51,9 +65,8 @@ export async function PUT(req, { params }) {
         );
       }
     };
-    
+
     if (newStatus === 'accepted') {
-      const freelancerEmail = "lakshay12290@gmail.com";
       console.log("Application newStatus to be updated to Accepted");
       //Update the freelancerId and set the newStatus to "In Progress"
       console.log(freelancerId, "If Status is accepted in the Backend");
@@ -71,7 +84,7 @@ export async function PUT(req, { params }) {
         },
         { newStatus: 200 }
       );
-    }else if(newStatus === 'rejected'){
+    } else if (newStatus === 'rejected') {
       const freelancerEmail = "lakshay12290@gmail.com";
       console.log(newStatus);
       console.log("Application newStatus to be updated to Rejected");

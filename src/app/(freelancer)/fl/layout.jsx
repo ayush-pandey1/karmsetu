@@ -11,7 +11,7 @@ import { Provider } from 'react-redux'
 import store from "../../(redux)/store/store"
 import { SessionProvider } from "next-auth/react";
 const inter = Inter({ subsets: ['latin'] });
-import NextNProgress from 'nextjs-progressbar';
+import NextTopLoader from 'nextjs-toploader';
 
 export default function RootLayout({ children, }) {
   return (<html lang="en">
@@ -23,7 +23,7 @@ export default function RootLayout({ children, }) {
 
             <SideNav />
             <main className="flex-1">
-            <NextNProgress />
+            <NextTopLoader color="#8b5cf6" />
               <MarginWidthWrapper>
                 <Header />
                 <HeaderMobile />

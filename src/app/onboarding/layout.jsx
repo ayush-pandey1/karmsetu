@@ -9,6 +9,7 @@ import ToasterContext from "../context/ToastContext";
 import ScrollToTop from "@/components/ScrollToTop";
 
 import { SessionProvider } from "next-auth/react";
+import NextTopLoader from "nextjs-toploader";
 
 
 export default function RootLayout({ children, }) {
@@ -16,7 +17,7 @@ export default function RootLayout({ children, }) {
     <body className={`dark:bg-black ${inter.className}`}>
       <SessionProvider>
         <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
-
+        <NextTopLoader color="#8b5cf6" />
           <ToasterContext />
        
           {children}

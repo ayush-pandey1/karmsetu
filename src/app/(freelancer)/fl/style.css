@@ -1,0 +1,22 @@
+.underline-word:after{
+    content: '';
+  position: absolute;
+  width: 100%;
+  border-top: solid 3px red;
+  left: 0;
+  bottom: -8px;
+  border-radius: 50%;
+  height: 8px;
+  
+}
+.underline-nearby:after{
+  content: '';
+position: absolute;
+width: 100%;
+border-top: solid 3px #0ea5e9;
+left: 0;
+bottom: -8px;
+border-radius: 50%;
+height: 8px;
+
+}
