@@ -60,6 +60,7 @@ import { Checkbox } from "../ui/checkbox.jsx";
 import { Label } from "../ui/label.jsx";
 import { fetchClientProjects } from "@/app/(redux)/features/projectDataSlice.js"
 import { checkout } from "@/checkout.js";
+import Script from "next/script";
 
 const createJobSchema = z.object({
   title: z
@@ -119,7 +120,7 @@ const CreateJobForm = () => {
       setError(false);
     }
   }, [milestones, milestoneData])
-  
+
   useEffect(() => {
     if (!userData) {
       const data = JSON.parse(sessionStorage.getItem("karmsetu"));
@@ -182,12 +183,93 @@ const CreateJobForm = () => {
   // }, [userData?.id, dispatch, formSubmitted]);
 
 
+
+  const amount = 100;
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [sdkReady, setSdkReady] = useState(false);
+
+  const handlePayment = (values) => {
+    const { title, budget, description } = values;
+    const name = userData?.name;
+    const phone = userData?.phone;
+    const email = userData?.email;
+    console.log("Title: ", title, "budget: ", budget, "user name: ", name, "phone: ", phone, "email: ", email);
+    return new Promise((resolve, reject) => {
+      if (!sdkReady) {
+        console.error("Razorpay SDK is not loaded yet.");
+        resolve(false);
+        return;
+      }
+
+      setIsProcessing(true);
+
+      fetch("/api/create-payment", { method: "POST" })
+        .then(response => response.json())
+        .then(data => {
+          const options = {
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: budget * 100,
+            currency: "INR",
+            name: title,
+            description: description,
+            order_id: data.order_id,
+            handler: function (res) {
+              console.log("Payment successful", res);
+              resolve(true);
+            },
+            prefill: {
+              name: name,
+              email: email,
+              contact: phone,
+            },
+            theme: {
+              color: "#3399cc",
+            },
+          };
+
+          const rzp1 = new window.Razorpay(options);
+          rzp1.open();
+
+          rzp1.on("payment.failed", function (response) {
+            console.error("Payment failed", response);
+            resolve(false);
+          });
+
+        })
+        .catch(error => {
+          console.error("Failed to fetch payment data", error);
+          resolve(false);
+        })
+        .finally(() => {
+          setIsProcessing(false);
+        });
+    });
+  };
+
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Razorpay) {
+      setSdkReady(true);
+    } else {
+      console.error("Razorpay SDK failed to load");
+    }
+  }, [sdkReady]);
+
   const onSubmitForm = async (values) => {
     if (error) {
       return;
     }
     console.log("Form Values:", values, milestones);
     // return;
+    if (isProcessing) {
+      console.warn("Payment already in progress.");
+      return;
+    }
+    const paymentSuccessful = await handlePayment(values);
+    if (!paymentSuccessful) {
+      console.error("Payment failed or was not completed.");
+      return;
+    }
     try {
       console.log("asas: ", values);
       if (!coordinates.latitude || !coordinates.longitude) {
@@ -202,18 +284,23 @@ const CreateJobForm = () => {
         clientName,
         coordinates,
         milestones,
-        clientImageLink
+        // clientImageLink
       });
       // console.log(values);
       // setTags([]);
       console.log(response.data.savedProject._id, "Response");
       // return;
-      if (response?.data?.savedProject?._id) {
-        stripe(response.data.savedProject._id);
-      }
-      else {
-        router.push("/cl/jobs");
-      }
+      // dispatch(fetchClientProjects(userData?.id))
+      router.push("/cl/jobs");
+      // if (response?.data?.savedProject?._id) {
+      // stripe(response.data.savedProject._id);
+      // const res = handlePayment();
+      // console.log("Payment: ", res);
+      // router.push("/cl/jobs");
+      // }
+      // else {
+      // router.push("/cl/jobs");
+      // }
       // if (userData?.id) {
       //   dispatch(fetchClientProjects(userData?.id))
       //   router.push("/cl/jobs");
@@ -640,6 +727,12 @@ const CreateJobForm = () => {
           </Button>
         </form>
       </Form>
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        onLoad={() => setSdkReady(true)} // Set SDK ready when script is loaded
+        onError={() => console.error("Failed to load Razorpay SDK")}
+        strategy="beforeInteractive" // Load before page interaction
+      />
     </div>
   );
 };

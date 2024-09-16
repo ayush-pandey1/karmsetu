@@ -19,8 +19,8 @@ import { setLanguage } from '../../(redux)/features/languageSlice';
 import NextTopLoader from 'nextjs-toploader';
 
 export default function RootLayout({ children, }) {
-  const locale = getLocaleCookie(); // Retrieve locale from cookies
-  store.dispatch(setLanguage(locale));
+  // const locale = getLocaleCookie(); // Retrieve locale from cookies
+  // store.dispatch(setLanguage(locale));
 
   return (<html lang="en">
     <body className={`bg-white ${inter.className}`}>

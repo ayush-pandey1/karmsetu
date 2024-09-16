@@ -106,8 +106,7 @@ const FreelancerCard = ({
       {/* Portfolio Projects Small Screen Carousel */}
       {/* <div className="block w-full sm:hidden"> */}
       {/* {portfolioDetails ? ( */}
-
-      {portfolioDetails && portfolioDetails.length > 0 ? (
+      {portfolioDetails.length > 0 ? (
         <div className="">
           <Carousel
             opts={{

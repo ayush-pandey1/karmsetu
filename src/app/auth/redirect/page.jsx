@@ -26,7 +26,7 @@ const redirect = () => {
                 // setUserEmail(session.user.email);
                 async function fetchUserData(email) {
                     try {
-                        const response = await fetch('/api/userInfoByEmail', { 
+                        const response = await fetch('/api/userInfoByEmail', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -44,7 +44,9 @@ const redirect = () => {
                                 name: user.fullname,
                                 id: user._id,
                                 role: user.role,
-                                profileImage : user.imageLink
+                                profileImage: user.imageLink,
+                                phone: user.phone
+
                             };
                             setProfileImage(user?.imageLink || "")
                             setRole(sessionData?.role);
@@ -89,7 +91,7 @@ const redirect = () => {
         //     router.push("/");
         // }
     }, [user, userData])
-    
+
     return (
         <div className="h-screen w-screen"><Loader /></div>
     )

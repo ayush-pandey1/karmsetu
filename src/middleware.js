@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function middleware(req) {
   const token = await getToken({ req });
-  //console.log(token);
+  console.log("toekn: ",token);
   const { pathname } = req.nextUrl;
   //console.log('Middleware triggered for:', req.nextUrl.pathname);
 
@@ -14,7 +14,7 @@ export async function middleware(req) {
 
   // If the user is logged in and tries to access signin or signup, redirect based on role
   if (token && (pathname === '/auth/signin' ||  pathname === '/auth/signup')) {
-    const redirectUrl = token.role === 'client' ? '/cl' : '/fl';
+    const redirectUrl = token?.role === 'client' ? '/cl' : '/fl';
     return NextResponse.redirect(new URL(redirectUrl, req.url));
   }
 

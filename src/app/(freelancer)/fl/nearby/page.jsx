@@ -1,6 +1,7 @@
 "use client";
 
 import FmapComponent from "@/components/FmapComponent";
+import HeatMapComponent from "@/components/HeatMapComponent";
 import JobCardFreelancer from "@/components/JobCardFreelancer";
 import Loader2 from "@/components/Loader2";
 import React, { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import "../style.css"
 
 const NearbyFreelancersPage = () => {
   const [nearByProject, setNearByProject] = useState([]);
+  const [allProject, setAllProject] = useState([]);
   const [loading, setLoading] = useState(true);
   const [coordinates, setCoordinates] = useState({ latitude: 0, longitude: 0 });
   const [selectedDistance, setSelectedDistance] = useState(5);
@@ -46,6 +48,35 @@ const NearbyFreelancersPage = () => {
 
     fetchNearbyFreelancers();
   }, [selectedDistance]);
+  useEffect(() => {
+    const fetchNearbyFreelancers = async () => {
+      const data1 = JSON.parse(sessionStorage.getItem("karmsetu"));
+      const id = data1?.id;
+      // console.log(id," : ", data1);
+
+      if (id) {
+        // loading(true);
+        try {
+          const response = await fetch(
+            `/api/nearby/freelancer/${id}?distance=2000`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setAllProject(data);
+          } else {
+            console.error("Failed to fetch data:", response.statusText);
+          }
+        } catch (error) {
+          console.error("Error fetching nearby freelancers:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchNearbyFreelancers();
+  }, []);
+
 
   useEffect(() => {
     const getLocation = async () => {
@@ -93,11 +124,15 @@ const NearbyFreelancersPage = () => {
         <div className="App">
           {/* <h1>My Leaflet Map</h1> */}
           {coordinates.latitude ? (
-            <FmapComponent
-              myCoordinate={coordinates}
-              othersCoordinates={nearByProject}
-              distance={selectedDistance}
-            />
+            <>
+              <HeatMapComponent myCoordinate={coordinates}
+                othersCoordinates={allProject} />
+              <FmapComponent
+                myCoordinate={coordinates}
+                othersCoordinates={nearByProject}
+                distance={selectedDistance}
+              />
+            </>
           ) : (
             <h1>Page is loading...</h1>
           )}
@@ -127,7 +162,7 @@ const NearbyFreelancersPage = () => {
               </option>
             ))}
           </select>
-          
+
         </div>
 
 
