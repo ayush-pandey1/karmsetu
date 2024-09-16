@@ -8,7 +8,7 @@ connect();
 export async function POST(NextRequest) {
   try {
     const reqBody = await NextRequest.json();
-    const { values, tags, clientName, coordinates, milestones, clientImageLink } = reqBody;
+    const { values, tags, clientName, coordinates, milestones } = reqBody;
     const { description, budget, projectCategory, duration, title, clientId, } = values;
 
     if (!coordinates || !coordinates.latitude || !coordinates.longitude) {
@@ -19,10 +19,10 @@ export async function POST(NextRequest) {
     if (!Array.isArray(milestones)) {
       return NextResponse.json({ error: "Invalid milestones data" }, { status: 400 });
     }
-    if (!freelancerDetails.clientImageLink) {
-      freelancerDetails.clientImageLink = "";
-    }
-    freelancerDetails.clientImageLink = clientImageLink;
+    // if (!freelancerDetails.clientImageLink) {
+    //   freelancerDetails.clientImageLink = "";
+    // }
+    // freelancerDetails.clientImageLink = clientImageLink;
 
     // const tagTexts = tags.map(tag => tag.text);
     const tagTexts = values.skills;
@@ -37,7 +37,7 @@ export async function POST(NextRequest) {
       projectCategory,
       clientId,
       clientName,
-      clientImageLink,
+      // clientImageLink,
       coordinates: {
         latitude: coordinates?.latitude,
         longitude: coordinates?.longitude

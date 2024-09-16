@@ -182,13 +182,7 @@ const CreateJobForm = () => {
   //   }
   // }, [userData?.id, dispatch, formSubmitted]);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.Razorpay) {
-      setSdkReady(true);
-    } else {
-      console.error("Razorpay SDK failed to load");
-    }
-  }, [sdkReady]);
+
 
   const amount = 100;
   const [isProcessing, setIsProcessing] = useState(false);
@@ -253,7 +247,13 @@ const CreateJobForm = () => {
   };
 
 
-
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Razorpay) {
+      setSdkReady(true);
+    } else {
+      console.error("Razorpay SDK failed to load");
+    }
+  }, [sdkReady]);
 
   const onSubmitForm = async (values) => {
     if (error) {
@@ -284,7 +284,7 @@ const CreateJobForm = () => {
         clientName,
         coordinates,
         milestones,
-        clientImageLink
+        // clientImageLink
       });
       // console.log(values);
       // setTags([]);
