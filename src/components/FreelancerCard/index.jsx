@@ -30,7 +30,6 @@ const FreelancerCard = ({
   imageLink,
   portfolioDetails
 }) => {
-  console.log(portfolioDetails);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
   const receiverId = id;

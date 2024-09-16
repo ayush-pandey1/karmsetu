@@ -137,6 +137,8 @@ const ManagePortfolio = () => {
         ...newProject,
       },
     ]);
+    setSelectedFile(null);
+    setPreviewImage("");
     setNewProject({
       title: "",
       description: "",
@@ -144,7 +146,6 @@ const ManagePortfolio = () => {
       imageLink: previewImage,
     });
     setImage("");
-    await fetchUserData(freelancerId);
     } catch (error) {
       console.log("Error in creating the portfolio project",error.message);
     }
@@ -166,6 +167,7 @@ const ManagePortfolio = () => {
                 <div>
                   <Label htmlFor="title">Project Title</Label>
                   <Input
+                    required
                     id="title"
                     value={newProject.title}
                     onChange={(e) =>
@@ -177,6 +179,7 @@ const ManagePortfolio = () => {
                 <div>
                   <Label htmlFor="description">Project Description</Label>
                   <Textarea
+                  required
                     id="description"
                     value={newProject.description}
                     onChange={(e) =>
@@ -189,6 +192,7 @@ const ManagePortfolio = () => {
                   <Label htmlFor="tags">Project Tags</Label>
                   <Input
                     id="tags"
+                    required
                     value={newProject.tags.join(", ")}
                     onChange={(e) =>
                       handleProjectChange(
@@ -209,6 +213,7 @@ const ManagePortfolio = () => {
                       accept="imageLink/*"
                       onChange={handleImageUpload}
                       className="border border-gray-300 rounded-lg cursor-pointer bg-gray-50 mb-3"
+                      required
                     />
                     <Button
                       variant="default"

@@ -131,7 +131,7 @@ const Home = () => {
 
   useEffect(() => {
     setFilteredFreelancer(filteredFreelancersData);
-    console.log(filteredFreelancersData, "FreelancerData");
+
     setFreelancerDataLoading(false);
     //console.log(filteredFreelancersData);
     // console.log(freelancers, "All freelancers State Variable")
