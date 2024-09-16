@@ -17,7 +17,7 @@ const JobCardFreelancer = ({ project }) => {
 
   return (
     <div className="group">
-      <div className="p-4 border  border-slate-200   bg-white max-w-72  lg:max-w-[22.5rem] rounded-lg h-full w-full  sm:group-hover:scale-105  group-hover:border-primary group-hover:border-opacity-50  transition-all ease-in-out">
+      <div className="p-4 border  border-slate-200   bg-white max-w-72  lg:max-w-[22.5rem] rounded-lg h-full w-full  sm:group-hover:scale-105  sm:group-hover:border-primary group-hover:border-opacity-50  transition-all ease-in-out">
         <div className="flex h-full flex-col gap-2  sm:gap-4 justify-between">
           <div className="flex flex-col sm:flex-row gap-3  sm:gap-4">
             <div>
@@ -65,12 +65,12 @@ const JobCardFreelancer = ({ project }) => {
                   href={`/fl/jobdetails/${project?._id}`}
                   className="w-full"
                 >
-                  <Button className="flex flex-row mt-0 w-full items-center bg-primary active:bg-primaryho hover:bg-primary shadow-none sm:group-hover:bg-black transition-all ease-in-out">
+                  <Button className="flex flex-row mt-0 w-full items-center bg-primary active:bg-primaryho active:scale-90 hover:bg-primary shadow-none sm:group-hover:bg-black transition-all ease-in-out">
                     View Job
                   </Button>
                 </Link>
                 <Link href="/fl" className="w-full">
-                  <Button className="flex flex-row mt-0 text-black w-full items-center bg-transparent active:bg-transparent hover:bg-transparent  border border-gray-300 shadow-none">
+                  <Button className="flex flex-row mt-0 text-black w-full items-center bg-transparent active:bg-transparent active:scale-90 hover:bg-transparent  border border-gray-300 shadow-none transition-all ease-in-out">
                     Chat
                   </Button>
                 </Link>

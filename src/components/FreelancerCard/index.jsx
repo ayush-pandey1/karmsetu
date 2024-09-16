@@ -28,7 +28,7 @@ const FreelancerCard = ({
   id,
   rating,
   imageLink,
-  portfolioDetails
+  portfolioDetails,
 }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
@@ -106,7 +106,8 @@ const FreelancerCard = ({
       {/* Portfolio Projects Small Screen Carousel */}
       {/* <div className="block w-full sm:hidden"> */}
       {/* {portfolioDetails ? ( */}
-      {portfolioDetails.length > 0 ?
+
+      {portfolioDetails && portfolioDetails.length > 0 ? (
         <div className="">
           <Carousel
             opts={{
@@ -115,83 +116,33 @@ const FreelancerCard = ({
             className=" "
           >
             <CarouselContent className="h-50 w-80 pb-3 ">
-              {portfolioDetails && portfolioDetails.map((portfolioDetail) => {
+              {portfolioDetails.map((portfolioDetail, index) => {
                 return (
-                  <CarouselItem className="">
-                    {/* {console.log("iage: ", portfolioDetail.imageLink)} */}
-                    <Image
-                      src={portfolioDetail.imageLink}
-                      alt="Project Image"
-                      height={200}
-                      width={150}
-                      className="h-full w-full rounded-lg"
-                    />
+                  <CarouselItem key={index} className="">
+                    {portfolioDetail && portfolioDetail.imageLink ? (
+                      <Image
+                        src={portfolioDetail.imageLink}
+                        alt="Project Image"
+                        height={200}
+                        width={150}
+                        className="h-full w-full rounded-lg"
+                      />
+                    ) : (
+                      <p>No Image Available</p>
+                    )}
                   </CarouselItem>
                 );
               })}
             </CarouselContent>
-
           </Carousel>
-        </div> : <></>}
+        </div>
+      ) : (
+        <></>
+      )}
+
       {/* ) : ( */}
       {/* <div>No Portfolio Projects</div> */}
       {/* )} */}
-
-
-      {/* Portfolio Projects big screen static */}
-      {/* <div className="sm:flex sm:overflow-scroll hidden   gap-3">
-        <div className="">
-          <Image
-            src="/images/portfolio/portfolio4.png"
-            alt="Project Image"
-            height="0"
-            width="0"
-            className="h-40 w-72  rounded-lg object-cover"
-            unoptimized
-          />
-        </div>
-        <div className="">
-          <Image
-            src="/images/portfolio/portfolio5.png"
-            alt="Project Image"
-            height="0"
-            width="0"
-            className="h-40 w-72  rounded-lg object-cover"
-            unoptimized
-          />
-        </div>
-        <div className="">
-          <Image
-            src="/images/portfolio/portfolio3.jpg"
-            alt="Project Image"
-            height="0"
-            width="0"
-            className="h-40 w-72  rounded-lg object-cover"
-            unoptimized
-          />
-        </div>
-        <div className="">
-          <Image
-            src="/images/portfolio/portfolio2.jpg"
-            alt="Project Image"
-            height="0"
-            width="0"
-            className="h-40 w-72  rounded-lg object-cover"
-            unoptimized
-          />
-        </div>
-        <div className="">
-          <Image
-            src="/images/portfolio/portfolio1.jpg"
-            alt="Project Image"
-            height="0"
-            width="0"
-            className="h-40 w-72  rounded-lg object-cover"
-            unoptimized
-          />
-        </div>
-        
-      </div> */}
 
       <div className="flex flex-row gap-2 sm:hidden ">
         <Button className="w-full bg-primary hover:bg-primaryho shadow-none text-white px-1">

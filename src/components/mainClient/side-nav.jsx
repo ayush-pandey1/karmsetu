@@ -90,7 +90,7 @@ const SideNav = () => {
           </Link>
         </span>
 
-        <div className="flex flex-col space-y-2 md:px-6 ">
+        <div className="flex flex-col space-y-2 md:px-0 ">
           {SIDENAV_ITEMS.map((item, idx) => {
             return <MenuItem key={idx} item={item} />;
           })}
@@ -144,7 +144,7 @@ const MenuItem = ({ item }) => {
         <>
           <button
             onClick={toggleSubMenu}
-            className={`flex transition-all ease-in-out flex-row items-center p-2 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
+            className={`flex transition-all ease-in-out flex-row items-center py-2 px-6 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
               pathname.includes(item.path)
                 ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
                 : ""
@@ -183,14 +183,16 @@ const MenuItem = ({ item }) => {
       ) : (
         <Link
           href={item.path}
-          className={`flex flex-row transition-all ease-in-out space-x-4 items-center p-2  rounded-lg hover:bg-zinc-100 ${
+          className={`flex flex-row transition-all ease-in-out space-x-4 group items-center py-2 px-6   hover:bg-zinc-100 ${
             item.path === pathname
-              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
+              ? "bg-primary bg-opacity-15 border-l-[6px] border-primary   text-primary hover:bg-violet-700"
               : ""
           }`}
         >
           {item.icon}
-          <span className="flex text-xl font-semibold">{item.title}</span>
+          <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">
+            {item.title}
+          </span>
         </Link>
       )}
     </div>

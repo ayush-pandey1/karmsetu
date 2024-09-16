@@ -42,12 +42,7 @@ const Header = () => {
           >
             <span className="rounded-lg">
               {" "}
-              <Image
-                src="/karmsetu.png"
-                className=""
-                width="34"
-                height="34"
-              />{" "}
+              
             </span>
             <span className="flex w-32">
               <Image

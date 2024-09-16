@@ -16,6 +16,7 @@ import store from "../../(redux)/store/store";
 import { SessionProvider } from "next-auth/react";
 import { getLocaleCookie } from '../../../utils/cookieUtils';
 import { setLanguage } from '../../(redux)/features/languageSlice';
+import NextTopLoader from 'nextjs-toploader';
 
 export default function RootLayout({ children, }) {
   const locale = getLocaleCookie(); // Retrieve locale from cookies
@@ -28,6 +29,7 @@ export default function RootLayout({ children, }) {
           <Provider store={store}>
             <SideNav />
             <main className="flex-1">
+            <NextTopLoader color="#8b5cf6" />
               <MarginWidthWrapper>
                 <Header />
                 <HeaderMobile />

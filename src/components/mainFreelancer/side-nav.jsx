@@ -97,7 +97,7 @@ const SideNav = () => {
           </span>
         </Link>
 
-        <div className="flex flex-col space-y-2 md:px-6 ">
+        <div className="flex flex-col space-y-2 md:px-0 ">
           {SIDENAV_ITEMS.map((item, idx) => {
             return <MenuItem key={idx} item={item} />;
           })}
@@ -111,21 +111,26 @@ const SideNav = () => {
             </div>
             <div className="md:px-4 mb-6 flex flex-row items-center gap-3">
               <div className="flex items-center justify-center text-center rounded-full h-9 w-9 ">
-                <Link href={`/fl/user/${userData?.id}`}>
-                <Avatar className="h-9 w-9">
-                  <AvatarImage
-                    alt="Profile Image"
-                    src={imgLink ? imgLink : "/images/user/user-01.png"}
-                    className="h-9 w91 object-contain"
-                  />
-                  <AvatarFallback>CL</AvatarFallback>
-                </Avatar>
-                </Link>
+                {imgLink && (
+                  <Link href={`/fl/user/${userData?.id}`}>
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage
+                        alt="Profile Image"
+                        src={imgLink ? imgLink : "/images/user/user-01.png"}
+                        className="h-9 w91 object-contain"
+                      />
+                      <AvatarFallback>CL</AvatarFallback>
+                    </Avatar>
+                  </Link>
+                )}
               </div>
               <div className="flex flex-row justify-between gap-3">
                 <div className="flex flex-col leading-none">
-                  <span className="text-black text-sm font-semibold flex flex-row justify-between items-center">
-                    {userData?.name}
+                  <span className="text-black text-sm font-semibold flex flex-row   gap-1">
+                    {userData?.name}{" "}
+                    <span className="pt-1">
+                      <div className="bg-green-500 h-1 w-1 rounded-full"> </div>
+                    </span>
                   </span>
                   <span className="text text-xs text-opacity-75">
                     {userData?.email}
@@ -139,8 +144,9 @@ const SideNav = () => {
                     <DropdownMenuContent>
                       <DropdownMenuLabel>My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="flex flex-row gap-2 text-gray-400 font-medium hover:font-medium items-center">Log Out <RiLogoutCircleRLine /></DropdownMenuItem>
-                      
+                      <DropdownMenuItem className="flex flex-row gap-2 text-gray-400 font-medium hover:font-medium items-center">
+                        Log Out <RiLogoutCircleRLine />
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -165,7 +171,7 @@ const MenuItem = ({ item }) => {
         <>
           <button
             onClick={toggleSubMenu}
-            className={`flex  flex-row items-center p-2 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
+            className={`flex  flex-row items-center py-2 px-6 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
               pathname.includes(item.path)
                 ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
                 : ""
@@ -204,14 +210,16 @@ const MenuItem = ({ item }) => {
       ) : (
         <Link
           href={item.path}
-          className={`flex flex-row  space-x-4 items-center p-2  rounded-lg hover:bg-zinc-100 ${
+          className={`flex flex-row  space-x-4 items-center py-2 px-6 group   hover:bg-zinc-100 ${
             item.path === pathname
-              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
+              ? "bg-primary bg-opacity-15   text-primary border-l-[6px] border-primary   hover:bg-violet-700"
               : ""
           }`}
         >
           {item.icon}
-          <span className="flex text-xl font-semibold">{item.title}</span>
+          <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">
+            {item.title}
+          </span>
         </Link>
       )}
     </div>

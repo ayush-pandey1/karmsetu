@@ -5,6 +5,7 @@ import JobCardFreelancer from "@/components/JobCardFreelancer";
 import Loader2 from "@/components/Loader2";
 import React, { useEffect, useState } from "react";
 import { GrMap } from "react-icons/gr";
+import "../style.css"
 
 const NearbyFreelancersPage = () => {
   const [nearByProject, setNearByProject] = useState([]);
@@ -81,7 +82,7 @@ const NearbyFreelancersPage = () => {
         <div className="flex flex-col gap-2">
           <div className="text-black font-bold text-lg sm:text-2xl  border-l-4 border-l-sky-500 px-2 leading-none ">
             Discover Projects in{" "}
-            <span className="underline decoration-wavy decoration-sky-500">
+            <span className="underline-nearby relative ">
               Proximity
             </span>
           </div>

@@ -49,15 +49,15 @@ const ProjectsPage = () => {
   return (
     <>
       <div className="flex flex-col gap-20 mx-0 sm:mx-15 mt-5">
-        <div className="font-bold flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center">
+        <div className="font-bold flex flex-col sm:flex-row gap-2 sm:gap-0 sm:justify-between sm:items-center bg-white bg-opacity-75 p-3 border border-gray-300 rounded-none sm:rounded-lg">
           <div className="flex flex-col gap-1">
             <div className="text-2xl text-black sm:text-4xl">
               All Posted Projects
             </div>
-            <div className="font-medium md:text-base text-sm">
+            <div className="font-medium md:text-base text-xs text-gray-400 text-opacity-80">
               Review, Manage, and Create New Jobs/Gigs
             </div>
-            <button onClick={handleRefresh}>Reload</button>
+            {/* <button onClick={handleRefresh}>Reload</button> */}
           </div>
           <div className="flex items-center">
             {/* Uncomment if needed */}
