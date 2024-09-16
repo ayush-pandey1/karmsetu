@@ -88,7 +88,7 @@ const CreateJobForm = () => {
     latitude: 0,
     longitude: 0,
   });
-  const dispatch = useDispatch();
+
 
   // MileStone Feature
   const [milestones, setMilestones] = useState([]);
