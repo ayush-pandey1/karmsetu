@@ -190,7 +190,9 @@ const MenuItem = ({ item }) => {
           }`}
         >
           {item.icon}
-          <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">{item.title}</span>
+          <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">
+            {item.title}
+          </span>
         </Link>
       )}
     </div>

@@ -111,23 +111,25 @@ const SideNav = () => {
             </div>
             <div className="md:px-4 mb-6 flex flex-row items-center gap-3">
               <div className="flex items-center justify-center text-center rounded-full h-9 w-9 ">
-                <Link href={`/fl/user/${userData?.id}`}>
-                  <Avatar className="h-9 w-9">
-                    <AvatarImage
-                      alt="Profile Image"
-                      src={imgLink ? imgLink : "/images/user/user-01.png"}
-                      className="h-9 w91 object-contain"
-                    />
-                    <AvatarFallback>CL</AvatarFallback>
-                  </Avatar>
-                </Link>
+                {imgLink && (
+                  <Link href={`/fl/user/${userData?.id}`}>
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage
+                        alt="Profile Image"
+                        src={imgLink ? imgLink : "/images/user/user-01.png"}
+                        className="h-9 w91 object-contain"
+                      />
+                      <AvatarFallback>CL</AvatarFallback>
+                    </Avatar>
+                  </Link>
+                )}
               </div>
               <div className="flex flex-row justify-between gap-3">
                 <div className="flex flex-col leading-none">
                   <span className="text-black text-sm font-semibold flex flex-row   gap-1">
                     {userData?.name}{" "}
-                    <span className="pt-1"> 
-                      <div className="bg-green-500 h-1 w-1 rounded-full">{" "}</div>
+                    <span className="pt-1">
+                      <div className="bg-green-500 h-1 w-1 rounded-full"> </div>
                     </span>
                   </span>
                   <span className="text text-xs text-opacity-75">
@@ -215,7 +217,9 @@ const MenuItem = ({ item }) => {
           }`}
         >
           {item.icon}
-          <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">{item.title}</span>
+          <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">
+            {item.title}
+          </span>
         </Link>
       )}
     </div>

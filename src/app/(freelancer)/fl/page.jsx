@@ -23,6 +23,7 @@ import {
   filterBySearch,
 } from "@/app/(redux)/features/freelancerProjects";
 import Loader2 from "@/components/Loader2";
+import "./style.css"
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -168,8 +169,8 @@ export default function Home() {
           <div className="flex p-2 sm:p-4 flex-col gap-5">
             <span className="font-semibold text-black text-4xl mb-5">
               Welcome Back
-              <span className="text-primary font-bold">
-                {" "}
+              <span className="underline-word relative font-bold pl-1">
+                
                 {userData?.name}
               </span>{" "}
               👋

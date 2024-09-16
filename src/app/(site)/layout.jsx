@@ -15,7 +15,8 @@ import "../globals.css";
 import { SessionProvider } from "next-auth/react";
 import ToasterContext from "../context/ToastContext";
 import { Provider } from 'react-redux'
-import NextNProgress from 'nextjs-progressbar';
+import NextTopLoader from 'nextjs-toploader';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,7 @@ export default function RootLayout({ children }) {
         {/* <Provider store={store}> */}
           <SessionProvider>
             <ThemeProvider enableSystem={false} attribute="class" defaultTheme="light">
-              <NextNProgress />
+            <NextTopLoader color="#8b5cf6" />
               <Lines />
               <Header />
               <ToasterContext />

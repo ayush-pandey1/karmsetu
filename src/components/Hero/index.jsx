@@ -2,6 +2,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useTypewriter, Cursor } from "react-simple-typewriter";
+
 const Hero = () => {
   const [email, setEmail] = useState("");
   const [user, setUser] = useState();
@@ -18,6 +20,15 @@ const Hero = () => {
 
   }, [])
 
+  const [text1] = useTypewriter({
+    words: ["Connect", "Create", "Conquer"],
+    loop: {},
+    typeSpeed: 100,
+    deleteSpeed: 100,
+    delaySpeed: 1500,
+  });
+  
+
   return (<>
     <section className="overflow-hidden pb-20 pt-35 md:pt-40 xl:pb-25 xl:pt-46">
       <div className="mx-auto max-w-c-1390 px-4 md:px-8 2xl:px-0">
@@ -28,11 +39,14 @@ const Hero = () => {
             </h4>
             <h1 className="mb-5 pr-16 text-3xl font-bold text-black dark:text-white xl:text-hero ">
               Leap to Freelance, Opportunity to {"   "}
-              <span className="relative inline-block before:absolute before:bottom-2.5 before:left-0 before:-z-1 before:h-3 before:w-full before:bg-titlebg dark:before:bg-titlebgdark ">
-                Connect
+              <span className="relative inline-block before:absolute before:bottom-2.5 before:left-0 before:-z-1 before:h-3 before:w-full text-secondaryho  ">
+              <span className="multi-type">{text1}</span>
+                  <span className="">
+                    <Cursor cursorStyle="|" />
+                  </span>
               </span>
             </h1>
-            <p>
+            <p className="text-justify">
               Karmsetu - Streamlining freelancing with a user-friendly interface for job posting, profile management, and real-time collaboration. Includes AI recommendations, integrated payments, and a versatile dashboard, all built with Next.js and React for top performance
             </p>
 
