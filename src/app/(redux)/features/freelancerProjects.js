@@ -127,7 +127,7 @@ const freelancer = createSlice({
         if (Array.isArray(projectsData)) {
           //console.log(projectsData, "Inside Fulfilled State, Array");
           state.projects = projectsData;
-          state.filteredProjects = projectsData;
+          state.filteredProjects = state.projects.filter((freelancer) => freelancer.status === "Pending");
           state.status = 'succeeded';
           state.empty = true;
           state.projectsFetched = true;

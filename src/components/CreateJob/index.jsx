@@ -95,6 +95,7 @@ const CreateJobForm = () => {
   const [totalPercentage, setTotalPercentage] = useState(0);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState(null);
+  const [clientImageLink, setClientImageLink] = useState("");
   const [milestoneData, setMilestoneData] = useState({
     title: "",
     description: "",
@@ -124,6 +125,7 @@ const CreateJobForm = () => {
       const data = JSON.parse(sessionStorage.getItem("karmsetu"));
       setUserData(data);
       if (data?.id) {
+        setClientImageLink(data?.imageLink);
         form.reset({
           ...form.getValues(),
           clientId: data.id,
@@ -199,7 +201,8 @@ const CreateJobForm = () => {
         values,
         clientName,
         coordinates,
-        milestones
+        milestones,
+        clientImageLink
       });
       // console.log(values);
       // setTags([]);
