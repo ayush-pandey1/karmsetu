@@ -13,6 +13,7 @@ const JobCardFreelancer = ({ project }) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
+  const clientImageLink = project?.clientImageLink;
 
   return (
     <div className="group">
