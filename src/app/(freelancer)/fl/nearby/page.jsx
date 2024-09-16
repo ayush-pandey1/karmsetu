@@ -1,7 +1,8 @@
 "use client";
-
-import FmapComponent from "@/components/FmapComponent";
-import HeatMapComponent from "@/components/HeatMapComponent";
+import dynamic from "next/dynamic";
+const FmapComponent = dynamic(() => import("@/components/FmapComponent"), { ssr: false, });
+// import FmapComponent from "@/components/FmapComponent";
+const HeatMapComponent = dynamic(() => import("@/components/HeatMapComponent"), { ssr: false, });
 import JobCardFreelancer from "@/components/JobCardFreelancer";
 import Loader2 from "@/components/Loader2";
 import React, { useEffect, useState } from "react";

@@ -5,14 +5,14 @@ import Link from "next/link";
 import JobCardClient from '@/components/JobCardClient';
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from '@/components/ui/button';
-import { fetchFreelancerProjects , modifyRefresh} from '../../../(redux)/features/freelancerProjects';
+import { fetchFreelancerProjects, modifyRefresh } from '../../../(redux)/features/freelancerProjects';
 import Loader2 from "@/components/Loader2";
 
 const ProjectsPage = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState(null); // Default to null
-  const [loading, setLoading]  = useState(true);
-  
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem('karmsetu'));
     if (data) {
@@ -29,7 +29,7 @@ const ProjectsPage = () => {
     }
   }, [freelancerId, dispatch]);
 
-  const handleRefresh = ()=>{
+  const handleRefresh = () => {
     if (freelancerId) {
       console.log(freelancerId, "FreelancerId");
       dispatch(modifyRefresh());
@@ -40,7 +40,7 @@ const ProjectsPage = () => {
 
   const projects = useSelector((state) => state.freelancer.freelancerprojects);
   const empty = useSelector((state) => state.freelancer.empty);
-  console.log(projects, "From Inside Freelancer Project page");
+  // console.log(projects, "From Inside Freelancer Project page");
 
   if (!userData) {
     return <div>Loading...</div>;

@@ -24,7 +24,7 @@ export const fetchFreelancerProjects = createAsyncThunk(
     const { freelancer } = getState();
     if((!(freelancer.fetched))|| freelancer.refresh){
       try {
-        const apiUrl = `/api/projects/Freelancer?freelancerId=${freelancerId}`;
+        const apiUrl = `/api/projects/Freelancer/${freelancerId}`;
         const response = await axios.get(apiUrl);
         // console.log("API Called");
         if (response.data.empty) {

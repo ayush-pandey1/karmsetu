@@ -25,14 +25,19 @@ const ChatPage = () => {
   const [userData, setUserData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  console.log("online: ", onlineUsers, "user:  ", user);
-  console.log("Chat: ", chat);
+  // console.log("online: ", onlineUsers, "user:  ", user);
+  // console.log("Chat: ", chat);
 
   const currentUserId = user?.id;
-  console.log("dddd", currentUserId, chat);
-  if (!chat) {
-    router.push("/cl/messages");
-  }
+  // console.log("dddd", currentUserId, chat);
+  useEffect(() => {
+    if (!chat) {
+      router.push("/cl/messages");
+    }
+  }, [chat])
+  // if (!chat) {
+  //   router.push("/cl/messages");
+  // }
   // useEffect(() => {
   //   if (!chat) {
 
@@ -112,7 +117,7 @@ const ChatPage = () => {
 
   }, [messages])
 
-  console.log("user::: ", user);
+  // console.log("user::: ", user);
 
   const checkOnlineStatus = (chat) => {
     const chatMember = chat?.members.find((member) => member !== user.id);

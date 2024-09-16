@@ -1,13 +1,14 @@
-import { connect } from "../../../../config/db";
-import ProjectSchema from "../../../(models)/project";
+import { connect } from "../../../../../config/db";
+import ProjectSchema from "../../../../(models)/project";
 import { NextRequest, NextResponse } from "next/server";
 
 
 connect();
 
-export async function GET(NextRequest) {
+export async function GET(NextRequest,{params}) {
+  const {freelancerId}=params;
     try {
-      const freelancerId = NextRequest.nextUrl.searchParams.get('freelancerId');
+      // const freelancerId = NextRequest.nextUrl.searchParams.get('freelancerId');
   
       // Fetch data from MongoDB based on the query
       const data = await ProjectSchema.find({freelancerId});

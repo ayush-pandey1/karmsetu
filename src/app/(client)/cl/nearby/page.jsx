@@ -1,6 +1,9 @@
 "use client";
+import dynamic from "next/dynamic";
+const MapComponent = dynamic(() => import("@/components/CmapComponent"), { ssr: false, });
+const HeatMapComponent = dynamic(() => import("@/components/HeatMapComponent"), { ssr: false, });
 import FreelancerCard from "@/components/FreelancerCard";
-import MapComponent from "@/components/CmapComponent";
+// import MapComponent from "@/components/CmapComponent";
 import React, { useEffect, useState } from "react";
 import {
   Select,
@@ -11,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { GrMap } from "react-icons/gr";
 import { PiMapPinAreaFill } from "react-icons/pi";
-import HeatMapComponent from "@/components/HeatMapComponent";
+// import HeatMapComponent from "@/components/HeatMapComponent";
 // import clHeatMap from "@/components/clHeatMap";
 
 const NearbyFreelancersPage = () => {
@@ -193,7 +196,7 @@ const NearbyFreelancersPage = () => {
           }}
           className="gap-2 mb-3"
         >
-          {freelancers.length > 0 ? (
+          {freelancers && freelancers.length > 0 ? (
             freelancers.map((freelancer) => (
               <FreelancerCard
                 key={freelancer?._id}
