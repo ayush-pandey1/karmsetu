@@ -50,7 +50,7 @@ const SideNav = () => {
 
   useEffect(() => {
     if (userId) {
-      socket.current = io("http://localhost:8800");
+      socket.current = io("https://karmsetu-socket.onrender.com");
 
       socket.current.on("connect", () => {
         socket.current.emit("new-user-add", userId);
