@@ -59,11 +59,7 @@ const SideNav = () => {
         dispatch(setReceiveMessage(data));
       });
 
-      return () => {
-        if (socket.current) {
-          socket.current.disconnect();
-        }
-      };
+      
     }
   }, [userId, dispatch]);
 
