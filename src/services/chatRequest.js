@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'https://karmsetu.vercel.app/api',
 });
 
 export const userChats = (id) => API.get(`/chat/${id}`);

@@ -37,7 +37,7 @@ const JobDetails = () => {
       try {
         if (!jobId) return;
 
-        const response = await fetch(`http://localhost:3000/api/project/${jobId[0]}`);
+        const response = await fetch(`https://karmsetu.vercel.app/api/project/${jobId[0]}`);
         if (response.ok) {
           const data = await response.json();
           setJobData(data.project);
@@ -62,7 +62,7 @@ const JobDetails = () => {
     fetchJobData();
   }, [jobId]);
 
-  if (loading) return (<Loader2/>);
+  if (loading) return (<Loader2 />);
 
   const role = "client";
   const isApplied = false;

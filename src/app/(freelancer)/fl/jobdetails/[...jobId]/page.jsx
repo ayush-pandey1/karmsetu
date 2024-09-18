@@ -53,7 +53,7 @@ const JobDetails = () => {
         if (!jobId) return;
 
         const response = await fetch(
-          `http://localhost:3000/api/project/${jobId[0]}`
+          `https://karmsetu.vercel.app/api/project/${jobId[0]}`
         );
         if (response.ok) {
           const data = await response.json();
@@ -289,7 +289,7 @@ const JobDetails = () => {
               ""
             )}
           </div>
-          <Separator  />
+          <Separator />
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Description */}

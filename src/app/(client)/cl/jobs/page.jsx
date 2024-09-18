@@ -5,7 +5,7 @@ import Link from "next/link";
 import JobCardClient from '@/components/JobCardClient';
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from '@/components/ui/button';
-import { fetchClientProjects , modifyRefresh} from '../../../(redux)/features/projectDataSlice';
+import { fetchClientProjects, modifyRefresh } from '../../../(redux)/features/projectDataSlice';
 import Loader2 from "@/components/Loader2";
 const JobPage = () => {
   const dispatch = useDispatch();
@@ -30,7 +30,7 @@ const JobPage = () => {
     }
   }, [clientId, dispatch]);
 
-  const handleRefresh = ()=>{
+  const handleRefresh = () => {
     console.log("refresh button clicked");
     console.log(clientId, "Client Id");
     if (clientId) {
@@ -54,7 +54,7 @@ const JobPage = () => {
             <div className="font-medium md:text-base text-sm">
               Review, Manage, and Create New Jobs/Gigs
             </div>
-            <button onClick={handleRefresh}>Reload</button>
+            {/* <button onClick={handleRefresh}>Reload</button> */}
           </div>
           <div className="flex items-center">
             <Button className="flex item-center gap-1 text-white  bg-primary hover:bg-primaryho">
@@ -67,8 +67,8 @@ const JobPage = () => {
         </div>
         <div className="w-full  grid grid-cols-1 grid-rows-1 gap-4 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2   xl:grid-cols-3 2xl:grid-cols-4 place-items-center sm:place-items-stretch md:place-items-center lg:place-items-stretch">
           {loading ? (
-            <Loader2/>
-          ): (
+            <Loader2 />
+          ) : (
             <JobCardClient projects={projects} empty={empty} />
           )};
         </div>
