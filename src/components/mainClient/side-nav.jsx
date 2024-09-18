@@ -22,10 +22,11 @@ const SideNav = () => {
   const dispatch = useDispatch();
   const sendMessage = useSelector((state) => state.chatData.sendMessage);
   const userData = useSelector((state) => state.chatData.userData);
-  const userId = userData?.id;
+
   const socket = useRef();
   const [imgLink, setImgLink] = useState(null);
   const [user1,setUser1]=useState();
+  const userId = user1?.id;
   // const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
@@ -42,11 +43,11 @@ const SideNav = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (user1?.id) {
+    if (userId) {
       socket.current = io("https://karmsetu-socket.onrender.com");
 
       socket.current.on("connect", () => {
-        socket.current.emit("new-user-add", user1.id);
+        socket.current.emit("new-user-add", userId);
       });
 
       socket.current.on("get-users", (users) => {
