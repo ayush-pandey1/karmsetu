@@ -30,9 +30,12 @@ const SideNav = () => {
   const dispatch = useDispatch();
   const sendMessage = useSelector((state) => state.chatData.sendMessage);
   const userData = useSelector((state) => state.chatData.userData);
-  const userId = userData?.id;
+  
   const socket = useRef();
   const [imgLink, setImgLink] = useState("");
+  const [user1,setUser1]=useState();
+
+  const userId = user1?.id;
   // const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
@@ -40,6 +43,7 @@ const SideNav = () => {
     if (data) {
       try {
         const parsedData = JSON.parse(data);
+        setUser1(parsedData)
         dispatch(setUserData(parsedData));
         setImgLink(parsedData?.profileImage);
       } catch (error) {
