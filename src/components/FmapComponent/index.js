@@ -329,7 +329,7 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
       <div
         id="map"
         style={{ height: "", width: "100%" }}
-        className="rounded-xl border border-green-500 h-[300px] md:h-[500px] z-1"
+        className="rounded-xl border border-sky-500 h-[300px] md:h-[500px] z-1"
       >
         <button
           onClick={handleRelocate}
@@ -349,6 +349,7 @@ const FmapComponent = ({ myCoordinate, othersCoordinates, distance }) => {
             width="0"
             height="0"
             className="w-auto h-auto"
+            alt="watermark"
           />
         </span>
       </div>

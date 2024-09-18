@@ -42,16 +42,7 @@ const Header = () => {
             href="/cl"
             className="flex flex-row items-center justify-center space-x-1 md:hidden"
           >
-            <span className="rounded-lg">
-              {" "}
-              <Image
-                src="/karmsetu.png"
-                className=""
-                width="35"
-                height="35"
-                alt="gov punjab"
-              />{" "}
-            </span>
+            
             {/* <span className="flex text-xl font-bold ">Karmsetu</span> */}
             <span className="flex w-32">
               <Image

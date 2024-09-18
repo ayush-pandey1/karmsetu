@@ -3,6 +3,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.heat";
 import { renderToStaticMarkup } from "react-dom/server";
+import Image from "next/image";
+import { MdMyLocation } from "react-icons/md";
 
 const HeatMapComponent = ({ myCoordinate, othersCoordinates }) => {
   const [map, setMap] = useState(null);
@@ -40,9 +42,30 @@ const HeatMapComponent = ({ myCoordinate, othersCoordinates }) => {
   return (
     <div
       id="heatmap"
-      style={{ height: "500px", width: "100%" }}
-      className="rounded-xl border border-green-500"
-    ></div>
+      style={{ height: "", width: "100%" }}
+      className="rounded-xl border border-green-500 h-[300px] md:h-[500px] z-1"
+    >
+      <button
+        
+        style={{
+          margin: "7px",
+          padding: "7px",
+          pointerEvents: "auto",
+          borderRadius: "50px",
+        }}
+        className="leaflet-bottom leaflet-right z-[1001] hover:bg-white hover:scale-95 text-xl bg-white border border- text-green-500  "
+      >
+        <MdMyLocation />
+      </button>
+      <span className="leaflet-top leaflet-right w-24 opacity-55 p-2">
+          <Image
+            src="/images/karmsetuLogo-cropped.svg"
+            width="0"
+            height="0"
+            className="w-auto h-auto"
+          />
+        </span>
+    </div>
   );
 };
 

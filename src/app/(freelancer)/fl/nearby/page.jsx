@@ -8,6 +8,8 @@ import Loader2 from "@/components/Loader2";
 import React, { useEffect, useState } from "react";
 import { GrMap } from "react-icons/gr";
 import "../style.css"
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 const NearbyFreelancersPage = () => {
   const [nearByProject, setNearByProject] = useState([]);
@@ -16,6 +18,8 @@ const NearbyFreelancersPage = () => {
   const [coordinates, setCoordinates] = useState({ latitude: 0, longitude: 0 });
   const [selectedDistance, setSelectedDistance] = useState(5);
   const distances = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const [heatmapStatus, setHeatmapStatus] = useState(false);
+
 
   const handleDistanceChange = (event) => {
     setSelectedDistance(Number(event.target.value));
@@ -100,6 +104,10 @@ const NearbyFreelancersPage = () => {
     getLocation();
   }, []);
 
+  const handelMapStatus = () => {
+    setHeatmapStatus(!heatmapStatus)
+  }
+
   if (loading) {
     return (
       <div className="w-full h-full">
@@ -126,17 +134,31 @@ const NearbyFreelancersPage = () => {
           {/* <h1>My Leaflet Map</h1> */}
           {coordinates.latitude ? (
             <>
-              <HeatMapComponent myCoordinate={coordinates}
-                othersCoordinates={allProject} />
-              <FmapComponent
-                myCoordinate={coordinates}
-                othersCoordinates={nearByProject}
-                distance={selectedDistance}
-              />
+              {heatmapStatus ? (
+                <HeatMapComponent
+                  myCoordinate={coordinates}
+                  othersCoordinates={allProject}
+                />
+              ) : (
+                <FmapComponent
+                  myCoordinate={coordinates}
+                  othersCoordinates={nearByProject}
+                  distance={selectedDistance}
+                />
+              )}
             </>
           ) : (
             <h1>Page is loading...</h1>
           )}
+        </div>
+
+        <div className="flex flex-row items-center gap-1">
+          <Switch
+            id="heatmap-view"
+            className="data-[state=checked]:bg-sky-500"
+            onCheckedChange={handelMapStatus}
+          />
+          <Label htmlFor="heatmap-view">Heatmap View</Label>
         </div>
 
         <div>

@@ -1,7 +1,12 @@
 "use client";
 import dynamic from "next/dynamic";
-const MapComponent = dynamic(() => import("@/components/CmapComponent"), { ssr: false, });
-const HeatMapComponent = dynamic(() => import("@/components/HeatMapComponent"), { ssr: false, });
+const MapComponent = dynamic(() => import("@/components/CmapComponent"), {
+  ssr: false,
+});
+const HeatMapComponent = dynamic(
+  () => import("@/components/HeatMapComponent"),
+  { ssr: false }
+);
 import FreelancerCard from "@/components/FreelancerCard";
 // import MapComponent from "@/components/CmapComponent";
 import React, { useEffect, useState } from "react";
@@ -14,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { GrMap } from "react-icons/gr";
 import { PiMapPinAreaFill } from "react-icons/pi";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 // import HeatMapComponent from "@/components/HeatMapComponent";
 // import clHeatMap from "@/components/clHeatMap";
 
@@ -30,6 +37,10 @@ const NearbyFreelancersPage = () => {
   const [selectedFreelancerId, setSelectedFreelancerId] = useState(null);
 
   const distances = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const [heatmapStatus, setHeatmapStatus] = useState(false);
+  const handelMapStatus = () => {
+    setHeatmapStatus(!heatmapStatus);
+  };
 
   const handleDistanceChange = (event) => {
     setSelectedDistance(Number(event.target.value));
@@ -77,9 +88,7 @@ const NearbyFreelancersPage = () => {
     const fetchFreelancers = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `/api/nearby/client/${id}?distance=2000`
-        );
+        const response = await fetch(`/api/nearby/client/${id}?distance=2000`);
         const result = await response.json();
 
         if (response.ok) {
@@ -127,7 +136,7 @@ const NearbyFreelancersPage = () => {
   }, [userData]);
 
   if (loading) {
-    return <div >Loading nearby freelancers...</div>;
+    return <div>Loading nearby freelancers...</div>;
   }
 
   return (
@@ -143,20 +152,36 @@ const NearbyFreelancersPage = () => {
         </div>
         <div className="App">
           {/* <h1>Nearby</h1> */}
-          {coordinates.latitude ? (<>
-            {/* <clHeatMap myCoordinate={coordinates}
+          {coordinates.latitude ? (
+            <>
+              {/* <clHeatMap myCoordinate={coordinates}
               othersCoordinates={freelancers} /> */}
-            <HeatMapComponent myCoordinate={coordinates}
-              othersCoordinates={allFreelancers} />
-            <MapComponent
-              myCoordinate={coordinates}
-              othersCoordinates={freelancers}
-              distance={selectedDistance}
-              selectedFreelancerId={selectedFreelancerId} // Pass the selected ID to MapComponent
-            /></>
+              {heatmapStatus ? (
+                <HeatMapComponent
+                  myCoordinate={coordinates}
+                  othersCoordinates={allFreelancers}
+                />
+              ) : (
+                <MapComponent
+                  myCoordinate={coordinates}
+                  othersCoordinates={freelancers}
+                  distance={selectedDistance}
+                  selectedFreelancerId={selectedFreelancerId} // Pass the selected ID to MapComponent
+                />
+              )}
+            </>
           ) : (
             <h1>Page is loading...</h1>
           )}
+        </div>
+
+        <div className="flex flex-row items-center gap-1">
+          <Switch
+            id="heatmap-view"
+            className="data-[state=checked]:bg-sky-500"
+            onCheckedChange={handelMapStatus}
+          />
+          <Label htmlFor="heatmap-view">Heatmap View</Label>
         </div>
 
         <div>
@@ -183,7 +208,6 @@ const NearbyFreelancersPage = () => {
               </option>
             ))}
           </select>
-
         </div>
 
         <div
@@ -212,7 +236,6 @@ const NearbyFreelancersPage = () => {
             <p>No freelancers available</p>
           )}
         </div>
-
       </div>
     </>
   );
