@@ -25,6 +25,7 @@ const SideNav = () => {
   const userId = userData?.id;
   const socket = useRef();
   const [imgLink, setImgLink] = useState(null);
+  const [user1,setUser1]=useState();
   // const [onlineUsers, setOnlineUsers] = useState([]);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const SideNav = () => {
     if (data) {
       try {
         const parsedData = JSON.parse(data);
+        setUser1(parsedData);
         dispatch(setUserData(parsedData));
       } catch (error) {
         console.error("Invalid session storage data", error);
@@ -40,11 +42,11 @@ const SideNav = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (userId) {
+    if (user1?.id) {
       socket.current = io("https://karmsetu-socket.onrender.com");
 
       socket.current.on("connect", () => {
-        socket.current.emit("new-user-add", userId);
+        socket.current.emit("new-user-add", user1.id);
       });
 
       socket.current.on("get-users", (users) => {
