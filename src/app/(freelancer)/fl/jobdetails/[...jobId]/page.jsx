@@ -52,9 +52,8 @@ const JobDetails = () => {
       try {
         if (!jobId) return;
 
-        const response = await fetch(
-          `https://karmsetu.vercel.app/api/project/${jobId[0]}`
-        );
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/project/${jobId[0]}`);
+
         if (response.ok) {
           const data = await response.json();
           //console.log("Project Data from MongoDB", data.project);

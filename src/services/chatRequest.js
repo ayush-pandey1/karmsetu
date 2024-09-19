@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'https://karmsetu.vercel.app/api',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
 });
 
 export const userChats = (id) => API.get(`/chat/${id}`);

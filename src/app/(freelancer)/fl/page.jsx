@@ -170,7 +170,7 @@ export default function Home() {
             <span className="font-semibold text-black text-4xl mb-5">
               Welcome Back
               <span className="underline-word relative font-bold pl-1">
-                
+
                 {userData?.name}
               </span>{" "}
               👋

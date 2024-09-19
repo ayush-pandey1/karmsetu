@@ -7,13 +7,41 @@ import Link from "next/link";
 import axios from "axios";
 import { IoCalendarOutline } from "react-icons/io5";
 import { Separator } from "../ui/separator";
+import { useDispatch, useSelector } from "react-redux";
+import { createChat } from "@/services/chatRequest";
+import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
+import { useRouter } from "next/navigation";
 
 const JobCardFreelancer = ({ project }) => {
+  const dispatch = useDispatch();
+  const router = useRouter();
+
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
   const clientImageLink = project?.clientImageLink;
+  const user = useSelector((state) => state.chatData.userData);
+  const senderId = user?.id;
+  const receiverId = project?.clientId;
+
+  const handleCreateChat = async () => {
+    try {
+      const response = await createChat(senderId, receiverId);
+      dispatch(setCurrentChat(response?.data));
+      router.push("/fl/chat");
+
+      console.log("Chat created successfully!", response);
+
+      // setSenderId('');
+      // setReceiverId('');
+      console.log("Chat response:", response.data);
+    } catch (error) {
+      console.log("Failed to create chat. Please try again.");
+      console.error("Error creating chat:", error);
+    }
+  };
+
 
   return (
     <div className="group">
@@ -69,11 +97,11 @@ const JobCardFreelancer = ({ project }) => {
                     View Job
                   </Button>
                 </Link>
-                <Link href="/fl" className="w-full">
-                  <Button className="flex flex-row mt-0 text-black w-full items-center bg-transparent active:bg-transparent active:scale-90 hover:bg-transparent  border border-gray-300 shadow-none transition-all ease-in-out">
-                    Chat
-                  </Button>
-                </Link>
+                {/* <Link href="" className="w-full" onClick={handleCreateChat}> */}
+                <Button onClick={handleCreateChat} className="flex flex-row mt-0 text-black w-full items-center bg-transparent active:bg-transparent active:scale-90 hover:bg-transparent  border border-gray-300 shadow-none transition-all ease-in-out">
+                  Chat
+                </Button>
+                {/* </Link> */}
               </div>
             </div>
           </div>
