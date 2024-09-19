@@ -6,17 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { InfoCircledIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { BsInfoCircle } from "react-icons/bs";
 import axios from 'axios'
 
 
 const ManagePortfolio = () => {
   const [previewImage, setPreviewImage] = useState("");
- const [projects, setProjects] = useState([]);
- const [selectedFile, setSelectedFile] = useState(null);
- const [image, setImage] = useState("");
- const [freelancerId, setFreelancerId] = useState("");
+  const [projects, setProjects] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [image, setImage] = useState("");
+  const [freelancerId, setFreelancerId] = useState("");
   // const [projects, setProjects] = useState([
   //   {
   //     id: 1,
@@ -81,11 +81,11 @@ const ManagePortfolio = () => {
   };
 
   const handleImageUpload = async (e) => {
-    if(e.target.files){
+    if (e.target.files) {
       console.log(e.target.files[0]);
       setSelectedFile(e.target.files[0]);
       const reader = new FileReader();
-      if(!(e.target.files[0])){
+      if (!(e.target.files[0])) {
         console.log("Please select a image first");
         return
       }
@@ -93,72 +93,73 @@ const ManagePortfolio = () => {
 
       reader.readAsDataURL(selectedFile);
       reader.addEventListener("load", () => {
-          setPreviewImage(selectedFile); 
+        setPreviewImage(selectedFile);
       });
-     reader.onloadend = async()=>{
-      const imageData = reader.result;  
-      try {
-        console.log(imageData, "Image Data");      
-        const response = await fetch("/api/imageUpload", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: imageData }),
-        });
-        console.log(response, "API response");
-        const data = await response.json();
-        if (data.success) {
-          setImage(data.url); // Set the image URL for submission
-          setNewProject((prevProject) => ({
-            ...prevProject,
-            imageLink: data.url,
-          }));
-          console.log("Image uploaded successfully!", data.url);
-        } else {
-          console.error("Image upload failed.", data);
+      reader.onloadend = async () => {
+        const imageData = reader.result;
+        try {
+          console.log(imageData, "Image Data");
+          const response = await fetch("/api/imageUpload", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ image: imageData }),
+          });
+          console.log(response, "API response");
+          const data = await response.json();
+          if (data.success) {
+            console.log("Images: ", data.url);
+            setImage(data.url); // Set the image URL for submission
+            setNewProject((prevProject) => ({
+              ...prevProject,
+              imageLink: data.url,
+            }));
+            console.log("Image uploaded successfully!", data.url);
+          } else {
+            console.error("Image upload failed.", data);
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error.message);
         }
-      } catch (error) {
-        console.error("Error uploading image:", error.message);
       }
-     }
 
     }
-        
+
   };
 
   const handleProjectSubmit = async () => {
     try {
       console.log(newProject, "newProject details from portfolio form");
-    const response = await axios.put("/api/portfolioProject", {newProject, freelancerId})
-    console.log(response);
-    setProjects((prevProjects) => [
-      ...prevProjects,
-      {
-        id: prevProjects.length + 1,
-        ...newProject,
-      },
-    ]);
-    setSelectedFile(null);
-    setPreviewImage("");
-    setNewProject({
-      title: "",
-      description: "",
-      tags: [],
-      imageLink: previewImage,
-    });
-    setImage("");
+      const response = await axios.put("/api/portfolioProject", { newProject, freelancerId })
+      console.log(response);
+      setProjects((prevProjects) => [
+        ...prevProjects,
+        {
+          id: prevProjects.length + 1,
+          ...newProject,
+        },
+      ]);
+      setSelectedFile(null);
+      setPreviewImage("");
+      setNewProject({
+        title: "",
+        description: "",
+        tags: [],
+        imageLink: previewImage,
+      });
+      setImage("");
     } catch (error) {
-      console.log("Error in creating the portfolio project",error.message);
+      console.log("Error in creating the portfolio project", error.message);
     }
   };
-  const handleProjectEdit = (projectId) => {};
-  const handleProjectDelete = (projectId) => {};
+  const handleProjectEdit = (projectId) => { };
+  const handleProjectDelete = (projectId) => { };
   return (
     <div>
       <main className="flex flex-col sm:p-6 bg-gray-50">
-        
+
         <Card className="rounded-none sm:rounded-xl">
           <CardHeader>
-            <CardTitle className="leading-none text-gray-400 font-medium flex flex-row items-center gap-1"><BsInfoCircle className=" cursor-pointer"/> new project</CardTitle>
+            <CardTitle className="leading-none text-gray-400 font-medium flex flex-row items-center gap-1"><BsInfoCircle className=" cursor-pointer" /> new project</CardTitle>
             <span className=" leading-none text-xl font-semibold">Add projects to showcase it on your portfolio</span>
           </CardHeader>
           <CardContent>
@@ -179,13 +180,13 @@ const ManagePortfolio = () => {
                 <div>
                   <Label htmlFor="description">Project Description</Label>
                   <Textarea
-                  required
+                    required
                     id="description"
                     value={newProject.description}
                     onChange={(e) =>
                       handleProjectChange("description", e.target.value)
                     }
-                     className="border border-gray-200 rounded-md px-3 focus:border-primary"
+                    className="border border-gray-200 rounded-md px-3 focus:border-primary"
                   />
                 </div>
                 <div>
@@ -200,7 +201,7 @@ const ManagePortfolio = () => {
                         e.target.value.split(",").map((tag) => tag.trim())
                       )
                     }
-                     className="border border-gray-200 rounded-md px-3 focus:border-primary"
+                    className="border border-gray-200 rounded-md px-3 focus:border-primary"
                   />
                   <span className="text-xs text-gray-400">Enter comma (,) seprated project tags</span>
                 </div>
@@ -253,7 +254,7 @@ const ManagePortfolio = () => {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {projects.length> 0 ? projects.map((project) => (
+              {projects.length > 0 ? projects.map((project) => (
                 <div
                   key={project._id}
                   className="bg-white rounded-md shadow-md overflow-hidden"
@@ -285,7 +286,7 @@ const ManagePortfolio = () => {
                     </div>
                     <div className="flex items-center justify-end mt-4 gap-2">
                       <Button
-                      className="text-white "
+                        className="text-white "
                         size="icon"
                         onClick={() => handleProjectEdit(project.id)}
                       >

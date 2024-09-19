@@ -84,7 +84,7 @@ const ApplicationsPage = () => {
 
         setStatus((prev) => ({ ...prev, [appId]: null }));
         console.error("Failed to accept the application");
-      }else{
+      } else {
         setStatus((prev) => ({ ...prev, [appId]: newStatus }));
         handleRefresh();
         console.log("Application Status updated successfully");
@@ -95,7 +95,7 @@ const ApplicationsPage = () => {
     }
   };
   //Function to handle refresh
-  const handleRefresh = ()=>{
+  const handleRefresh = () => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     console.log("refresh button clicked");
     console.log(data?.id, "Id");
@@ -115,7 +115,8 @@ const ApplicationsPage = () => {
 
   // console.log("senderId: ", senderId, "receiverId: ", receiverId);
   const handleCreateChat = async (receiverId) => {
-    // console.log(senderId, receiverId, chat);
+    // console.log("IDss: ", senderId, receiverId, chat);
+    // return;
     try {
       const response = await createChat(senderId, receiverId);
       dispatch(setCurrentChat(response?.data))
@@ -153,7 +154,7 @@ const ApplicationsPage = () => {
                       <div className="flex flex-row gap-2">
                         <Avatar>
                           <Link href={`/fl/user/${app.freelancer?.email}`}>
-                          <AvatarImage src={app.freelancer.imageLink? app.freelancer.imageLink : "/images/user/user-02.png" } alt="Freelancer" />
+                            <AvatarImage src={app.freelancer.imageLink ? app.freelancer.imageLink : "/images/user/user-02.png"} alt="Freelancer" />
                           </Link>
                           <AvatarFallback>{app.freelancer?.fullname?.charAt(0)}</AvatarFallback>
                         </Avatar>
@@ -219,7 +220,7 @@ const ApplicationsPage = () => {
                           </Button>
                         </>
                       )}
-                      <Button variant="outline" className="flex items-center space-x-2 px-3 sm:px-4" onClick={() => handleCreateChat(app._id)}>
+                      <Button variant="outline" className="flex items-center space-x-2 px-3 sm:px-4" onClick={() => handleCreateChat(app.clientId)}>
                         <IoChatbubblesOutline className="w-5 h-5" />
                         <span>Chat</span>
                       </Button>
