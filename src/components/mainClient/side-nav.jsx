@@ -17,6 +17,7 @@ import {
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { signOut } from "next-auth/react";
 
 const SideNav = () => {
   const dispatch = useDispatch();
@@ -25,7 +26,7 @@ const SideNav = () => {
 
   const socket = useRef();
   const [imgLink, setImgLink] = useState(null);
-  const [user1,setUser1]=useState();
+  const [user1, setUser1] = useState();
   const userId = user1?.id;
   // const [onlineUsers, setOnlineUsers] = useState([]);
 
@@ -59,7 +60,7 @@ const SideNav = () => {
         dispatch(setReceiveMessage(data));
       });
 
-      
+
     }
   }, [userId, dispatch]);
 
@@ -68,6 +69,11 @@ const SideNav = () => {
       socket.current.emit("send-message", sendMessage);
     }
   }, [sendMessage]);
+
+  const logout = () => {
+    sessionStorage.removeItem('karmsetu');
+    signOut({ callbackUrl: '/' });
+  }
 
   return (
     <div className="fixed flex-1 hidden h-screen bg-white border-r md:w-60 border-zinc-200 md:flex">
@@ -143,11 +149,10 @@ const MenuItem = ({ item }) => {
         <>
           <button
             onClick={toggleSubMenu}
-            className={`flex transition-all ease-in-out flex-row items-center py-2 px-6 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
-              pathname.includes(item.path)
-                ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
-                : ""
-            }`}
+            className={`flex transition-all ease-in-out flex-row items-center py-2 px-6 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${pathname.includes(item.path)
+              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
+              : ""
+              }`}
           >
             <div className="flex flex-row items-center space-x-4">
               {item.icon}
@@ -166,11 +171,10 @@ const MenuItem = ({ item }) => {
                   <Link
                     key={idx}
                     href={subItem.path}
-                    className={`${
-                      subItem.path === pathname
-                        ? "font-semibold text-primary"
-                        : ""
-                    }`}
+                    className={`${subItem.path === pathname
+                      ? "font-semibold text-primary"
+                      : ""
+                      }`}
                   >
                     <span>{subItem.title}</span>
                   </Link>
@@ -182,11 +186,10 @@ const MenuItem = ({ item }) => {
       ) : (
         <Link
           href={item.path}
-          className={`flex flex-row transition-all ease-in-out space-x-4 group items-center py-2 px-6   hover:bg-zinc-100 ${
-            item.path === pathname
-              ? "bg-primary bg-opacity-15 border-l-[6px] border-primary   text-primary hover:bg-violet-700"
-              : ""
-          }`}
+          className={`flex flex-row transition-all ease-in-out space-x-4 group items-center py-2 px-6   hover:bg-zinc-100 ${item.path === pathname
+            ? "bg-primary bg-opacity-15 border-l-[6px] border-primary   text-primary hover:bg-violet-700"
+            : ""
+            }`}
         >
           {item.icon}
           <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">

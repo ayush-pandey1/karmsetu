@@ -1,12 +1,16 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+// import { useRouter } from "next/router";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ClockIcon, GlobeIcon, StarIcon } from "@radix-ui/react-icons";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { createChat } from "@/services/chatRequest";
+import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
+import { useRouter } from "next/navigation";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -20,15 +24,29 @@ const FreelancerProfilePage = () => {
   const [portfolioProjects, setPortfolioProjects] = useState([]);
 
   // Get the current URL
-  const path = window.location.pathname;
-  const pathSegments = path.split('/');
-  const userId = pathSegments[pathSegments.length - 1];
-
-
-  console.log(userId);
+  const [userId, setUserId] = useState(null);
+  const dispatch = useDispatch();
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const user = useSelector((state) => state.chatData.userData);
+  const receiverId = userId;
+  const senderId = user?.id;
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const pathSegments = path.split('/');
+      const id = pathSegments[pathSegments.length - 1];
+      setUserId(id);
+    }
+  }, []);
+
+
+
+  // console.log(userId);
+
+
+
 
   useEffect(() => {
     if (!userId) return; // Exit early if userId is not available
@@ -55,6 +73,27 @@ const FreelancerProfilePage = () => {
       </div>
     );
   }
+
+
+
+  const router = useRouter();
+  // console.log("senderId: ", senderId, "receiverId: ", receiverId);
+  const handleCreateChat = async () => {
+    try {
+      const response = await createChat(senderId, receiverId);
+      dispatch(setCurrentChat(response?.data));
+      router.push("/cl/chat");
+
+      console.log("Chat created successfully!", response);
+
+      // setSenderId('');
+      // setReceiverId('');
+      console.log("Chat response:", response.data);
+    } catch (error) {
+      console.log("Failed to create chat. Please try again.");
+      console.error("Error creating chat:", error);
+    }
+  };
 
   console.log("User: ", userData);
   return (
@@ -90,7 +129,7 @@ const FreelancerProfilePage = () => {
                     <Button className="bg-primary text-white hover:bg-primaryho">
                       Hire Me
                     </Button>
-                    <Button variant="outline">Chat</Button>
+                    <Button onClick={handleCreateChat} variant="outline">Chat</Button>
                   </div>
                 </div>
                 <div className="space-y-2">

@@ -184,6 +184,7 @@ const CreateJobForm = () => {
 
 
 
+
   const amount = 100;
   const [isProcessing, setIsProcessing] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
@@ -253,7 +254,35 @@ const CreateJobForm = () => {
     } else {
       console.error("Razorpay SDK failed to load");
     }
+
+
   }, [sdkReady]);
+
+
+  useEffect(() => {
+    const loadRazorpayScript = () => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => setSdkReady(true); // Set SDK ready when script is loaded
+      script.onerror = () => console.error("Failed to load Razorpay SDK");
+      document.body.appendChild(script);
+    };
+
+    if (!sdkReady) {
+      loadRazorpayScript();
+    }
+
+    // Optional cleanup: Remove script when the component unmounts
+    return () => {
+      const script = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+      if (script) {
+        document.body.removeChild(script);
+      }
+    };
+  }, [sdkReady]);
+
+
 
   const fetchDataAI = async () => {
     const apiUrl = `${process.env.NEXT_PUBLIC_AI_API}/fetch-data/`;
@@ -758,12 +787,12 @@ const CreateJobForm = () => {
           </Button>
         </form>
       </Form>
-      <Script
+      {/* <Script
         src="https://checkout.razorpay.com/v1/checkout.js"
         onLoad={() => setSdkReady(true)} // Set SDK ready when script is loaded
         onError={() => console.error("Failed to load Razorpay SDK")}
         strategy="beforeInteractive" // Load before page interaction
-      />
+      /> */}
     </div>
   );
 };

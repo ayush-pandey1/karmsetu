@@ -12,6 +12,8 @@ import { formatDistanceToNow } from 'date-fns';
 import InputEmoji from "react-input-emoji";
 import Loader2 from "@/components/Loader2";
 import { setSendMessage, setReceiveMessage } from "@/app/(redux)/features/chatDataSlice";
+import TimeAgo from 'react-timeago';
+
 // import {format} from 'timeago.js';
 
 const ChatPage = () => {
@@ -168,6 +170,7 @@ const ChatPage = () => {
                     <p className="text-sm font-medium">{message.text}</p>
                   </div>
                   <span className="text-xs text-gray-500 leading-none">
+                    <TimeAgo date={message.createdAt} />
                     {/* {formatDistanceToNow(message.createdAt)} */}
                   </span>
                 </div>
@@ -203,6 +206,7 @@ const ChatPage = () => {
                     </p>
                   </div>
                   <span className="text-xs text-gray-500 leading-none">
+                    <TimeAgo date={message.createdAt} />
                     {/* {formatDistanceToNow(message.createdAt)} */}
                   </span>
                 </div>

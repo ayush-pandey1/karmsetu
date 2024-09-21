@@ -25,15 +25,16 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { RiLogoutCircleRLine } from "react-icons/ri";
+import { signOut } from "next-auth/react";
 
 const SideNav = () => {
   const dispatch = useDispatch();
   const sendMessage = useSelector((state) => state.chatData.sendMessage);
   const userData = useSelector((state) => state.chatData.userData);
-  
+
   const socket = useRef();
   const [imgLink, setImgLink] = useState("");
-  const [user1,setUser1]=useState();
+  const [user1, setUser1] = useState();
 
   const userId = user1?.id;
   // const [onlineUsers, setOnlineUsers] = useState([]);
@@ -69,7 +70,7 @@ const SideNav = () => {
         dispatch(setReceiveMessage(data));
       });
 
-      
+
     }
   }, [userId, dispatch]);
 
@@ -78,6 +79,11 @@ const SideNav = () => {
       socket.current.emit("send-message", sendMessage);
     }
   }, [sendMessage]);
+
+  const logout = () => {
+    sessionStorage.removeItem('karmsetu');
+    signOut({ callbackUrl: '/' });
+  }
 
   return (
     <div className="fixed flex-1 hidden h-screen bg-white border-r md:w-60 border-zinc-200 md:flex">
@@ -144,7 +150,7 @@ const SideNav = () => {
                     <DropdownMenuContent>
                       <DropdownMenuLabel>My Account</DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="flex flex-row gap-2 text-gray-400 font-medium hover:font-medium items-center">
+                      <DropdownMenuItem className="flex flex-row gap-2 text-gray-400 font-medium hover:font-medium items-center" onClick={logout}>
                         Log Out <RiLogoutCircleRLine />
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -171,11 +177,10 @@ const MenuItem = ({ item }) => {
         <>
           <button
             onClick={toggleSubMenu}
-            className={`flex  flex-row items-center py-2 px-6 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${
-              pathname.includes(item.path)
-                ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
-                : ""
-            }`}
+            className={`flex  flex-row items-center py-2 px-6 rounded-lg hover-bg-zinc-100 w-full justify-between hover:bg-zinc-100 ${pathname.includes(item.path)
+              ? "bg-primary bg-opacity-15   text-primary hover:bg-violet-700"
+              : ""
+              }`}
           >
             <div className="flex flex-row items-center space-x-4">
               {item.icon}
@@ -194,11 +199,10 @@ const MenuItem = ({ item }) => {
                   <Link
                     key={idx}
                     href={subItem.path}
-                    className={`${
-                      subItem.path === pathname
-                        ? "font-semibold text-primary"
-                        : ""
-                    }`}
+                    className={`${subItem.path === pathname
+                      ? "font-semibold text-primary"
+                      : ""
+                      }`}
                   >
                     <span>{subItem.title}</span>
                   </Link>
@@ -210,11 +214,10 @@ const MenuItem = ({ item }) => {
       ) : (
         <Link
           href={item.path}
-          className={`flex flex-row  space-x-4 items-center py-2 px-6 group   hover:bg-zinc-100 ${
-            item.path === pathname
-              ? "bg-primary bg-opacity-15   text-primary border-l-[6px] border-primary   hover:bg-violet-700"
-              : ""
-          }`}
+          className={`flex flex-row  space-x-4 items-center py-2 px-6 group   hover:bg-zinc-100 ${item.path === pathname
+            ? "bg-primary bg-opacity-15   text-primary border-l-[6px] border-primary   hover:bg-violet-700"
+            : ""
+            }`}
         >
           {item.icon}
           <span className="flex text-xl font-semibold group-hover:scale-105 transition-transform ease-in-out">
