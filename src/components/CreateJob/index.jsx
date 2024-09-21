@@ -255,6 +255,36 @@ const CreateJobForm = () => {
     }
   }, [sdkReady]);
 
+  const fetchDataAI = async () => {
+    const apiUrl = `${process.env.NEXT_PUBLIC_AI_API}/fetch-data/`;
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          run_code: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error: ${errorData.detail}`);
+      }
+
+      const data = await response.json();
+      console.log("dataaa: ", data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      throw error;
+    }
+  };
+
+
+
   const onSubmitForm = async (values) => {
     if (error) {
       return;
@@ -289,6 +319,7 @@ const CreateJobForm = () => {
       // console.log(values);
       // setTags([]);
       console.log(response.data.savedProject._id, "Response");
+      fetchDataAI();
       // return;
       // dispatch(fetchClientProjects(userData?.id))
       router.push("/cl/jobs");

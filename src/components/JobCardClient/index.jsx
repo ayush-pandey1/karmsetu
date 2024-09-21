@@ -32,7 +32,7 @@ const JobCardClient = ({ projects, empty, role }) => {
     <>
       {projects.length > 0 || !empty ? (
         projects.map((project) => (
-          <div key={project?.id}>
+          <div key={project?._id}>
             <div className="p-4 border border-slate-200 bg-white max-w-72 sm:max-w-90 rounded-lg">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-row gap-4">

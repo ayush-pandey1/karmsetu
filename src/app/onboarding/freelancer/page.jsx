@@ -204,6 +204,36 @@ const OnboardingFreelancer = () => {
     }
   };
 
+  const fetchDataAI = async () => {
+    const apiUrl = `${process.env.NEXT_PUBLIC_AI_API}/fetch-data/`;
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          run_code: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error: ${errorData.detail}`);
+      }
+
+      const data = await response.json();
+      console.log("dataaa: ", data);
+      return data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      throw error;
+    }
+  };
+
+
+
   useEffect(() => {
     if (profileImageUrl) {
       form.setValue("photo", profileImageUrl);
@@ -227,6 +257,8 @@ const OnboardingFreelancer = () => {
       if (response.ok) {
         console.log("User updated successfully");
         console.log(response);
+        fetchDataAI();
+        // return;
         router.push("/auth/redirect");
       } else {
         console.log(`Error: ${result.message}`);
