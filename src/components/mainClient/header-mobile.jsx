@@ -7,6 +7,7 @@ import { Icon } from "@iconify/react";
 import { motion, useCycle } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Loader from "../Loader";
 
 const sidebar = {
   open: (height = 1000) => ({
@@ -38,6 +39,7 @@ const HeaderMobile = () => {
   useEffect(() => {
     const userDetails = JSON.parse(sessionStorage.getItem('karmsetu'));
     console.log(userDetails, session, 'Session Storage Data');
+
     if (status !== "loading") {
       if (!session) {
         sessionStorage.removeItem('karmsetu');
@@ -46,17 +48,29 @@ const HeaderMobile = () => {
       else if (!userDetails) {
         router.push('/auth/redirect');
       }
+      else {
+        const currentUrl = window.location.href;
+        console.log("urllll: ", currentUrl, userDetails.role);
+
+        if (userDetails.role === "client" && (currentUrl.includes('/fl/') || currentUrl.includes('/fl'))) {
+          router.push('/cl');
+        }
+        else if (userDetails.role === "freelancer" && (currentUrl.includes('/cl/') || currentUrl.includes('/cl'))) {
+          router.push('/fl');
+        }
+      }
     }
-  }, [session, router]);
+  }, [session, router, status]);
+
+
 
   return (
     <motion.nav
       initial={false}
       animate={isOpen ? "open" : "closed"}
       custom={height}
-      className={`fixed inset-0 z-50 w-full md:hidden ${
-        isOpen ? "" : "pointer-events-none"
-      }`}
+      className={`fixed inset-0 z-50 w-full md:hidden ${isOpen ? "" : "pointer-events-none"
+        }`}
       ref={containerRef}
     >
       <motion.div
@@ -78,9 +92,8 @@ const HeaderMobile = () => {
                   <Link
                     href={item.path}
                     onClick={() => toggleOpen()}
-                    className={`flex w-full text-2xl ${
-                      item.path === pathname ? "font-bold" : ""
-                    }`}
+                    className={`flex w-full text-2xl ${item.path === pathname ? "font-bold" : ""
+                      }`}
                   >
                     {item.title}
                   </Link>
@@ -175,9 +188,8 @@ const MenuItemWithSubMenu = ({ item, toggleOpen }) => {
                   <Link
                     href={subItem.path}
                     onClick={() => toggleOpen()}
-                    className={` ${
-                      subItem.path === pathname ? "font-bold" : ""
-                    }`}
+                    className={` ${subItem.path === pathname ? "font-bold" : ""
+                      }`}
                   >
                     {subItem.title}
                   </Link>

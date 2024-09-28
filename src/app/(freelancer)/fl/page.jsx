@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  fetchFreelancerProjects,
   fetchProjects,
   filterByBudget,
   filterByCategory,
@@ -73,7 +74,17 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchProjects());
+    console.log("dispatch");
   }, [dispatch]);
+
+  const freelancerId = userData?.id;
+
+  useEffect(() => {
+    if (freelancerId) {
+      console.log(freelancerId, "FreelancerId");
+      dispatch(fetchFreelancerProjects(freelancerId));
+    }
+  }, [freelancerId, dispatch]);
 
   // if (userData) {
   //   setCount(count++);
@@ -411,15 +422,18 @@ export default function Home() {
                 {loading2 ? (
                   <Loader2 />
                 ) : filteredProjects.length > 0 ? (
-                  filteredProjects.map((filteredProject) => (
+                  [...filteredProjects].reverse().map((filteredProject) => (
                     <JobCardFreelancer
                       key={filteredProject._id}
                       project={filteredProject}
                     />
                   ))
                 ) : (
-                  <div className="h-full w-full flex justify-center items-center"><Loader2 /></div>
+                  <div className="h-full w-full flex justify-center items-center">
+                    <Loader2 />
+                  </div>
                 )}
+
               </div>
             </div>
           </div>

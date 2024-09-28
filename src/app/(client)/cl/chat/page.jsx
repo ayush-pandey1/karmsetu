@@ -26,6 +26,7 @@ const ChatPage = () => {
   const [userData, setUserData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   // console.log("online: ", onlineUsers, "user:  ", user);
   // console.log("Chat: ", chat);
 
@@ -53,12 +54,15 @@ const ChatPage = () => {
   useEffect(() => {
     const userId = chat?.members.find((id) => id !== currentUserId);
     const getuserData = async () => {
+      // setLoading(true);
       try {
         const { data } = await getUser(userId);
         setUserData(data?.user);
         console.log("daTTa: ", data?.user);
       } catch (error) {
         console.log(error);
+      } finally {
+        setLoading(false);
       }
     };
     if (chat !== null) getuserData();
@@ -128,6 +132,14 @@ const ChatPage = () => {
   }
   // checkOnlineStatus(chat);
   // console.log("ok: ", onlineUsers);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 />
+      </div>
+    );
+  }
 
 
   return (

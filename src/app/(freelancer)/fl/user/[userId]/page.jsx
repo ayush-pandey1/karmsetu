@@ -10,6 +10,7 @@ import axios from "axios";
 import Loader2 from "@/components/Loader2";
 import { SiHyperskill } from "react-icons/si";
 import { BiSolidUserDetail } from "react-icons/bi";
+import { useSelector } from "react-redux";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -26,14 +27,20 @@ const FreelancerProfilePage = () => {
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  // const user = useSelector((state) => state.chatData.userData);
+  // console.log("User by redux: ", user);
 
   useEffect(() => {
     if (!userId) return; // Exit early if userId is not available
 
     const fetchUserData = async () => {
+      const data = JSON.parse(sessionStorage.getItem("karmsetu"));
+      // console.log(data);
+      // setUserData(data);
       try {
-        const response = await axios.get(`/api/user/${userId}`);
+        const response = await axios.get(`/api/user/${data.id}`);
         setUserData(response.data.user);
+        // console.log("data-redux: ", response.data.user);
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
@@ -43,6 +50,10 @@ const FreelancerProfilePage = () => {
 
     fetchUserData();
   }, [userId]);
+
+  useEffect(() => {
+    console.log("userwisedata: ", userData);
+  })
 
   if (loading) {
     return (
@@ -68,7 +79,7 @@ const FreelancerProfilePage = () => {
                         // src={userData?.profileImage}
                         src="https://res.cloudinary.com/dya4imi67/image/upload/v1726067570/p5i2zikqfy89xnanrgro.jpg"
                         alt="Freelancer"
-                        
+
                       />
                       <AvatarFallback>PFP</AvatarFallback>
                     </Avatar>
@@ -97,7 +108,7 @@ const FreelancerProfilePage = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <h4 className="text-lg font-semibold flex flex-row gap-1 items-center"><BiSolidUserDetail  className="text-blue-500"/>About</h4>
+                  <h4 className="text-lg font-semibold flex flex-row gap-1 items-center"><BiSolidUserDetail className="text-blue-500" />About</h4>
                   <p className="text-gray-600">{userData?.bio}</p>
                   {/* <p className="text-gray-600">Years of Experience: 5</p> */}
                 </div>
@@ -121,45 +132,47 @@ const FreelancerProfilePage = () => {
                   <h4 className="text-lg font-semibold">Portfolio</h4>
 
                   <div className="flex flex-col gap-4">
+                    {/* Mapping through portfolioDetails */}
+                    {userData.portfolioDetails.map((portfolio, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200 p-4 gap-4">
+                        {/* Project Title */}
+                        <span className="text-md sm:text-lg lg:text-2xl text-black font-bold">
+                          {portfolio.title}
+                        </span>
 
-                    <div className="rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200 p-4 gap-4">
-                      <span className="text-md sm:text-lg lg:text-2xl text-black font-bold">
-                        {"Project Title"}
-                      </span>
-                      <span className="text-gray-400 text-xs sm:text-base text-justify">
-                        {
-                          "Lorem ipsum dolor sit amet consectetur adipisicing elit. Incidunt eos consequuntur similique dolor vel non adipisci excepturi modi animi temporibus cum amet illum enim unde minus voluptatem, provident eveniet laboriosam consequatur et?"
-                        }
-                      </span>
-                      <div className="flex flex-row gap-2 items-center overflow-x-scroll no-scrollbar">
-                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
-                          <p className="text-xs sm:text-md">{"Next.js"}</p>
+                        {/* Project Description */}
+                        <span className="text-gray-400 text-xs sm:text-base text-justify">
+                          {portfolio.description}
                         </span>
-                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
-                          <p className="text-xs sm:text-md">{"Next.js"}</p>
-                        </span>
-                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
-                          <p className="text-xs sm:text-md">{"Next.js"}</p>
-                        </span>
-                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
-                          <p className="text-xs sm:text-md">{"Next.js"}</p>
-                        </span>
-                        <span className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit">
-                          <p className="text-xs sm:text-md">{"Next.js"}</p>
-                        </span>
+
+                        {/* Tags */}
+                        <div className="flex flex-row gap-2 items-center overflow-x-scroll no-scrollbar">
+                          {portfolio.tags.map((tag, tagIndex) => (
+                            <span
+                              key={tagIndex}
+                              className="bg-blue-100 text-blue-600 border border-blue-600 sm:px-3 px-2 py-1 rounded-full w-fit"
+                            >
+                              <p className="text-xs sm:text-md">{tag}</p>
+                            </span>
+                          ))}
+                        </div>
+
+                        {/* Project Image */}
+                        {portfolio.imageLink && (
+                          <img
+                            src={portfolio.imageLink}
+                            alt={`Project ${index + 1}`}
+                            className="h-auto w-full rounded-lg aspect-auto"
+                            width="0"
+                            height="0"
+                          />
+                        )}
                       </div>
-                      <img
-                        src="/images/portfolio/portfolio2.jpg"
-                        alt="Project 1"
-                        className="h-auto w-full rounded-lg  aspect-auto"
-                        width="0"
-                        height="0"
-                       
-                      />
-                    
-                    </div>
+                    ))}
+                    {/* </div> */}
 
-                    <div className="rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200 p-4 gap-4">
+
+                    {/* <div className="rounded-lg overflow-hidden flex flex-col bg-white border border-gray-200 p-4 gap-4">
                       <span className="text-md sm:text-lg lg:text-2xl text-black font-bold">
                         {"Project Title"}
                       </span>
@@ -191,13 +204,13 @@ const FreelancerProfilePage = () => {
                         className="h-auto w-full rounded-lg  aspect-auto"
                         width="0"
                         height="0"
-                       
-                      />
-                    
-                    </div>
 
-                    
-                  
+                      />
+
+                    </div> */}
+
+
+
                   </div>
                 </div>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between">

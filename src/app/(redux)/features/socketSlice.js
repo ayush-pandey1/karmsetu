@@ -1,4 +1,4 @@
-// redux/slices/socketSlice.js
+
 import { createSlice } from "@reduxjs/toolkit";
 
 const socketSlice = createSlice({

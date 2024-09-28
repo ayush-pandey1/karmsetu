@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { createChat } from "@/services/chatRequest";
 import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 import { useRouter } from "next/navigation";
+import Loader2 from "@/components/Loader2";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -69,7 +70,7 @@ const FreelancerProfilePage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p>Loading...</p>
+        <Loader2 />
       </div>
     );
   }
