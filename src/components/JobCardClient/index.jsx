@@ -31,7 +31,7 @@ const JobCardClient = ({ projects, empty, role }) => {
   return (
     <>
       {projects.length > 0 || !empty ? (
-        projects.map((project) => (
+        [...projects].reverse().map((project) => (
           <div key={project?._id}>
             <div className="p-4 border border-slate-200 bg-white max-w-72 sm:max-w-90 rounded-lg">
               <div className="flex flex-col gap-4">

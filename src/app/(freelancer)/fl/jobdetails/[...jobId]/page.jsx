@@ -58,6 +58,7 @@ const JobDetails = () => {
           const data = await response.json();
           //console.log("Project Data from MongoDB", data.project);
           setJobData(data.project);
+          console.log("dataasa: ", data);
           //console.log(jobData, "Printing State Variable which holds project Details");
           return;
         }
@@ -97,7 +98,7 @@ const JobDetails = () => {
   }, [isApplied, hasFreelancerApplied]);
   // console.log(appliedArray, "It will contain freelancer id who have applied for this project");
   // console.log(jobData, "Printing State Variable which holds project Details, Outiside UseEffect");
-  if (loading) return <p>Loading...</p>;
+
 
   const role = "freelancer";
 
@@ -210,7 +211,7 @@ const JobDetails = () => {
     await submitApplication(applicationData);
     setLoading(false);
   };
-
+  if (loading) return <p>Loading...</p>;
   return (
     <div className="container mx-auto md:p-6">
       <Card className="shadow-lg">
@@ -218,7 +219,7 @@ const JobDetails = () => {
           <div className="flex flex-col md:flex-row justify-between gap-2">
             {/* <HiOutlineClipboardCheck className="text-2xl text-blue-600" /> */}
             <CardTitle className="text-2xl font-bold text-gray-800">
-              {jobData?.title}
+              {jobData.title}
             </CardTitle>
             {role === "freelancer" && !isApplied ? (
               <Dialog>

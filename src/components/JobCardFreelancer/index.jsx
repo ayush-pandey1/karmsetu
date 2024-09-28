@@ -89,14 +89,14 @@ const JobCardFreelancer = ({ project }) => {
             <div className="flex flex-col justify-between h-full">
               <div>{/* <Separator />{" "} */}</div>
               <div className="flex flex-row gap-2 w-full">
-                <Link
+                <a
                   href={`/fl/jobdetails/${project?._id}`}
                   className="w-full"
                 >
                   <Button className="flex flex-row mt-0 w-full items-center bg-primary active:bg-primaryho active:scale-90 hover:bg-primary shadow-none sm:group-hover:bg-black transition-all ease-in-out">
                     View Job
                   </Button>
-                </Link>
+                </a>
                 {/* <Link href="" className="w-full" onClick={handleCreateChat}> */}
                 <Button onClick={handleCreateChat} className="flex flex-row mt-0 text-black w-full items-center bg-transparent active:bg-transparent active:scale-90 hover:bg-transparent  border border-gray-300 shadow-none transition-all ease-in-out">
                   Chat

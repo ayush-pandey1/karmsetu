@@ -28,15 +28,7 @@ export async function PUT(req, { params }) {
         { newStatus: 404 }
       );
     }
-    if (project.freelancer.id) {
-      await updateApplicationStatus("rejected");
-      throw new Error('A freelancer has already been accepted for this project.');
-    }
-    console.log("Project found");
 
-    // const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
-    // const clientName = project.clientName;
-    // const projectName = project.title;
 
     const updateApplicationStatus = async (newStatus) => {
       console.log(newStatus, freelancerId, id, "Inside the updateApplicationStatus function in the API");
@@ -65,6 +57,17 @@ export async function PUT(req, { params }) {
         );
       }
     };
+
+    if (project.freelancerId!=="none") {
+      await updateApplicationStatus("rejected");
+      throw new Error('A freelancer has already been accepted for this project.');
+    }
+    console.log("Project found");
+
+    // const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
+    // const clientName = project.clientName;
+    // const projectName = project.title;
+
 
     if (newStatus === 'accepted') {
       console.log("Application newStatus to be updated to Accepted");

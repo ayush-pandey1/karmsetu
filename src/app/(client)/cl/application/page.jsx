@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { createChat } from "@/services/chatRequest";
 import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
+import Loader2 from "@/components/Loader2";
 
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
@@ -83,7 +84,7 @@ const ApplicationsPage = () => {
       if (!data.success) {
 
         setStatus((prev) => ({ ...prev, [appId]: null }));
-        console.error("Failed to accept the application");
+        console.error("Failed to accept the application", data);
       } else {
         setStatus((prev) => ({ ...prev, [appId]: newStatus }));
         handleRefresh();
@@ -108,7 +109,7 @@ const ApplicationsPage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p>Loading...</p>
+        <Loader2 />
       </div>
     );
   }

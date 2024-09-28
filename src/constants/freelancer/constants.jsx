@@ -50,13 +50,13 @@ export const SIDENAV_ITEMS = [
         path: '/fl/analytics',
         icon: <Icon icon="lucide:trending-up" width="24" height="24" />,
     },
-   
+
     {
         title: 'Portfolio',
         path: '/fl/portfolio',
         icon: <Icon icon="lucide:briefcase-business" width="24" height="24" />,
     },
-    
+
     {
         title: 'Profile',
         path: `/fl/user/${userid}`,

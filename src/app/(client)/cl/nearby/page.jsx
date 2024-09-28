@@ -21,6 +21,7 @@ import { GrMap } from "react-icons/gr";
 import { PiMapPinAreaFill } from "react-icons/pi";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import Loader2 from "@/components/Loader2";
 // import HeatMapComponent from "@/components/HeatMapComponent";
 // import clHeatMap from "@/components/clHeatMap";
 
@@ -136,7 +137,7 @@ const NearbyFreelancersPage = () => {
   }, [userData]);
 
   if (loading) {
-    return <div>Loading nearby freelancers...</div>;
+    return <div><Loader2 /></div>;
   }
 
   return (
