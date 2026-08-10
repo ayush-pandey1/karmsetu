@@ -56,7 +56,7 @@ const Header = () => {
           </Link>
         </div>
 
-        <div className="hidden md:block h-full">
+        <div className="md:block h-full hidden">
           
           <div className="flex flex-row w-full items-center h-full opacity-90">
             {/* <Image
