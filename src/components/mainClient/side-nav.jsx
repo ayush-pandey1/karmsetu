@@ -127,7 +127,7 @@ const SideNav = () => {
                     {"johndoework@gmail.com"}
                   </span>
                 </div>
-                <BsThreeDotsVertical className="cursor-pointer text-black text-sm mt-1" />
+                <BsThreeDotsVertical className="cursor-pointer text-black text-sm mt-1" onClick={logout}/>
               </div>
             </div>
           </div>
