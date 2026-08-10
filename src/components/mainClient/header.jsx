@@ -58,7 +58,7 @@ const Header = () => {
 
         <div className="md:block h-full hidden">
           
-          <div className="flex flex-row w-full items-center h-full opacity-90">
+          {/* <div className="flex flex-row w-full items-center h-full opacity-90"> */}
             {/* <Image
               alt="Profile Image"
               src="/min-edu.png"
@@ -79,7 +79,7 @@ const Header = () => {
               width="0"
               unoptimized
             /> */}
-          </div>
+          {/* </div> */}
         </div>
       </div>
     </div>
