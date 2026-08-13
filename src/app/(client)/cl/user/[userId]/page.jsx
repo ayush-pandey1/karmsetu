@@ -12,6 +12,7 @@ import { createChat } from "@/services/chatRequest";
 import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 import { useRouter } from "next/navigation";
 import Loader2 from "@/components/Loader2";
+import toast from "react-hot-toast";
 
 const FreelancerProfilePage = () => {
   const skills = [
@@ -30,6 +31,7 @@ const FreelancerProfilePage = () => {
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const user = useSelector((state) => state.chatData.userData);
   const receiverId = userId;
   const senderId = user?.id;
@@ -42,28 +44,25 @@ const FreelancerProfilePage = () => {
     }
   }, []);
 
-
-
-  // console.log(userId);
-
-
-
+  const fetchUserData = async () => {
+    try {
+      if (userId) {
+        const response = await axios.get(`/api/user/${userId}`);
+        if (response.status === 200) {
+          setUserData(response.data.user);
+          setPortfolioProjects(response.data.user?.portfolioDetails || []);
+        } else {
+          console.error("Failed to fetch user data");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!userId) return; // Exit early if userId is not available
-
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`/api/user/${userId}`);
-        setUserData(response.data.user);
-        setPortfolioProjects(response.data.user.portfolioDetails || []);
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      } finally {
-        setLoading(false); // Ensure loading state is updated even if there's an error
-      }
-    };
-
     fetchUserData();
   }, [userId]);
 
@@ -75,24 +74,20 @@ const FreelancerProfilePage = () => {
     );
   }
 
-
-
   const router = useRouter();
-  // console.log("senderId: ", senderId, "receiverId: ", receiverId);
+
   const handleCreateChat = async () => {
+    if (isChatLoading) return;
+    setIsChatLoading(true);
     try {
       const response = await createChat(senderId, receiverId);
       dispatch(setCurrentChat(response?.data));
       router.push("/cl/chat");
-
-      console.log("Chat created successfully!", response);
-
-      // setSenderId('');
-      // setReceiverId('');
-      console.log("Chat response:", response.data);
     } catch (error) {
-      console.log("Failed to create chat. Please try again.");
       console.error("Error creating chat:", error);
+      toast.error("Failed to create chat. Please try again.");
+    } finally {
+      setIsChatLoading(false);
     }
   };
 
@@ -130,7 +125,21 @@ const FreelancerProfilePage = () => {
                     <Button className="bg-primary text-white hover:bg-primaryho">
                       Hire Me
                     </Button>
-                    <Button onClick={handleCreateChat} variant="outline">Chat</Button>
+                    <Button
+                      onClick={handleCreateChat}
+                      variant="outline"
+                      disabled={isChatLoading}
+                      className="disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {isChatLoading ? (
+                        <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                      ) : (
+                        "Chat"
+                      )}
+                    </Button>
                   </div>
                 </div>
                 <div className="space-y-2">

@@ -57,10 +57,10 @@ import {
   socialMediaMarketingSkills,
 } from "./skills.js";
 import { Checkbox } from "../ui/checkbox.jsx";
-import { Label } from "../ui/label.jsx";
 import { fetchClientProjects } from "@/app/(redux)/features/projectDataSlice.js"
 import { checkout } from "@/checkout.js";
 import Script from "next/script";
+import toast from "react-hot-toast";
 
 const createJobSchema = z.object({
   title: z
@@ -85,6 +85,7 @@ const CreateJobForm = () => {
   //const [formSubmitted, setFormSubmitted] = useState(false);
   const [count, setCount] = useState(0);
   const [error, setError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
@@ -316,24 +317,31 @@ const CreateJobForm = () => {
 
   const onSubmitForm = async (values) => {
     if (error) {
+      toast.error("Please configure project milestones to total exactly 100% before submitting.");
       return;
     }
-    console.log("Form Values:", values, milestones);
-    // return;
-    if (isProcessing) {
-      console.warn("Payment already in progress.");
+    if (milestones.length === 0) {
+      toast.error("You must set at least one milestone for the project.");
       return;
     }
-    const paymentSuccessful = await handlePayment(values);
-    if (!paymentSuccessful) {
-      console.error("Payment failed or was not completed.");
+    if (isProcessing || isSubmitting) {
       return;
     }
+
+    setIsSubmitting(true);
+
     try {
-      console.log("asas: ", values);
+      const paymentSuccessful = await handlePayment(values);
+      if (!paymentSuccessful) {
+        toast.error("Payment was not completed or was cancelled.");
+        setIsSubmitting(false);
+        return;
+      }
+
       if (!coordinates.latitude || !coordinates.longitude) {
-        console.error("Geolocation data is not available yet.");
-        setCount(count + 1);
+        toast.error("Geolocation data is not available. Please allow location access and try again.");
+        setCount((prev) => prev + 1);
+        setIsSubmitting(false);
         return;
       }
 
@@ -343,36 +351,20 @@ const CreateJobForm = () => {
         clientName,
         coordinates,
         milestones,
-        // clientImageLink
       });
-      // console.log(values);
-      // setTags([]);
+
       console.log(response.data.savedProject._id, "Response");
-      fetchDataAI();
-      // return;
-      // dispatch(fetchClientProjects(userData?.id))
+      toast.success("Job posted successfully! Redirecting...");
+      fetchDataAI().catch((err) => console.error("AI recommendation fetch error:", err));
       router.push("/cl/jobs");
-      // if (response?.data?.savedProject?._id) {
-      // stripe(response.data.savedProject._id);
-      // const res = handlePayment();
-      // console.log("Payment: ", res);
-      // router.push("/cl/jobs");
-      // }
-      // else {
-      // router.push("/cl/jobs");
-      // }
-      // if (userData?.id) {
-      //   dispatch(fetchClientProjects(userData?.id))
-      //   router.push("/cl/jobs");
-      // }
-      // resetForm();
-      // stripe(projectId);
-      // router.push("/cl/jobs");
     } catch (error) {
       console.error(
         "Error occurred:",
         error.response ? error.response.data : error.message
       );
+      toast.error(error.response?.data?.message || "Failed to post job. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const [selectedSkills, setSelectedSkills] = useState([]); //This is the project category selected, I (Ayush) made this to only determine which project category is selected
@@ -515,7 +507,7 @@ const CreateJobForm = () => {
                 <FormControl>
                   <Textarea
                     placeholder="Explain about your project in detail."
-                    className="resize-none border-b-slate-300 placeholder:font- text-black"
+                    className="resize-y border-b-slate-300 placeholder:font- text-black"
                     {...field}
                   />
                 </FormControl>
@@ -769,7 +761,7 @@ const CreateJobForm = () => {
                 </FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Enter the project title"
+                    placeholder="Enter the Dealine eg:- 10 Days, 2 Months etc"
                     className="border-b-slate-300 placeholder:font- text-black"
                     {...field}
                   />
@@ -781,18 +773,31 @@ const CreateJobForm = () => {
 
           <Button
             type="submit"
-            className="bg-primary hover:bg-primary active:bg-primaryho text-white"
+            disabled={isSubmitting || isProcessing || error}
+            className="bg-primary hover:bg-primary active:bg-primaryho text-white disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Submit
+            {isProcessing ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                Processing Payment...
+              </>
+            ) : isSubmitting ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                Creating Job...
+              </>
+            ) : (
+              "Submit"
+            )}
           </Button>
         </form>
       </Form>
-      {/* <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        onLoad={() => setSdkReady(true)} // Set SDK ready when script is loaded
-        onError={() => console.error("Failed to load Razorpay SDK")}
-        strategy="beforeInteractive" // Load before page interaction
-      /> */}
     </div>
   );
 };

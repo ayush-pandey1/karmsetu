@@ -8,8 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { InfoCircledIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import React, { useState, useEffect } from "react";
 import { BsInfoCircle } from "react-icons/bs";
-import axios from 'axios'
-
+import axios from 'axios';
+import toast from "react-hot-toast";
 
 const ManagePortfolio = () => {
   const [previewImage, setPreviewImage] = useState("");
@@ -17,6 +17,8 @@ const ManagePortfolio = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [image, setImage] = useState("");
   const [freelancerId, setFreelancerId] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   // const [projects, setProjects] = useState([
   //   {
   //     id: 1,
@@ -81,56 +83,59 @@ const ManagePortfolio = () => {
   };
 
   const handleImageUpload = async (e) => {
-    if (e.target.files) {
-      console.log(e.target.files[0]);
-      setSelectedFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
       const reader = new FileReader();
-      if (!(e.target.files[0])) {
-        console.log("Please select a image first");
-        return
-      }
 
-
-      reader.readAsDataURL(selectedFile);
+      reader.readAsDataURL(file);
       reader.addEventListener("load", () => {
-        setPreviewImage(selectedFile);
+        setPreviewImage(file);
       });
       reader.onloadend = async () => {
         const imageData = reader.result;
+        setIsUploading(true);
         try {
-          console.log(imageData, "Image Data");
           const response = await fetch("/api/imageUpload", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ image: imageData }),
           });
-          console.log(response, "API response");
           const data = await response.json();
           if (data.success) {
-            console.log("Images: ", data.url);
-            setImage(data.url); // Set the image URL for submission
+            setImage(data.url);
             setNewProject((prevProject) => ({
               ...prevProject,
               imageLink: data.url,
             }));
-            console.log("Image uploaded successfully!", data.url);
+            toast.success("Project image uploaded successfully!");
           } else {
             console.error("Image upload failed.", data);
+            toast.error("Failed to upload project image");
           }
         } catch (error) {
           console.error("Error uploading image:", error.message);
+          toast.error("Error uploading image");
+        } finally {
+          setIsUploading(false);
         }
-      }
-
+      };
     }
-
   };
 
   const handleProjectSubmit = async () => {
+    if (!newProject.title || !newProject.title.trim()) {
+      toast.error("Please enter a project title");
+      return;
+    }
+    if (!newProject.description || !newProject.description.trim()) {
+      toast.error("Please enter a project description");
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
-      console.log(newProject, "newProject details from portfolio form");
-      const response = await axios.put("/api/portfolioProject", { newProject, freelancerId })
-      console.log(response);
+      const response = await axios.put("/api/portfolioProject", { newProject, freelancerId });
       setProjects((prevProjects) => [
         ...prevProjects,
         {
@@ -144,11 +149,15 @@ const ManagePortfolio = () => {
         title: "",
         description: "",
         tags: [],
-        imageLink: previewImage,
+        imageLink: "",
       });
       setImage("");
+      toast.success("Project added to portfolio successfully!");
     } catch (error) {
       console.log("Error in creating the portfolio project", error.message);
+      toast.error(error.response?.data?.message || "Failed to add project to portfolio");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const handleProjectEdit = (projectId) => { };
@@ -211,18 +220,40 @@ const ManagePortfolio = () => {
                     <Input
                       id="imageLink"
                       type="file"
-                      accept="imageLink/*"
+                      accept="image/*"
+                      disabled={isUploading || isSubmitting}
                       onChange={handleImageUpload}
-                      className="border border-gray-300 rounded-lg cursor-pointer bg-gray-50 mb-3"
+                      className="border border-gray-300 rounded-lg cursor-pointer bg-gray-50 mb-3 disabled:opacity-60 disabled:cursor-not-allowed"
                       required
                     />
                     <Button
                       variant="default"
-                      className="bg-purple-600 text-white "
+                      disabled={isSubmitting || isUploading}
+                      className="bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                       onClick={handleProjectSubmit}
                     >
-                      <PlusIcon className="w-4 h-4 mr-2" />
-                      Add Project
+                      {isSubmitting ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                          </svg>
+                          Adding Project...
+                        </>
+                      ) : isUploading ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                          </svg>
+                          Uploading Image...
+                        </>
+                      ) : (
+                        <>
+                          <PlusIcon className="w-4 h-4 mr-1" />
+                          Add Project
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>

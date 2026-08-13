@@ -30,10 +30,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { CiCircleCheck } from "react-icons/ci";
 import { FaEnvelopeOpenText } from "react-icons/fa";
 import { format, parseISO } from 'date-fns';
+import toast from "react-hot-toast";
 
 const ProjectDashboard = () => {
     // const [loading,setLoading]=useState(false);
     const [project, setProject] = useState({});
+    const [updatingMilestoneId, setUpdatingMilestoneId] = useState(null);
     // const project = {
     //     title: "Website Redesign",
     //     description:
@@ -148,7 +150,8 @@ const ProjectDashboard = () => {
 
 
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/project/${jobId[0]}`);
+            const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+            const response = await fetch(`${apiBase}/project/${jobId[0]}`);
             if (response.ok) {
                 const data = await response.json();
                 console.log("Project Data from MongoDB", data.project);
@@ -205,14 +208,14 @@ const ProjectDashboard = () => {
     }, [jobData]);
 
     const updateMilestoneStatus = async (projectId, milestoneId, status) => {
-        console.log(projectId, milestoneId, status);
-        // return;
         try {
             if (!projectId || !milestoneId || !status) {
                 console.error("Project ID, Milestone ID, and Status are required.");
+                toast.error("Project ID, Milestone ID, and Status are required.");
                 return;
             }
 
+            setUpdatingMilestoneId(milestoneId);
             const response = await axios.patch(`/api/status/client/${projectId}`, {
                 milestoneId,
                 status
@@ -220,12 +223,15 @@ const ProjectDashboard = () => {
 
             if (response.status === 200) {
                 fetchJobData();
-                console.log("Milestone status updated successfully:", response.data);
+                toast.success(`Milestone ${status === 'Approved' ? 'approved' : 'rejected'} successfully!`);
             } else {
-                console.error("Failed to update milestone status:", response.data.message);
+                toast.error(response.data?.message || "Failed to update milestone status");
             }
         } catch (error) {
             console.error("Error updating milestone status:", error.response ? error.response.data : error.message);
+            toast.error(error.response?.data?.message || error.message || "Failed to update milestone status");
+        } finally {
+            setUpdatingMilestoneId(null);
         }
     };
     if (loading) {
@@ -361,7 +367,8 @@ const ProjectDashboard = () => {
                                                                         <DialogClose asChild>
                                                                             <Button
                                                                                 type="button"
-                                                                                className="bg-red-100  text-red-500 shadow-none  hover:bg-red-100"
+                                                                                disabled={updatingMilestoneId === milestone._id}
+                                                                                className="bg-red-100 text-red-500 shadow-none hover:bg-red-200 disabled:opacity-60 disabled:cursor-not-allowed"
                                                                                 onClick={() => updateMilestoneStatus(project._id, milestone._id, "Not Applied")}
                                                                             >
                                                                                 Reject
@@ -369,10 +376,21 @@ const ProjectDashboard = () => {
                                                                         </DialogClose>
                                                                         <Button
                                                                             type="button"
-                                                                            className="bg-green-500 focus:bg-green-500 hover:bg-green-600"
+                                                                            disabled={updatingMilestoneId === milestone._id}
+                                                                            className="bg-green-500 focus:bg-green-500 hover:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                                                                             onClick={() => updateMilestoneStatus(project._id, milestone._id, "Approved")}
                                                                         >
-                                                                            Accept
+                                                                            {updatingMilestoneId === milestone._id ? (
+                                                                                <>
+                                                                                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                                                                    </svg>
+                                                                                    Updating...
+                                                                                </>
+                                                                            ) : (
+                                                                                "Accept"
+                                                                            )}
                                                                         </Button>
                                                                     </DialogFooter>
                                                                 </DialogContent>

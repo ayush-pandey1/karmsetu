@@ -11,8 +11,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { createChat } from "@/services/chatRequest";
 import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const JobCardFreelancer = ({ project }) => {
+  const [isChatLoading, setIsChatLoading] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -26,19 +28,17 @@ const JobCardFreelancer = ({ project }) => {
   const receiverId = project?.clientId;
 
   const handleCreateChat = async () => {
+    if (isChatLoading) return;
+    setIsChatLoading(true);
     try {
       const response = await createChat(senderId, receiverId);
       dispatch(setCurrentChat(response?.data));
       router.push("/fl/chat");
-
-      console.log("Chat created successfully!", response);
-
-      // setSenderId('');
-      // setReceiverId('');
-      console.log("Chat response:", response.data);
     } catch (error) {
-      console.log("Failed to create chat. Please try again.");
       console.error("Error creating chat:", error);
+      toast.error("Failed to start chat. Please try again.");
+    } finally {
+      setIsChatLoading(false);
     }
   };
 
@@ -98,8 +98,19 @@ const JobCardFreelancer = ({ project }) => {
                   </Button>
                 </a>
                 {/* <Link href="" className="w-full" onClick={handleCreateChat}> */}
-                <Button onClick={handleCreateChat} className="flex flex-row mt-0 text-black w-full items-center bg-transparent active:bg-transparent active:scale-90 hover:bg-transparent  border border-gray-300 shadow-none transition-all ease-in-out">
-                  Chat
+                <Button
+                  onClick={handleCreateChat}
+                  disabled={isChatLoading}
+                  className="flex flex-row mt-0 text-black w-full items-center justify-center bg-transparent active:bg-transparent active:scale-90 hover:bg-transparent border border-gray-300 shadow-none transition-all ease-in-out disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {isChatLoading ? (
+                    <svg className="animate-spin h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                  ) : (
+                    "Chat"
+                  )}
                 </Button>
                 {/* </Link> */}
               </div>

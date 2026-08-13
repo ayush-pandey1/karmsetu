@@ -23,10 +23,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { FaEnvelopeOpenText } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
+import toast from "react-hot-toast";
+import Loader2 from "@/components/Loader2";
 
 const JobDetails = () => {
   const [jobData, setJobData] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState("");
   const [client, setClient] = useState();
@@ -39,63 +42,48 @@ const JobDetails = () => {
   const { jobId } = useParams();
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    console.log(data);
     setUserData(data);
     setFreelancerId(data?.id);
   }, []);
 
   //To fetch project data by projectId
-
   useEffect(() => {
-    // setData();
     const fetchJobData = async () => {
       try {
-        if (!jobId) return;
+        const id = Array.isArray(jobId) ? jobId[0] : jobId;
+        if (!id) return;
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/project/${jobId[0]}`);
+        const response = await fetch(`/api/project/${id}`);
 
         if (response.ok) {
           const data = await response.json();
-          //console.log("Project Data from MongoDB", data.project);
-          setJobData(data.project);
-          console.log("dataasa: ", data);
-          //console.log(jobData, "Printing State Variable which holds project Details");
+          setJobData(data.project || {});
           return;
         }
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-
-        const data = await response.json();
-        if (!data.success) {
-          throw new Error("Failed to fetch job data");
-        }
-        setJobData(data.project || {});
       } catch (error) {
+        console.error("Error fetching job:", error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchJobData();
+    if (jobId) {
+      fetchJobData();
+    }
   }, [jobId]);
 
-  const appliedArray = jobData.applied || [];
-  console.log(appliedArray, "APplied  Freelancer Id");
-  console.log(freelancerId, "FreelancerId");
-  const hasFreelancerApplied = appliedArray.includes(freelancerId); // Returns true
-  console.log(hasFreelancerApplied, "THis freelancer has applied or not");
+  const appliedArray = jobData?.applied || [];
+  const hasFreelancerApplied = appliedArray.includes(freelancerId);
 
   useEffect(() => {
-    if (appliedArray.length > 0) {
-      //console.log("Some Freelancer have applied for this project")
-      if (hasFreelancerApplied) {
-        setisApplied(true);
-        console.log("You have already applied for this job");
-      }
+    if (appliedArray.length > 0 && hasFreelancerApplied) {
+      setisApplied(true);
     }
-  }, [isApplied, hasFreelancerApplied]);
+  }, [hasFreelancerApplied, appliedArray]);
   // console.log(appliedArray, "It will contain freelancer id who have applied for this project");
   // console.log(jobData, "Printing State Variable which holds project Details, Outiside UseEffect");
 
@@ -141,7 +129,6 @@ const JobDetails = () => {
 
   async function submitApplication(applicationData) {
     try {
-      // Send a POST request to the backend API route
       const response = await fetch("/api/applicationStore", {
         method: "POST",
         headers: {
@@ -150,83 +137,76 @@ const JobDetails = () => {
         body: JSON.stringify(applicationData),
       });
 
-      // Check if the response is successful
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Error submitting application:", errorData);
-        throw new Error(errorData.error || "Failed to submit application");
+        throw new Error(errorData.error || errorData.message || "Failed to submit application");
       }
 
-      // Parse the response data
       const responseData = await response.json();
       setisApplied(true);
       setMessage("");
-      console.log("Application submitted successfully:", responseData);
-
-      // Return the response data
+      toast.success("Application submitted successfully!");
       return responseData;
     } catch (error) {
       console.error("Error:", error);
+      toast.error(error.message || "Failed to submit application");
       return { error: error.message };
     }
   }
 
   const setData = async () => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    console.log(data, "Data from sessionStorage");
     setUserData(data);
-    // console.log("Client id:", jobData?.clientId);
-    // console.log("Message: ", message);
-    // console.log("Freelancer id: ", data?.id);
 
     await fetchUserData(data?.id);
-    // console.log("Freelancer data: ", freelancer);
-    // console.log("Project id: ", jobData?._id);
     await fetchProjectData(jobData?._id);
-    //console.log("Project: ", jobData);
   };
-  console.log("Project: ", jobData);
-  console.log(freelancerId, "Freelancer ID");
 
-  // Modify the onSubmit function
   const onSubmit = async () => {
-    setLoading(true);
-    // Ensure that data is set before proceeding
-    // console.log("Client id:", jobData?.clientId);
-    // console.log("Message: ", message);
-    // console.log("Freelancer id: ", userData?.id);
-    // await fetchUserData(data?.id);
-    // console.log("Freelancer data: ", freelancer);
-    // console.log("Project id: ", jobData?._id);
-    // await fetchProjectData(jobData?._id);
-    // console.log("Project: ", project);
+    if (!message || message.trim() === "") {
+      toast.error("Please enter an application message");
+      return;
+    }
 
-    const applicationData = {
-      clientId: jobData?.clientId,
-      message,
-      freelancer,
-      project,
-    };
+    setIsSubmitting(true);
+    try {
+      const applicationData = {
+        clientId: jobData?.clientId,
+        message,
+        freelancer,
+        project,
+      };
 
-    await submitApplication(applicationData);
-    setLoading(false);
+      await submitApplication(applicationData);
+    } catch (error) {
+      console.error("Submit application error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-  if (loading) return <p>Loading...</p>;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[60vh]">
+        <Loader2 />
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto md:p-6">
-      <Card className="shadow-lg">
-        <CardHeader>
-          <div className="flex flex-col md:flex-row justify-between gap-2">
-            {/* <HiOutlineClipboardCheck className="text-2xl text-blue-600" /> */}
-            <CardTitle className="text-2xl font-bold text-gray-800">
-              {jobData.title}
+    <div className="w-full min-h-[calc(100vh-100px)] p-4 sm:p-6 lg:p-8 flex justify-center">
+      <Card className="w-full max-w-5xl shadow-md bg-white border border-gray-200 rounded-xl h-fit">
+        <CardHeader className="p-6 border-b border-gray-100">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-800">
+              {jobData?.title || "Job Details"}
             </CardTitle>
             {role === "freelancer" && !isApplied ? (
               <Dialog>
                 <DialogTrigger asChild>
                   <div>
                     <Button
-                      className="bg-primary  px-6 hover:bg-primaryho "
+                      className="bg-primary px-6 hover:bg-primaryho"
                       onClick={setData}
                     >
                       Apply
@@ -251,9 +231,11 @@ const JobDetails = () => {
                       </Label>
                       <Textarea
                         id="link"
+                        disabled={isSubmitting}
                         placeholder="Write your application message here..."
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
+                        className="disabled:opacity-60 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -261,17 +243,29 @@ const JobDetails = () => {
                     <DialogClose asChild>
                       <Button
                         type="button"
-                        className="bg-transparent pl-0 text-red-500 shadow-none hover:bg-transparent"
+                        disabled={isSubmitting}
+                        className="bg-transparent pl-0 text-red-500 shadow-none hover:bg-transparent disabled:opacity-60"
                       >
                         Close
                       </Button>
                     </DialogClose>
                     <Button
                       type="button"
-                      className="bg-green-500 focus:bg-green-500 hover:bg-green-600"
+                      disabled={isSubmitting}
+                      className="bg-green-500 focus:bg-green-500 hover:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
                       onClick={onSubmit}
                     >
-                      Submit
+                      {isSubmitting ? (
+                        <>
+                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                          </svg>
+                          Submitting...
+                        </>
+                      ) : (
+                        "Submit"
+                      )}
                     </Button>
                   </DialogFooter>
                 </DialogContent>
@@ -279,26 +273,25 @@ const JobDetails = () => {
             ) : role === "freelancer" && isApplied ? (
               <div>
                 <Button
-                  className="bg-transparent hover:bg-transparent shadow-none text-green-500 border border-dashed border-green-500  px-6  "
+                  className="bg-transparent hover:bg-transparent shadow-none text-green-500 border border-dashed border-green-500 px-6"
                   disabled
                 >
                   Applied
                 </Button>
               </div>
-            ) : (
-              ""
-            )}
+            ) : null}
           </div>
-          <Separator />
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="p-6 space-y-6">
           {/* Description */}
           <div>
             <h2 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
               <FaClipboardList className="text-xl text-blue-500" />
               Job Description
             </h2>
-            <p className="mt-2 text-gray-600">{jobData?.description}</p>
+            <p className="mt-2 text-gray-600 leading-relaxed whitespace-pre-wrap">
+              {jobData?.description || "No description provided."}
+            </p>
           </div>
 
           {/* Project Category */}
@@ -307,7 +300,7 @@ const JobDetails = () => {
               <GiSkills className="text-xl text-purple-500" />
               Project Category
             </h2>
-            <p className="mt-2 text-gray-600">{jobData?.projectCategory}</p>
+            <p className="mt-2 text-gray-600">{jobData?.projectCategory || "General"}</p>
           </div>
 
           {/* Required Skills */}
@@ -317,27 +310,30 @@ const JobDetails = () => {
               Required Skills
             </h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {jobData &&
-                jobData?.technologies?.map((skill, index) => (
-                  <Badge key={index} variant="secondary">
+              {jobData?.technologies && jobData.technologies.length > 0 ? (
+                jobData.technologies.map((skill, index) => (
+                  <Badge key={index} variant="secondary" className="px-3 py-1 text-sm font-medium">
                     {skill}
                   </Badge>
-                ))}
+                ))
+              ) : (
+                <span className="text-gray-500 text-sm">No specific skills listed</span>
+              )}
             </div>
           </div>
 
           {/* Budget and Duration */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-100">
             <div className="flex items-center gap-2">
               <MdCurrencyRupee className="text-2xl text-green-500" />
-              <span className="text-gray-700 font-medium">
-                Budget: ₹{jobData?.budget?.toLocaleString()}
+              <span className="text-gray-800 font-semibold">
+                Budget: ₹{jobData?.budget ? jobData.budget.toLocaleString() : "N/A"}
               </span>
             </div>
             <div className="flex items-center gap-2">
               <MdAccessTime className="text-2xl text-blue-500" />
-              <span className="text-gray-700 font-medium">
-                Duration: {jobData?.duration}
+              <span className="text-gray-800 font-semibold">
+                Duration: {jobData?.duration || "N/A"}
               </span>
             </div>
           </div>

@@ -6,11 +6,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Loader2 from "../Loader2";
+import toast from "react-hot-toast";
 
 const Signup = () => {
   const router = useRouter();
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -38,14 +40,20 @@ const Signup = () => {
   useEffect(() => {
     setData((prevData) => ({
       ...prevData,
-      fullname: `${prevData.firstName} ${prevData.lastName}`,
+      fullname: `${prevData.firstName} ${prevData.lastName}`.trim(),
       role: role,
     }));
   }, [data.firstName, data.lastName, role]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!data.firstName || !data.lastName || !data.email || !data.password) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
     setErrorMessage("");
+    setIsSubmitting(true);
 
     try {
       const res = await fetch("/api/Users", {
@@ -58,19 +66,25 @@ const Signup = () => {
 
       if (!res.ok) {
         const response = await res.json();
-        setErrorMessage(response.message);
+        const err = response.message || "Registration failed. Please try again.";
+        setErrorMessage(err);
+        toast.error(err);
       } else {
         const responseData = await res.json();
         // Store the user data in sessionStorage
         sessionStorage.setItem('karmsetu', JSON.stringify(responseData.user));
-        const userData = JSON.parse(sessionStorage.getItem('karmsetu'));
-        console.log('User data stored in sessionStorage:', userData?.email);
+        toast.success("Account created successfully!");
 
         router.refresh();
         router.push(`/onboarding/${role}`);
       }
     } catch (error) {
       console.error('Error: ', error);
+      const err = error.message || "An unexpected error occurred.";
+      setErrorMessage(err);
+      toast.error(err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -149,17 +163,49 @@ const Signup = () => {
               <span className="dark:bg-stroke-dark hidden h-[1px] w-full max-w-[200px] bg-stroke dark:bg-strokedark sm:block"></span>
             </div>
 
-            <form onSubmit={handleSubmit} method="post ">
+            <form onSubmit={handleSubmit} method="post">
               <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
-                <input name="firstName" type="text" placeholder="First name" value={data.firstName} onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })} className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2" />
+                <input
+                  name="firstName"
+                  type="text"
+                  placeholder="First name"
+                  disabled={isSubmitting}
+                  value={data.firstName}
+                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
+                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
+                />
 
-                <input name="lastName" type="text" placeholder="Last name" value={data.lastName} onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })} className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2" />
+                <input
+                  name="lastName"
+                  type="text"
+                  placeholder="Last name"
+                  disabled={isSubmitting}
+                  value={data.lastName}
+                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
+                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
+                />
               </div>
 
               <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
-                <input name="email" type="email" placeholder="Email address" value={data.email} onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })} className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2" />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email address"
+                  disabled={isSubmitting}
+                  value={data.email}
+                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
+                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
+                />
 
-                <input name="password" type="password" placeholder="Password" value={data.password} onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })} className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2" />
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  disabled={isSubmitting}
+                  value={data.password}
+                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
+                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
+                />
               </div>
 
               <div className="flex flex-wrap gap-10 md:justify-between xl:gap-15">
@@ -175,17 +221,28 @@ const Signup = () => {
                   </label>
                 </div>
 
-                {/* <button aria-label="signup with email and password" className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark dark:hover:bg-blackho"> */}
                 <button
                   type="submit"
+                  disabled={isSubmitting}
                   aria-label="signup with email and password"
-                  className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white transition-all duration-300 hover:bg-gray-800"
+                  className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white transition-all duration-300 hover:bg-gray-800 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Continue
-                  {/* </button> */}
-                  <svg className="fill-white" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10.4767 6.16664L6.00668 1.69664L7.18501 0.518311L13.6667 6.99998L7.18501 13.4816L6.00668 12.3033L10.4767 7.83331H0.333344V6.16664H10.4767Z" fill="" />
-                  </svg>
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      Creating account...
+                    </>
+                  ) : (
+                    <>
+                      Continue
+                      <svg className="fill-white" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10.4767 6.16664L6.00668 1.69664L7.18501 0.518311L13.6667 6.99998L7.18501 13.4816L6.00668 12.3033L10.4767 7.83331H0.333344V6.16664H10.4767Z" fill="" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </div>
 
