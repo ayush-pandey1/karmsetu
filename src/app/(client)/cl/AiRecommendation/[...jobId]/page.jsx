@@ -18,7 +18,8 @@ const Recommendation = () => {
         try {
             if (!id) return;
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/user/${id}`);
+            const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || '/api';
+            const response = await fetch(`${apiBase}/user/${id}`);
             if (response.ok) {
                 const data = await response.json();
                 setMatchProject(prev => [...prev, data.user]);

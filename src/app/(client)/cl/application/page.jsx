@@ -14,11 +14,14 @@ import { useRouter } from "next/navigation";
 import { createChat } from "@/services/chatRequest";
 import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 import Loader2 from "@/components/Loader2";
+import toast from "react-hot-toast";
 
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState({});
+  const [processingAppId, setProcessingAppId] = useState(null);
+  const [chatLoadingId, setChatLoadingId] = useState(null);
 
   const [senderId, setSenderId] = useState();
   const dispatch = useDispatch();
@@ -49,11 +52,9 @@ const ApplicationsPage = () => {
       const res = await fetch(`/api/application/${id}`);
       const result = await res.json();
       if (res.ok) {
-        setApplications(result.applications);
-        //console.log("Application data fetched");
+        setApplications(result.applications || []);
       } else {
         console.error(result.message);
-        //console.log("Application data not fetched");
       }
     } catch (error) {
       console.error("Error fetching applications:", error);
@@ -62,14 +63,11 @@ const ApplicationsPage = () => {
     }
   };
 
-  // Function to handle the accept click
+  // Function to handle the accept/reject click
   const handleStatus = async (appId, projectId, freelancerId, newStatus) => {
+    setProcessingAppId(appId);
     try {
-      // Update the status immediately for the button change
-      //console.log(newStatus, freelancerId);
-
       setStatus((prev) => ({ ...prev, [appId]: newStatus }));
-      //console.log(JSON.stringify({ freelancerId, newStatus }), "Converting JS to JSON");
       const response = await fetch(`/api/applicationAccepted/${projectId}`, {
         method: 'PUT',
         headers: {
@@ -77,34 +75,33 @@ const ApplicationsPage = () => {
         },
         body: JSON.stringify({ freelancerId, newStatus })
       });
-      //console.log("Put Request API called");
       const data = await response.json();
-      //console.log("data: ", data);
 
       if (!data.success) {
-
         setStatus((prev) => ({ ...prev, [appId]: null }));
-        console.error("Failed to accept the application", data);
+        console.error("Failed to update application status", data);
+        toast.error(data.message || `Failed to ${newStatus} application`);
       } else {
         setStatus((prev) => ({ ...prev, [appId]: newStatus }));
+        toast.success(`Application ${newStatus === 'accepted' ? 'accepted' : 'rejected'} successfully!`);
         handleRefresh();
-        console.log("Application Status updated successfully");
       }
     } catch (error) {
       setStatus((prev) => ({ ...prev, [appId]: null }));
-      console.error("Error accepting application:", error);
+      console.error("Error updating application:", error);
+      toast.error(error.message || `Error updating application status`);
+    } finally {
+      setProcessingAppId(null);
     }
   };
+
   //Function to handle refresh
   const handleRefresh = () => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    console.log("refresh button clicked");
-    console.log(data?.id, "Id");
     if (data?.id) {
       fetchApplications(data.id);
-      console.log("API called to fetch Appilcations");
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -114,22 +111,17 @@ const ApplicationsPage = () => {
     );
   }
 
-  // console.log("senderId: ", senderId, "receiverId: ", receiverId);
   const handleCreateChat = async (receiverId) => {
-    // console.log("IDss: ", senderId, receiverId, chat);
-    // return;
+    setChatLoadingId(receiverId);
     try {
       const response = await createChat(senderId, receiverId);
-      dispatch(setCurrentChat(response?.data))
-      console.log("code: ", senderId, receiverId, response?.data);
+      dispatch(setCurrentChat(response?.data));
       router.push("/cl/chat");
-
-      console.log('Chat created successfully!', response);
-
-
     } catch (error) {
-      console.log('Failed to create chat. Please try again.');
       console.error('Error creating chat:', error);
+      toast.error("Failed to start chat. Please try again.");
+    } finally {
+      setChatLoadingId(null);
     }
   };
 
@@ -203,26 +195,54 @@ const ApplicationsPage = () => {
                         <>
                           <Button
                             variant="accept"
-                            className="flex items-center space-x-2 px-3 sm:px-4"
-                            onClick={(event) => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'accepted', event)}
+                            disabled={processingAppId === app._id}
+                            className="flex items-center space-x-2 px-3 sm:px-4 disabled:opacity-60 disabled:cursor-not-allowed"
+                            onClick={() => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'accepted')}
                             name="accept"
                           >
-                            <CheckIcon className="w-5 h-5" />
+                            {processingAppId === app._id && status[app._id] === 'accepted' ? (
+                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                              </svg>
+                            ) : (
+                              <CheckIcon className="w-5 h-5" />
+                            )}
                             <span>Accept</span>
                           </Button>
                           <Button
                             variant="destructive"
                             name='reject'
-                            className="flex items-center space-x-2 px-3 sm:px-4"
-                            onClick={(event) => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'rejected', event)}
+                            disabled={processingAppId === app._id}
+                            className="flex items-center space-x-2 px-3 sm:px-4 disabled:opacity-60 disabled:cursor-not-allowed"
+                            onClick={() => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'rejected')}
                           >
-                            <RxCross2 className="w-5 h-5" />
+                            {processingAppId === app._id && status[app._id] === 'rejected' ? (
+                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                              </svg>
+                            ) : (
+                              <RxCross2 className="w-5 h-5" />
+                            )}
                             <span>Reject</span>
                           </Button>
                         </>
                       )}
-                      <Button variant="outline" className="flex items-center space-x-2 px-3 sm:px-4" onClick={() => handleCreateChat(app.clientId)}>
-                        <IoChatbubblesOutline className="w-5 h-5" />
+                      <Button
+                        variant="outline"
+                        disabled={chatLoadingId === app.clientId}
+                        className="flex items-center space-x-2 px-3 sm:px-4 disabled:opacity-60 disabled:cursor-not-allowed"
+                        onClick={() => handleCreateChat(app.clientId)}
+                      >
+                        {chatLoadingId === app.clientId ? (
+                          <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                          </svg>
+                        ) : (
+                          <IoChatbubblesOutline className="w-5 h-5" />
+                        )}
                         <span>Chat</span>
                       </Button>
                     </div>

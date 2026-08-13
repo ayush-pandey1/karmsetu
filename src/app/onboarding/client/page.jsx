@@ -24,6 +24,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   FaUser,
   FaPhone,
@@ -43,26 +44,33 @@ const formSchema = z.object({
     .min(10, { message: "Phone number should be ten digits" })
     .transform((val) => parseInt(val, 10)),
   age: z
-    .string({ required_error: "Please enter your age" })
+    .string()
+    .min(1, { message: "Age is required" })
     .transform((val) => parseInt(val, 10)),
-  gender: z.enum(["male", "female"], { message: "Please select a gender" }),
-  address: z.string(),
-  companyName: z.string(),
-  industry: z.string(),
-  bio: z.string().min(10, { message: "Bio should be at least 10 words" }),
-  socialMedia: z.string().url(),
-  role: z.string(),
-  photo: z.any().optional(), // New photo field
+  gender: z.string().min(1, { message: "Gender is required" }),
+  companyName: z.string().min(1, { message: "Company name is required" }),
+  industry: z.string().min(1, { message: "Industry is required" }),
+  address: z.string().min(1, { message: "Address is required" }),
+  bio: z.string().min(10, { message: "Bio must be at least 10 characters" }),
+  socialMedia: z
+    .string()
+    .url({ message: "Invalid URL" })
+    .optional()
+    .or(z.literal("")),
+  role: z.string().min(1, { message: "Role is required" }),
+  photo: z.string().optional(), // New photo field in schema
 });
 
 const OnboardingClient = () => {
-  const { data: session } = useSession();
-  const [userEmail, setUserEmail] = useState("");
-  const [role, setRole] = useState("");
   const router = useRouter();
+  const { data: session } = useSession();
+  const [role, setRole] = useState("");
   const [userData, setUserData] = useState();
-  const [profileImageUrl, setProfileImageUrl] = useState(""); // State to store uploaded image URL
+  const [userEmail, setUserEmail] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Set role from URL path
   useEffect(() => {
@@ -136,48 +144,46 @@ const OnboardingClient = () => {
 
       // Handle file change for image upload
       const handleFileChange = (e) => {
-        if(e.target.files){
-        console.log(e.target.files[0])
-        setSelectedFile(e.target.files[0]);
-        if (!e.target.files[0]) {
-          console.log("Please select an image first.");
-          return;
-        }
-        console.log("Image Selected Successfully");
+        if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          setSelectedFile(file);
     
-        const reader = new FileReader();
-        reader.readAsDataURL(selectedFile);
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
     
-        reader.onloadend = async () => {
-          const imageData = reader.result;
+          reader.onloadend = async () => {
+            const imageData = reader.result;
+            setIsUploading(true);
     
-          try {
-            const response = await fetch("/api/imageUpload", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ image: imageData }),
-            });
+            try {
+              const response = await fetch("/api/imageUpload", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ image: imageData }),
+              });
     
-            const data = await response.json();
-            console.log(data, "Response after uploading the image")
-            if (data.success) {
-              setProfileImageUrl(data.url); // Set the image URL for submission
-              form.setValue("photo", (data.url)); // Set the photo field value in the form
-              console.log("Image uploaded successfully!", data.url);
-            } else {
-              console.error("Image upload failed.");
+              const data = await response.json();
+              if (data.success) {
+                setProfileImageUrl(data.url);
+                form.setValue("photo", data.url);
+                toast.success("Profile photo uploaded!");
+              } else {
+                console.error("Image upload failed.", data);
+                toast.error("Failed to upload image. Please try again.");
+              }
+            } catch (error) {
+              console.error("Error uploading image:", error.message);
+              toast.error("Error uploading image");
+            } finally {
+              setIsUploading(false);
             }
-          } catch (error) {
-            console.error("Error uploading image:", error.message);
-          } 
-        };
+          };
         }
       };
 
   const onSubmit = async (values) => {
+    setIsSubmitting(true);
     try {
-      //console.log("Image Upload Function called");
-      console.log("Form Values Updated", form)
       const response = await fetch("/api/CpersonalDetails", {
         method: "PUT",
         headers: {
@@ -189,15 +195,17 @@ const OnboardingClient = () => {
       const result = await response.json();
 
       if (response.ok) {
-        console.log("User updated successfully:", result);
-        console.log("userdata", userData);
-       router.push("/auth/redirect");
+        toast.success("Client profile updated successfully! Redirecting...");
+        router.push("/auth/redirect");
       } else {
         console.error("Failed to update user:", result.message);
+        toast.error(result.message || "Failed to update profile details.");
       }
-
     } catch (error) {
       console.error("Error submitting form:", error.message);
+      toast.error(error.message || "Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -232,14 +240,29 @@ const OnboardingClient = () => {
                       <div className="flex items-center space-x-4">
                         <label
                           htmlFor="photo-upload"
-                          className="cursor-pointer flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 mt-3"
+                          className={`cursor-pointer flex items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 mt-3 ${
+                            isUploading ? "opacity-60 cursor-not-allowed" : ""
+                          }`}
                         >
-                          <FaUpload className="mr-2" /> Choose File
+                          {isUploading ? (
+                            <>
+                              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                              </svg>
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <FaUpload className="mr-2" /> Choose File
+                            </>
+                          )}
                         </label>
                         <Input
                           id="photo-upload"
                           type="file"
                           accept="image/*"
+                          disabled={isUploading || isSubmitting}
                           onChange={handleFileChange}
                           className="hidden" // Hide the default file input
                         />
@@ -447,9 +470,20 @@ const OnboardingClient = () => {
 
               <Button
                 type="submit"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 font-bold text-lg rounded-lg py-3 px-6 mt-4"
+                disabled={isSubmitting || isUploading}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 font-bold text-lg rounded-lg py-3 px-6 mt-4 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Submit
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Saving Profile...
+                  </>
+                ) : (
+                  "Submit"
+                )}
               </Button>
             </form>
           </Form>

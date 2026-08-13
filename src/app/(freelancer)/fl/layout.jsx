@@ -12,6 +12,7 @@ import store from "../../(redux)/store/store"
 import { SessionProvider } from "next-auth/react";
 const inter = Inter({ subsets: ['latin'] });
 import NextTopLoader from 'nextjs-toploader';
+import ToasterContext from '@/app/context/ToastContext';
 
 export default function RootLayout({ children, }) {
   return (<html lang="en">
@@ -20,7 +21,7 @@ export default function RootLayout({ children, }) {
       <div className="flex">
         <SessionProvider>
           <Provider store={store}>
-
+            <ToasterContext />
             <SideNav />
             <main className="flex-1">
             <NextTopLoader color="#8b5cf6" />

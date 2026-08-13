@@ -53,14 +53,7 @@ import {
 } from "./skills";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
-import { GiProgression } from "react-icons/gi";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { TagInput } from "emblor";
+import toast from "react-hot-toast";
 
 // Define the schema using Zod
 const formSchema = z.object({
@@ -74,7 +67,9 @@ const formSchema = z.object({
     .transform((val) => parseInt(val, 10)),
   gender: z.enum(["male", "female"], { message: "Please select a gender" }),
   address: z.string(),
-  professionalTitle: z.string(),
+  professionalTitle: z
+    .string()
+    .min(1, { message: "Professional Title is required" }),
   skills: z
     .array(z.string())
     .min(1, { message: "You have to select at least one skill." }),
@@ -94,6 +89,8 @@ const OnboardingFreelancer = () => {
   const [userData, setUserData] = useState();
   const [profileImageUrl, setProfileImageUrl] = useState(""); // State to store uploaded image URL
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
 
   const router = useRouter();
@@ -168,20 +165,16 @@ const OnboardingFreelancer = () => {
 
   // Handle file change for image upload
   const handleFileChange = (e) => {
-    if (e.target.files) {
-      console.log(e.target.files[0]);
-      setSelectedFile(e.target.files[0]);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
       const reader = new FileReader();
-      if (!selectedFile) {
-        console.log("Please select an image first.");
-        return;
-      }
 
-
-      reader.readAsDataURL(selectedFile);
+      reader.readAsDataURL(file);
 
       reader.onloadend = async () => {
         const imageData = reader.result;
+        setIsUploading(true);
 
         try {
           const response = await fetch("/api/imageUpload", {
@@ -189,16 +182,21 @@ const OnboardingFreelancer = () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ image: imageData }),
           });
-          // console.log(response, "API response");
+
           const data = await response.json();
           if (data.success) {
-            setProfileImageUrl(data.url); // Set the image URL for submission
-            console.log("Image uploaded successfully!", data.url);
+            setProfileImageUrl(data.url);
+            form.setValue("photo", data.url);
+            toast.success("Profile photo uploaded!");
           } else {
-            console.error("Image upload failed.");
+            console.error("Image upload failed.", data);
+            toast.error("Failed to upload image. Please try again.");
           }
         } catch (error) {
           console.error("Error uploading image:", error.message);
+          toast.error("Error uploading image");
+        } finally {
+          setIsUploading(false);
         }
       };
     }
@@ -232,8 +230,6 @@ const OnboardingFreelancer = () => {
     }
   };
 
-
-
   useEffect(() => {
     if (profileImageUrl) {
       form.setValue("photo", profileImageUrl);
@@ -241,9 +237,7 @@ const OnboardingFreelancer = () => {
   }, [profileImageUrl]);
 
   const onSubmit = async (data) => {
-    console.log(profileImageUrl, "ProfileImageURL from inside onsubmit function")
-    console.log(data, "From Inside onSubmit function, first line of the function");
-    console.log("role: ", role);
+    setIsSubmitting(true);
     try {
       const response = await fetch("/api/FpersonalDetails", {
         method: "POST",
@@ -255,17 +249,17 @@ const OnboardingFreelancer = () => {
 
       const result = await response.json();
       if (response.ok) {
-        console.log("User updated successfully");
-        console.log(response);
-        fetchDataAI();
-        // return;
+        toast.success("Freelancer profile created successfully! Redirecting...");
+        fetchDataAI().catch(err => console.error("AI recommendation error:", err));
         router.push("/auth/redirect");
       } else {
-        console.log(`Error: ${result.message}`);
+        toast.error(result.message || "Failed to create profile.");
       }
     } catch (error) {
       console.error("Error submitting form", error.message);
-      console.log("Something went wrong");
+      toast.error(error.message || "Something went wrong.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -336,9 +330,16 @@ const OnboardingFreelancer = () => {
               <div className="flex flex-col items-center mb-4">
                 <label
                   htmlFor="photoUpload"
-                  className="flex items-center justify-center w-24 h-24 border border-dashed border-gray-400 rounded-full cursor-pointer relative"
+                  className={`flex items-center justify-center w-24 h-24 border border-dashed border-gray-400 rounded-full cursor-pointer relative overflow-hidden ${
+                    isUploading ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
                 >
-                  {profileImageUrl ? (
+                  {isUploading ? (
+                    <svg className="animate-spin h-6 w-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                  ) : profileImageUrl ? (
                     <img
                       src={profileImageUrl}
                       alt="Profile"
@@ -351,12 +352,13 @@ const OnboardingFreelancer = () => {
                     id="photoUpload"
                     type="file"
                     accept="image/*"
+                    disabled={isUploading || isSubmitting}
                     onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer border border-primary"
+                    className="absolute inset-0 opacity-0 cursor-pointer border border-primary disabled:cursor-not-allowed"
                   />
                 </label>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  Upload your photo
+                <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                  {isUploading ? "Uploading photo..." : "Upload your photo"}
                 </p>
               </div>
 
@@ -610,9 +612,20 @@ const OnboardingFreelancer = () => {
               <div className="flex justify-center">
                 <Button
                   type="submit"
-                  className="bg-primary hover:bg-primaryho focus:primary font-semibold text-lg rounded-lg py-3 px-6 mt-4"
+                  disabled={isSubmitting || isUploading}
+                  className="bg-primary hover:bg-primaryho focus:primary font-semibold text-lg rounded-lg py-3 px-6 mt-4 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Submit
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                      </svg>
+                      Creating Profile...
+                    </>
+                  ) : (
+                    "Submit"
+                  )}
                 </Button>
               </div>
             </form>

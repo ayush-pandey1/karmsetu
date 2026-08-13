@@ -4,10 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-// import { useState } from "react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+
 const Signin = () => {
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState({
     email: "",
     password: "",
@@ -17,21 +19,35 @@ const Signin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!data.email || !data.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
 
-    const res = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
+    setIsLoading(true);
+    setErrorMessage("");
 
-    if (!res.ok) {
-      // const response = await res.json();
-      // setErrorMessage(response.message);
-      setErrorMessage(res.error || "Login failed");
-      // const response = await res.json();
-      // setErrorMessage(response.error || "Login failed");
-    } else {
-      router.push("/auth/redirect");
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      });
+
+      if (!res || !res.ok) {
+        const errorText = res?.error || "Invalid credentials. Please try again.";
+        setErrorMessage(errorText);
+        toast.error(errorText);
+      } else {
+        toast.success("Welcome back! Redirecting...");
+        router.push("/auth/redirect");
+      }
+    } catch (error) {
+      const err = error?.message || "An unexpected error occurred.";
+      setErrorMessage(err);
+      toast.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -111,9 +127,25 @@ const Signin = () => {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
-              <input type="text" placeholder="Email" name="email" value={data.email} onChange={(e) => setData({ ...data, email: e.target.value })} className="w-full border-b border-stroke !bg-white pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:!bg-black dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2" />
+              <input
+                type="text"
+                placeholder="Email"
+                name="email"
+                disabled={isLoading}
+                value={data.email}
+                onChange={(e) => setData({ ...data, email: e.target.value })}
+                className="w-full border-b border-stroke !bg-white pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:!bg-black dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
+              />
 
-              <input type="password" placeholder="Password" name="password" value={data.password} onChange={(e) => setData({ ...data, password: e.target.value })} className="w-full border-b border-stroke !bg-white pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:!bg-black dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2" />
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                disabled={isLoading}
+                value={data.password}
+                onChange={(e) => setData({ ...data, password: e.target.value })}
+                className="w-full border-b border-stroke !bg-white pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:!bg-black dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
+              />
             </div>
 
             <div className="flex flex-wrap items-center gap-10 md:justify-between xl:gap-15">
@@ -135,11 +167,28 @@ const Signin = () => {
                 </a>
               </div>
 
-              <button type="submit" aria-label="login with email and password" className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark dark:hover:bg-blackho">
-                Log in
-                <svg className="fill-white" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M10.4767 6.16664L6.00668 1.69664L7.18501 0.518311L13.6667 6.99998L7.18501 13.4816L6.00668 12.3033L10.4767 7.83331H0.333344V6.16664H10.4767Z" fill="" />
-                </svg>
+              <button
+                type="submit"
+                disabled={isLoading}
+                aria-label="login with email and password"
+                className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark dark:hover:bg-blackho disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Logging in...
+                  </>
+                ) : (
+                  <>
+                    Log in
+                    <svg className="fill-white" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10.4767 6.16664L6.00668 1.69664L7.18501 0.518311L13.6667 6.99998L7.18501 13.4816L6.00668 12.3033L10.4767 7.83331H0.333344V6.16664H10.4767Z" fill="" />
+                    </svg>
+                  </>
+                )}
               </button>
             </div>
             {errorMessage && (

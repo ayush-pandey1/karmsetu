@@ -10,13 +10,14 @@ import MarginWidthWrapper from '@/components/mainClient/margin-width-wrapper';
 import PageWrapper from '@/components/mainClient/page-wrapper';
 import SideNav from '@/components/mainClient/side-nav';
 const inter = Inter({ subsets: ['latin'] });
-import { Provider, useDisispatch } from 'react-redux'
+import { Provider } from 'react-redux'
 import store from "../../(redux)/store/store";
 
 import { SessionProvider } from "next-auth/react";
 import { getLocaleCookie } from '../../../utils/cookieUtils';
 import { setLanguage } from '../../(redux)/features/languageSlice';
 import NextTopLoader from 'nextjs-toploader';
+import ToasterContext from '@/app/context/ToastContext';
 
 export default function RootLayout({ children, }) {
   // const locale = getLocaleCookie(); // Retrieve locale from cookies
@@ -27,6 +28,7 @@ export default function RootLayout({ children, }) {
       <div className="flex">
         <SessionProvider>
           <Provider store={store}>
+            <ToasterContext />
             <SideNav />
             <main className="flex-1">
             <NextTopLoader color="#8b5cf6" />
