@@ -46,20 +46,37 @@ const SideNav = () => {
 
   useEffect(() => {
     if (userId) {
-      socket.current = io("https://karmsetu-socket.onrender.com");
+      const socketUrl =
+        process.env.NEXT_PUBLIC_SOCKET_URL ||
+        (typeof window !== "undefined" && window.location.hostname === "localhost"
+          ? "http://localhost:8800"
+          : "https://karmsetu-socket.onrender.com");
 
-      socket.current.on("connect", () => {
-        socket.current.emit("new-user-add", userId);
+      const socketInstance = io(socketUrl, {
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
+      socket.current = socketInstance;
+
+      socketInstance.on("connect", () => {
+        socketInstance.emit("new-user-add", userId);
       });
 
-      socket.current.on("get-users", (users) => {
+      socketInstance.on("get-users", (users) => {
         dispatch(setOnlineUsers(users));
-        console.log("OnlineUser: ", users);
       });
 
-      socket.current.on("recieve-message", (data) => {
+      socketInstance.on("recieve-message", (data) => {
         dispatch(setReceiveMessage(data));
       });
+
+      return () => {
+        socketInstance.off("connect");
+        socketInstance.off("get-users");
+        socketInstance.off("recieve-message");
+        socketInstance.disconnect();
+      };
     }
   }, [userId, dispatch]);
 

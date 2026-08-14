@@ -1,117 +1,140 @@
 "use client";
-import { useDispatch, useSelector } from 'react-redux';
-import { setUserData, setCurrentChat } from '@/app/(redux)/features/chatDataSlice';
-import { useEffect, useState } from 'react';
-import Conversation from '@/components/Conversation';
-import { IoChatbubblesOutline } from 'react-icons/io5';
-import { userChats } from '@/services/chatRequest';
-// import { io } from 'socket.io-client';
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setUserData,
+  setCurrentChat,
+} from "@/app/(redux)/features/chatDataSlice";
+import { useEffect, useState } from "react";
+import Conversation from "@/components/Conversation";
+import { IoChatbubblesOutline } from "react-icons/io5";
+import { userChats } from "@/services/chatRequest";
+import Loader2 from "@/components/Loader2";
 
 const MessagesPage = () => {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.chatData.userData);
-  const currentChat = useSelector((state) => state.chatData.currentChat);
-  // const [sendMessage, setSendMessage] = useState(null);
   const onlineUsers = useSelector((state) => state.socket.onlineUsers);
-  // const onlineUsers = useSelector((state) => state.socket.onlineUsers);
 
   const userId = userData?.id;
   const [chats, setChats] = useState([]);
-  // console.log("new chats: ", chats);
-  // const socket = useRef();
-  // const [onlineUsers, setOnlineUsers] = useState([]);
-  // useEffect(() => {
-  //   if (userId) {
-  //     socket.current = io("http://localhost:8800");
-  //     socket.current.emit("new-user-add", userId);
-  //     socket.current.on("get-users", (users) => {
-  //       setOnlineUsers(users);
-  //       console.log("OnlineUser: ", onlineUsers);
-  //     })
-  //   }
-  // }, [userData])
-  // console.log("user: ", userId);
-
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    const getChats = async () => {
-      try {
-        const { data } = await userChats(userData?.id);
-        setChats(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    if (userData) {
-      getChats();
-    }
-  }, [userData]);
-
-  useEffect(() => {
-    const data = sessionStorage.getItem('karmsetu');
+    const data = sessionStorage.getItem("karmsetu");
     if (data) {
       try {
         const parsedData = JSON.parse(data);
         dispatch(setUserData(parsedData));
       } catch (error) {
-        console.error('Invalid session storage data', error);
+        console.error("Invalid session storage data", error);
       }
     }
   }, [dispatch]);
 
+  useEffect(() => {
+    let isMounted = true;
+    const getChats = async () => {
+      if (!userData?.id) return;
+      try {
+        setLoading(true);
+        const { data } = await userChats(userData.id);
+        if (isMounted) {
+          setChats(Array.isArray(data) ? data : []);
+        }
+      } catch (error) {
+        console.error("Error fetching user chats:", error);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    if (userData?.id) {
+      getChats();
+    }
+  }, [userData]);
+
   const checkOnlineStatus = (chat) => {
-    const chatMember = chat.members.find((member) => member !== userId);
-    const online = onlineUsers.find((user) => user.userId === chatMember);
-    return online ? true : false;
-  }
+    const chatMember = chat?.members?.find((member) => member !== userId);
+    const online = onlineUsers?.some((user) => user.userId === chatMember);
+    return Boolean(online);
+  };
+
+  const handleSelectChat = (chat) => {
+    dispatch(setCurrentChat(chat));
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("karmsetu_current_chat", JSON.stringify(chat));
+    }
+  };
 
   return (
-    <>
-      <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
-        <div className="border-r border-l border-t rounded-md border-gray-300 lg:col-span-1">
-          <div className="mx-3 my-3">
-            <div className="relative text-gray-600">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-2">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                  className="w-6 h-6 text-gray-300"
-                >
-                  <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </span>
-              <input
-                type="search"
-                className="block w-full py-2 pl-10 bg-gray-100 outline-none border border-gray-300 rounded-lg"
-                name="search"
-                placeholder="Search"
-                required
-              />
-            </div>
+    <div className="flex flex-col gap-6 h-full ">
+      <div className="bg-white border  border-gray-200 shadow-sm h-full  w-full">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex flex-row gap-2 items-center text-xl text-gray-800 font-semibold mb-3">
+            <IoChatbubblesOutline className="text-primary text-2xl" />
+            <span>Messages & Conversations</span>
           </div>
+          <div className="relative text-gray-600">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+              <svg
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                className="w-5 h-5 text-gray-400"
+              >
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </span>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full py-2 pl-10 pr-4 bg-gray-50 text-sm outline-none border border-gray-200 rounded-lg focus:bg-white focus:border-primary transition"
+              placeholder="Search conversations..."
+            />
+          </div>
+        </div>
 
-          <ul className="overflow-auto h-[32rem]">
-            <div className="my-2 mb-2 ml-2 flex flex-row gap-1 items-center text-xl text-black font-medium">
-              <IoChatbubblesOutline className="text-green-500" />
-              Chats
+        <div className="overflow-y-auto max-h-[34rem] divide-y divide-gray-100">
+          {loading ? (
+            <div className="flex justify-center items-center py-16">
+              <Loader2 />
             </div>
-
-            <li>
-              {chats && chats.map((chat) => (
-                <div key={chat.id} onClick={() => dispatch(setCurrentChat(chat))}>
-                  <Conversation data={chat} currentUserId={userData?.id} online={checkOnlineStatus(chat)} />
+          ) : chats.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center text-gray-500 px-4">
+              <IoChatbubblesOutline className="text-5xl text-gray-300 mb-2" />
+              <p className="font-semibold text-gray-700">
+                No conversations yet
+              </p>
+              <p className="text-sm text-gray-400 mt-1 max-w-xs">
+                When you connect with freelancers, your conversations will
+                appear here.
+              </p>
+            </div>
+          ) : (
+            <div>
+              {chats.map((chat) => (
+                <div
+                  key={chat._id || chat.id}
+                  onClick={() => handleSelectChat(chat)}
+                >
+                  <Conversation
+                    data={chat}
+                    currentUserId={userData?.id}
+                    online={checkOnlineStatus(chat)}
+                    chatPath="/cl/chat"
+                  />
                 </div>
               ))}
-            </li>
-          </ul>
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
