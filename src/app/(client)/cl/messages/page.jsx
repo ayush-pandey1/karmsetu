@@ -17,20 +17,6 @@ const MessagesPage = () => {
 
   const userId = userData?.id;
   const [chats, setChats] = useState([]);
-  // console.log("new chats: ", chats);
-  // const socket = useRef();
-  // const [onlineUsers, setOnlineUsers] = useState([]);
-  // useEffect(() => {
-  //   if (userId) {
-  //     socket.current = io("http://localhost:8800");
-  //     socket.current.emit("new-user-add", userId);
-  //     socket.current.on("get-users", (users) => {
-  //       setOnlineUsers(users);
-  //       console.log("OnlineUser: ", onlineUsers);
-  //     })
-  //   }
-  // }, [userData])
-  // console.log("user: ", userId);
 
 
   useEffect(() => {
