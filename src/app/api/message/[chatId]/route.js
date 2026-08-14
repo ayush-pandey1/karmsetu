@@ -12,7 +12,7 @@ export async function GET(req, { params }) {
       return new Response(JSON.stringify({ message: 'chatId is required' }), { status: 400 });
     }
 
-    const messages = await MessageModel.find({ chatId });
+    const messages = await MessageModel.find({ chatId }).sort({ createdAt: 1 });
     return new Response(JSON.stringify(messages), { status: 200 });
   } catch (err) {
     console.error("Error fetching messages:", err);

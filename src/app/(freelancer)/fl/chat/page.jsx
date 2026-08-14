@@ -1,250 +1,353 @@
 "use client";
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
-import { FiSend } from "react-icons/fi";
-import { MdOutlineUploadFile } from "react-icons/md";
-import { IoVideocamOutline } from "react-icons/io5";
-import { useDispatch, useSelector } from 'react-redux';
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { addMessage, getMessages, getUser } from "@/services/chatRequest";
-import { formatDistanceToNow } from 'date-fns';
+import { useDispatch, useSelector } from "react-redux";
+import { FiSend, FiArrowLeft } from "react-icons/fi";
+import { IoVideocamOutline } from "react-icons/io5";
 import InputEmoji from "react-input-emoji";
+import TimeAgo from "react-timeago";
+import toast from "react-hot-toast";
+
+import { addMessage, getMessages, getUser } from "@/services/chatRequest";
+import {
+  setSendMessage,
+  setCurrentChat,
+  setUserData,
+} from "@/app/(redux)/features/chatDataSlice";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Loader2 from "@/components/Loader2";
-import { setSendMessage, setReceiveMessage } from "@/app/(redux)/features/chatDataSlice";
-import TimeAgo from 'react-timeago';
 
-// import {format} from 'timeago.js';
-
-const ChatPage = () => {
+const FreelancerChatPage = () => {
   const dispatch = useDispatch();
-  const scroll = useRef();
-
   const router = useRouter();
+  const messagesEndRef = useRef(null);
+
   const user = useSelector((state) => state.chatData.userData);
   const chat = useSelector((state) => state.chatData.currentChat);
   const receiveMessage = useSelector((state) => state.chatData.receiveMessage);
   const onlineUsers = useSelector((state) => state.socket.onlineUsers);
-  const [userData, setUserData] = useState(null);
+
+  const [userData, setUserDataState] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  // console.log("online: ", onlineUsers, "user:  ", user);
-  // console.log("Chat: ", chat);
+  const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
 
   const currentUserId = user?.id;
-  // console.log("dddd", currentUserId, chat);
+
+  // Hydrate user data from session storage if missing in Redux
+  useEffect(() => {
+    if (!user) {
+      const data = sessionStorage.getItem("karmsetu");
+      if (data) {
+        try {
+          const parsed = JSON.parse(data);
+          dispatch(setUserData(parsed));
+        } catch (err) {
+          console.error("Failed to parse user session", err);
+        }
+      }
+    }
+  }, [user, dispatch]);
+
+  // Hydrate current chat from session storage if missing in Redux on refresh
   useEffect(() => {
     if (!chat) {
-      router.push("/cl/messages");
+      const savedChat = sessionStorage.getItem("karmsetu_current_chat");
+      if (savedChat) {
+        try {
+          const parsedChat = JSON.parse(savedChat);
+          dispatch(setCurrentChat(parsedChat));
+        } catch (err) {
+          console.error("Failed to parse saved chat session", err);
+          router.push("/fl/messages");
+        }
+      } else {
+        router.push("/fl/messages");
+      }
     }
-  }, [chat])
-  // if (!chat) {
-  //   router.push("/cl/messages");
-  // }
-  // useEffect(() => {
-  //   if (!chat) {
+  }, [chat, dispatch, router]);
 
-  //   }
-  // }, [chat]);
-
+  // Append new incoming socket message with deduplication
   useEffect(() => {
-    if (receiveMessage !== null && receiveMessage?.chatId === chat?._id)
-      setMessages([...messages, receiveMessage]);
-  }, [receiveMessage])
+    if (receiveMessage && chat?._id && receiveMessage.chatId === chat._id) {
+      setMessages((prev) => {
+        const isDuplicate = prev.some(
+          (m) =>
+            (receiveMessage._id && m._id === receiveMessage._id) ||
+            (m.createdAt === receiveMessage.createdAt &&
+              m.text === receiveMessage.text &&
+              m.senderId === receiveMessage.senderId),
+        );
+        if (isDuplicate) return prev;
+        return [...prev, receiveMessage];
+      });
+    }
+  }, [receiveMessage, chat?._id]);
 
+  // Fetch receiver user details
   useEffect(() => {
-    const userId = chat?.members?.find((id) => id !== currentUserId);
-    const getuserData = async () => {
+    if (!chat || !currentUserId) return;
+    const recipientId = chat?.members?.find((id) => id !== currentUserId);
+    if (!recipientId) return;
+
+    let isMounted = true;
+    const fetchUserData = async () => {
       try {
-        const { data } = await getUser(userId);
-        setUserData(data?.user);
-        console.log("daTTa: ", data?.user);
+        const { data } = await getUser(recipientId);
+        if (isMounted && data?.user) {
+          setUserDataState(data.user);
+        }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching chat user details:", error);
       }
     };
-    if (chat !== null) getuserData();
+
+    fetchUserData();
+    return () => {
+      isMounted = false;
+    };
   }, [chat, currentUserId]);
 
-
+  // Fetch conversation messages
   useEffect(() => {
+    if (!chat?._id) return;
+    let isMounted = true;
+
     const fetchMessages = async () => {
       try {
-        const { data } = await getMessages(chat?._id);
-        setMessages(data);
-        console.log("Message: ", data);
+        setLoading(true);
+        const { data } = await getMessages(chat._id);
+        if (isMounted) {
+          setMessages(Array.isArray(data) ? data : []);
+        }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching messages:", error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
-    if (chat !== null) fetchMessages();
-  }, [chat]);
 
-  const handleChange = (newMessage) => {
-    // console.log(newMessage)
-    setNewMessage(newMessage);
-  }
+    fetchMessages();
+    return () => {
+      isMounted = false;
+    };
+  }, [chat?._id]);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   const handleSend = async (e) => {
-    e.preventDefault();
-    const message = {
+    if (e && e.preventDefault) e.preventDefault();
+    const trimmed = newMessage.trim();
+    if (!trimmed || isSending || !chat?._id || !currentUserId) return;
+
+    setIsSending(true);
+    const messagePayload = {
       senderId: currentUserId,
-      text: newMessage,
-      chatId: chat?._id,
-    }
+      text: trimmed,
+      chatId: chat._id,
+    };
+
     try {
-      const { data } = await addMessage(message);
-      setMessages([...messages, data]);
-      setNewMessage("");
+      const { data: savedMessage } = await addMessage(messagePayload);
+      if (savedMessage) {
+        setMessages((prev) => [...prev, savedMessage]);
+        setNewMessage("");
+
+        const receiverId = chat?.members?.find((id) => id !== currentUserId);
+        if (receiverId) {
+          dispatch(setSendMessage({ ...savedMessage, receiverId }));
+        }
+      }
     } catch (error) {
-      console.log(error);
+      console.error("Failed to send message:", error);
+      toast.error("Failed to send message. Please try again.");
+    } finally {
+      setIsSending(false);
     }
-    const receiverId = chat.members.find((id) => id !== currentUserId);
-    dispatch(setSendMessage({ ...message, receiverId }));
+  };
+
+  const isUserOnline = () => {
+    if (!chat || !currentUserId) return false;
+    const recipientId = chat?.members?.find((id) => id !== currentUserId);
+    return onlineUsers?.some((u) => u.userId === recipientId);
+  };
+
+  const recipientInitials = userData?.fullname
+    ? userData.fullname
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "U";
+
+  const recipientAvatar =
+    userData?.imageLink || userData?.profileImage || "/images/user/user-01.png";
+
+  if (!chat && loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[80vh]">
+        <Loader2 />
+      </div>
+    );
   }
-  const [temp, setTemp] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTemp(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  })
-  useEffect(() => {
-
-    // if (temp) {
-    //   scroll.current?.scrollIntoView({ behaviour: "auto" })
-    // }
-    // else {
-    scroll.current?.scrollIntoView({ behaviour: "smooth" })
-    // }
-
-  }, [messages])
-
-  // console.log("user::: ", user);
-
-  const checkOnlineStatus = (chat) => {
-    const chatMember = chat?.members.find((member) => member !== user.id);
-    const online = onlineUsers.find((user) => user.userId === chatMember);
-    return online ? true : false;
-  }
-
 
   return (
-    <>{chat ? (<div className="flex flex-col flex-grow w-full max-w-full bg-white shadow-xl overflow-hidden no-scrollbar">
-      {/* Top Bar */}
-      <div className="bg-white border border-b-gray-300 shadow-sm py-2 px-4 flex flex-row justify-between items-center ">
+    <div className="flex flex-col h-[calc(100vh-5rem)]  w-full mx-auto bg-white border border-gray-200 overflow-hidden">
+      {/* Top Navigation Bar */}
+      <div className="bg-white border-b border-gray-200 py-3 px-4 flex flex-row justify-between items-center z-10">
         <div className="flex flex-row gap-3 items-center">
-          <Image
-            src="/images/user/user-01.png"
-            alt="User Image"
-            height="32"
-            width="32"
-            className="rounded-md"
-          />
-          <div className="flex flex-col leading-6">
-            <span className="text-black font-semibold text-md">
-              {userData?.fullname}
+          <Link
+            href="/fl/messages"
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition"
+            title="Back to conversations"
+          >
+            <FiArrowLeft className="w-5 h-5" />
+          </Link>
+          <div className="relative">
+            <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={recipientAvatar}
+                alt={userData?.fullname || "Client"}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                {recipientInitials}
+              </AvatarFallback>
+            </Avatar>
+            <span
+              className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${
+                isUserOnline() ? "bg-green-500" : "bg-gray-300"
+              }`}
+            />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-gray-900 font-semibold text-sm sm:text-base leading-tight">
+              {userData?.fullname || "Conversation"}
             </span>
-            {checkOnlineStatus(chat) ? <span className="text-xs ">Online</span> : <span className="text-xs ">Offline</span>}
-
+            <span className="text-xs text-gray-500 flex items-center gap-1">
+              {isUserOnline() ? (
+                <span className="text-green-600 font-medium">Online</span>
+              ) : (
+                "Offline"
+              )}
+            </span>
           </div>
         </div>
-        <div className="text-2xl">
-          <div>
+        <div className="flex items-center gap-2 text-gray-600">
+          <button className="p-2 rounded-lg hover:bg-gray-100 transition text-xl">
             <IoVideocamOutline />
-          </div>
+          </button>
         </div>
       </div>
-      {/* Top Bar */}
-      <div className="flex flex-col flex-grow h-0 p-4 overflow-auto no-scrollbar">
-        {/* Other User */}
-        {messages &&
-          messages.map((message) => {
-            return message.senderId === currentUserId ? (
+
+      {/* Messages Scroll Area */}
+      <div className="flex-1 p-4 overflow-y-auto bg-gray-50/50 space-y-3">
+        {loading ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 px-4">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-3 text-2xl text-gray-400">
+              💬
+            </div>
+            <p className="font-semibold text-gray-600">No messages yet</p>
+            <p className="text-xs text-gray-400 mt-1 max-w-xs">
+              Send a message below to start your conversation.
+            </p>
+          </div>
+        ) : (
+          messages.map((message, index) => {
+            const isMe = message.senderId === currentUserId;
+            return (
               <div
-                key={message._id} ref={scroll}
-                className="flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end"
+                key={message._id || `msg-${index}-${message.createdAt}`}
+                className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}
               >
-                <div>
-                  <div className="bg-primary text-white p-3 rounded-l-2xl rounded-br-2xl">
-                    <p className="text-sm font-medium">{message.text}</p>
-                  </div>
-                  <span className="text-xs text-gray-500 leading-none">
-                    <TimeAgo date={message.createdAt} />
-                    {/* {formatDistanceToNow(message.createdAt)} */}
-                  </span>
-                </div>
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
-                  <Image
-                    src="/images/user/user-05.png"
-                    width="100"
-                    height="100"
-                    alt="User pfp"
-                    className="h-full w-full"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div
-                key={message._id}
-                ref={scroll}
-                className="flex w-full mt-2 space-x-3 max-w-xs"
-              >
-                <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-300">
-                  <Image
-                    src="/images/user/user-03.png"
-                    width="100"
-                    height="100"
-                    alt="User pfp"
-                    className="h-full w-full"
-                  />
-                </div>
-                <div>
-                  <div className=" border bg-gray-200 p-3 rounded-r-2xl rounded-bl-2xl">
-                    <p className="text-sm font-medium text-black">
+                <div
+                  className={`flex flex-col max-w-sm md:max-w-md ${
+                    isMe ? "items-end" : "items-start"
+                  }`}
+                >
+                  <div
+                    className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      isMe
+                        ? "bg-primary text-white rounded-br-none shadow-sm"
+                        : "bg-white text-gray-800 border border-gray-200 rounded-bl-none shadow-sm"
+                    }`}
+                  >
+                    <p className="whitespace-pre-wrap break-words">
                       {message.text}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-500 leading-none">
-                    <TimeAgo date={message.createdAt} />
-                    {/* {formatDistanceToNow(message.createdAt)} */}
+                  <span className="text-[11px] text-gray-400 px-1 mt-1">
+                    {message.createdAt ? (
+                      <TimeAgo date={message.createdAt} />
+                    ) : (
+                      "Just now"
+                    )}
                   </span>
                 </div>
               </div>
             );
-          })}
+          })
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar */}
-      <div className="bg-transparent  px-2 mb-2 flex flex-row gap-2 items-center ">
-        <div className="flex flex-row w-full rounded-lg bg-slate-100 px-3 border-gray-300">
-          <button className=" text-gray-500 text-xl pl-2 rounded-lg flex items-center justify-center">
-            <MdOutlineUploadFile />
-          </button>
+      {/* Message Input Bar */}
+      <div className="bg-white border-t border-gray-200 p-3 flex flex-row gap-2 items-center">
+        <div className="flex-1 bg-gray-50 rounded-xl border border-gray-200 focus-within:border-primary focus-within:bg-white transition">
           <InputEmoji
             value={newMessage}
-            onChange={handleChange}
+            onChange={setNewMessage}
+            cleanOnEnter
+            onEnter={handleSend}
+            placeholder="Type your message..."
+            borderRadius={8}
+            borderColor="transparent"
           />
-          {/* <Input
-          className="flex items-center h-10 w-full placeholder:text-black placeholder:font-medium placeholder:font-inter  text-sm border bg-slate-100 border-none  focus:outline-none text-black"
-          type="text"
-          placeholder="Type your message................"
-        /> */}
-
         </div>
-
-        <button onClick={handleSend} className="bg-primary text-white text-xl p-2.5 rounded-lg flex items-center justify-center">
-          <FiSend />
+        <button
+          onClick={handleSend}
+          disabled={!newMessage.trim() || isSending}
+          className="bg-primary text-white p-3 rounded-xl flex items-center justify-center hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition shadow-sm"
+          title="Send message"
+        >
+          {isSending ? (
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+          ) : (
+            <FiSend className="w-5 h-5" />
+          )}
         </button>
       </div>
-    </div>) : (
-      <div className="flex flex-col items-center justify-center h-screen">
-        <Loader2 />
-      </div>
-    )}
-
-    </>
+    </div>
   );
 };
 
-export default ChatPage;
+export default FreelancerChatPage;

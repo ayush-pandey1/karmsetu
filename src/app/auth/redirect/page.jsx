@@ -1,100 +1,98 @@
 "use client";
-import Loader from '@/components/Loader';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import Loader from "@/components/Loader";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
+const AuthRedirectPage = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(true);
 
-const redirect = () => {
-    const { data: session, status } = useSession();
-    const [role, setRole] = useState("")
-    const [userData, setUserData] = useState();
-    const [user, setUser] = useState();
-    const [profileImage, setProfileImage] = useState("");
-    const router = useRouter();
-    if (userData?.role === "client") {
-        router.push("/cl");
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (status === "unauthenticated") {
+      router.replace("/auth/signin");
+      return;
     }
-    else if (userData?.role === "freelancer") {
-        router.push("/fl");
-    }
-    useEffect(() => {
-        // const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-        // setUserData(data);
-        if (!userData) {
-            if (session?.user?.email) {
-                // setUserEmail(session.user.email);
-                async function fetchUserData(email) {
-                    try {
-                        const response = await fetch('/api/userInfoByEmail', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ data: { email } })
-                        });
-                        const result = await response.json();
 
-                        if (response.ok) {
-                            console.log("User Data:", result.user);
-                            setUser(result.user);
-
-                            const sessionData = {
-                                email: user.email,
-                                name: user.fullname,
-                                id: user._id,
-                                role: user.role,
-                                profileImage: user.imageLink,
-                                phone: user.phone
-
-                            };
-                            setProfileImage(user?.imageLink || "")
-                            setRole(sessionData?.role);
-                            console.log("sdsd", role);
-                            sessionStorage.setItem('karmsetu', JSON.stringify(sessionData));
-                            console.log('Session data stored in sessionStorage:', sessionData);
-                            const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-                            setRole(data?.role);
-                            setUserData(data);
-                        } else {
-                            console.error("Error:", result.message);
-                        }
-                    } catch (error) {
-                        console.error("Fetch Error:", error);
-
-                    }
-                }
-
-                fetchUserData(session.user.email);
-
-            }
-            else {
-                const data = JSON.parse(sessionStorage.getItem('karmsetu'));
-                setUserData(data);
-                console.log("asas", data);
-                // setUserEmail(data?.email);
-                setRole(data?.role);
-            }
+    const processRedirect = async () => {
+      // Check existing sessionStorage first
+      const stored = sessionStorage.getItem("karmsetu");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (parsed?.role === "client") {
+            router.replace("/cl");
+            return;
+          } else if (parsed?.role === "freelancer") {
+            router.replace("/fl");
+            return;
+          }
+        } catch (e) {
+          console.error("Error reading stored session", e);
         }
-    }, [session, role, user, userData]);
+      }
 
-    useEffect(() => {
-        const userData = JSON.parse(sessionStorage.getItem('karmsetu'));
-        setUserData(userData);
-        if (userData?.role === "client") {
-            router.push("/cl");
+      // If no valid stored role, fetch user details by email
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        router.replace("/");
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/userInfoByEmail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ data: { email: userEmail } }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result?.user) {
+          const userObj = result.user;
+          const sessionData = {
+            email: userObj.email,
+            name: userObj.fullname,
+            id: userObj._id,
+            role: userObj.role,
+            profileImage: userObj.imageLink || "",
+            phone: userObj.phone || "",
+          };
+
+          sessionStorage.setItem("karmsetu", JSON.stringify(sessionData));
+
+          if (userObj.role === "client") {
+            router.replace("/cl");
+          } else if (userObj.role === "freelancer") {
+            router.replace("/fl");
+          } else {
+            router.replace("/onboarding");
+          }
+        } else {
+          console.error("User not found or error:", result?.message);
+          router.replace("/");
         }
-        else if (userData?.role === "freelancer") {
-            router.push("/fl");
-        }
-        // else {
-        //     router.push("/");
-        // }
-    }, [user, userData])
+      } catch (error) {
+        console.error("Error during auth redirect:", error);
+        router.replace("/");
+      } finally {
+        setIsProcessing(false);
+      }
+    };
 
-    return (
-        <div className="h-screen w-screen"><Loader /></div>
-    )
-}
+    processRedirect();
+  }, [session, status, router]);
 
-export default redirect;
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-white">
+      <Loader />
+    </div>
+  );
+};
+
+export default AuthRedirectPage;
