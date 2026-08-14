@@ -5,33 +5,14 @@ import { useEffect, useState } from 'react';
 import Conversation from '@/components/Conversation';
 import { IoChatbubblesOutline } from 'react-icons/io5';
 import { userChats } from '@/services/chatRequest';
-// import { io } from 'socket.io-client';
 
 const MessagesPage = () => {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.chatData.userData);
   const currentChat = useSelector((state) => state.chatData.currentChat);
-  // const [sendMessage, setSendMessage] = useState(null);
   const onlineUsers = useSelector((state) => state.socket.onlineUsers);
-  // const onlineUsers = useSelector((state) => state.socket.onlineUsers);
-
   const userId = userData?.id;
   const [chats, setChats] = useState([]);
-  // console.log("new chats: ", chats);
-  // const socket = useRef();
-  // const [onlineUsers, setOnlineUsers] = useState([]);
-  // useEffect(() => {
-  //   if (userId) {
-  //     socket.current = io("http://localhost:8800");
-  //     socket.current.emit("new-user-add", userId);
-  //     socket.current.on("get-users", (users) => {
-  //       setOnlineUsers(users);
-  //       console.log("OnlineUser: ", onlineUsers);
-  //     })
-  //   }
-  // }, [userData])
-  // console.log("user: ", userId);
-
 
   useEffect(() => {
     const getChats = async () => {
