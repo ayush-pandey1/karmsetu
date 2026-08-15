@@ -27,6 +27,11 @@ import {
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { signOut } from "next-auth/react";
 
+import {
+  initGlobalSocket,
+  showFreelancerStatusPopup,
+} from "@/services/socketService";
+
 const SideNav = () => {
   const dispatch = useDispatch();
   const sendMessage = useSelector((state) => state.chatData.sendMessage);
@@ -35,9 +40,7 @@ const SideNav = () => {
   const socket = useRef();
   const [imgLink, setImgLink] = useState("");
   const [user1, setUser1] = useState();
-
-  const userId = user1?.id;
-  // const [onlineUsers, setOnlineUsers] = useState([]);
+  const userId = user1?.id || user1?._id || userData?.id || userData?._id;
 
   useEffect(() => {
     const data = sessionStorage.getItem("karmsetu");
@@ -55,36 +58,30 @@ const SideNav = () => {
 
   useEffect(() => {
     if (userId) {
-      const socketUrl =
-        process.env.NEXT_PUBLIC_SOCKET_URL ||
-        (typeof window !== "undefined" && window.location.hostname === "localhost"
-          ? "http://localhost:8800"
-          : "https://karmsetu-socket.onrender.com");
-
-      const socketInstance = io(socketUrl, {
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      });
+      const socketInstance = initGlobalSocket(userId);
       socket.current = socketInstance;
 
-      socketInstance.on("connect", () => {
-        socketInstance.emit("new-user-add", userId);
-      });
-
-      socketInstance.on("get-users", (users) => {
+      const handleGetUsers = (users) => {
         dispatch(setOnlineUsers(users));
-      });
+      };
 
-      socketInstance.on("recieve-message", (data) => {
+      const handleReceiveMessage = (data) => {
         dispatch(setReceiveMessage(data));
-      });
+      };
+
+      const handleReceiveApplicationStatus = (data) => {
+        console.log("Live application status notification received:", data);
+        showFreelancerStatusPopup(data);
+      };
+
+      socketInstance.on("get-users", handleGetUsers);
+      socketInstance.on("recieve-message", handleReceiveMessage);
+      socketInstance.on("recieve-application-status", handleReceiveApplicationStatus);
 
       return () => {
-        socketInstance.off("connect");
-        socketInstance.off("get-users");
-        socketInstance.off("recieve-message");
-        socketInstance.disconnect();
+        socketInstance.off("get-users", handleGetUsers);
+        socketInstance.off("recieve-message", handleReceiveMessage);
+        socketInstance.off("recieve-application-status", handleReceiveApplicationStatus);
       };
     }
   }, [userId, dispatch]);

@@ -26,9 +26,12 @@ const FreelancerCard = ({
   skill,
   bio,
   id,
-  rating,
+  rating = 4,
   imageLink,
   portfolioDetails,
+  cost,
+  connection,
+  onClick,
 }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
@@ -37,17 +40,15 @@ const FreelancerCard = ({
 
   const router = useRouter();
   // console.log("senderId: ", senderId, "receiverId: ", receiverId);
-  const handleCreateChat = async () => {
+  const handleCreateChat = async (e) => {
+    e?.stopPropagation();
     try {
       const response = await createChat(senderId, receiverId);
       dispatch(setCurrentChat(response?.data));
       router.push("/cl/chat");
 
       console.log("Chat created successfully!", response);
-
-      // setSenderId('');
-      // setReceiverId('');
-      console.log("Chat response:", response.data);
+      console.log("Chat response:", response?.data);
     } catch (error) {
       console.log("Failed to create chat. Please try again.");
       console.error("Error creating chat:", error);
@@ -55,7 +56,10 @@ const FreelancerCard = ({
   };
 
   return (
-    <div className="p-6 flex flex-col gap-4  border bg-white border-gray-200  w-full rounded-lg">
+    <div
+      onClick={() => onClick && onClick(id)}
+      className="p-6 flex flex-col gap-4 border bg-white border-gray-200 w-full rounded-lg"
+    >
       <div className="flex flex-row items-center justify-between">
         <div className="flex flex-row items-center gap-5">
           <Avatar className="h-15 w-15">
@@ -67,14 +71,14 @@ const FreelancerCard = ({
           </Avatar>
 
           <div className="flex flex-col sm:gap-1">
-            <span className="text-black text-xl font-medium">{fullname}</span>
-            <span className="text-sm text-[#6e6d7a]">{professionalTitle}</span>
+            <span className="text-black text-xl font-medium">{fullname || "Freelancer"}</span>
+            <span className="text-sm text-[#6e6d7a]">{professionalTitle || "Professional"}</span>
           </div>
         </div>
 
         <div className="sm:flex flex-row gap-2 hidden ">
           <Button
-            className="w-full shadow-none text-black text-xl bg-transparent hover:bg-transparent border  border-gray-200 p-3"
+            className="w-full shadow-none text-black text-xl bg-transparent hover:bg-transparent border border-gray-200 p-3"
             onClick={handleCreateChat}
           >
             <IoChatbubbleOutline />
@@ -86,14 +90,14 @@ const FreelancerCard = ({
       </div>
 
       <div className="flex flex-row gap-4">
-        <div className="flex flex-row items-center font-medium  text-green-500 bg-green-400 bg-opacity-10 border border-green-400 px-2 rounded-full text-sm">
-          <MdOutlineCurrencyRupee className="" /> 500/hr
+        <div className="flex flex-row items-center font-medium text-green-500 bg-green-400 bg-opacity-10 border border-green-400 px-2 rounded-full text-sm">
+          <MdOutlineCurrencyRupee className="" /> {cost ? `${cost}/hr` : "500/hr"}
         </div>
-        <div className="flex flex-row items-center gap-1  text-blue-500 bg-blue-400 bg-opacity-10 border border-blue-400 px-2 rounded-full text-sm">
-          <RiSuitcaseLine className="text-lg text-blue-500" /> 15
+        <div className="flex flex-row items-center gap-1 text-blue-500 bg-blue-400 bg-opacity-10 border border-blue-400 px-2 rounded-full text-sm">
+          <RiSuitcaseLine className="text-lg text-blue-500" /> {connection !== undefined ? connection : "15"}
         </div>
         <div className="flex flex-row items-center gap-1">
-          <FaRegStar className="text-yellow-500" /> {rating}
+          <FaRegStar className="text-yellow-500" /> {rating || "4"}
         </div>
       </div>
 

@@ -15,8 +15,54 @@ const initialState = {
   freelancer: [],
   filteredFreelancer: [],
   freelancerDetailsFetched: false,
-  refresh : false,
-  rating : 0,
+  refresh: false,
+  filters: {
+    search: '',
+    category: 'all',
+    rating: 'all',
+  },
+};
+
+// Helper function to apply all active filters simultaneously
+const applyFilters = (state) => {
+  const { search, category, rating } = state.filters;
+  const searchLower = (search || '').trim().toLowerCase();
+
+  state.filteredFreelancer = state.freelancer.filter((freelancer) => {
+    if (!freelancer) return false;
+
+    // 1. Search filter: search in fullname, professionalTitle, skills, and bio safely
+    if (searchLower) {
+      const nameMatch = (freelancer.fullname || '').toLowerCase().includes(searchLower);
+      const titleMatch = (freelancer.professionalTitle || '').toLowerCase().includes(searchLower);
+      const bioMatch = (freelancer.bio || '').toLowerCase().includes(searchLower);
+      const skillMatch = Array.isArray(freelancer.skill)
+        ? freelancer.skill.some((s) => typeof s === 'string' && s.toLowerCase().includes(searchLower))
+        : false;
+
+      if (!nameMatch && !titleMatch && !bioMatch && !skillMatch) {
+        return false;
+      }
+    }
+
+    // 2. Category / Professional Title filter
+    if (category && category !== 'all') {
+      if (freelancer.professionalTitle !== category) {
+        return false;
+      }
+    }
+
+    // 3. Rating filter
+    if (rating && rating !== 'all') {
+      const minRating = parseFloat(rating);
+      const freelancerRating = parseFloat(freelancer.rating || 0);
+      if (isNaN(minRating) || freelancerRating < minRating) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 };
 
 //Calling API to fetch the projects data from the database
@@ -24,7 +70,7 @@ export const fetchClientProjects = createAsyncThunk(
   'projects/fetchClientProjects',
   async (clientId, { getState, rejectWithValue }) => {
     const { projects } = getState();
-    if ((!(projects.fetched)) || projects.refresh) {
+    if (!projects.fetched || projects.refresh) {
       try {
         const apiUrl = `/api/projects/Project?clientId=${clientId}`;
         const response = await axios.get(apiUrl);
@@ -38,15 +84,14 @@ export const fetchClientProjects = createAsyncThunk(
       }
     }
   }
-
 );
 
 //Calling API to fetch the freelancers details from the database
 export const freelancerDetails = createAsyncThunk(
   'users/freelancer',
-  async (_, { getState, rejectWithValue }) => {
+  async (force = false, { getState, rejectWithValue }) => {
     const { projects } = getState();
-    if (!(projects.freelancerDetailsFetched)) {
+    if (!projects.freelancerDetailsFetched || force || projects.refresh) {
       try {
         const api = `/api/freelancer`;
         const response = await axios.get(api);
@@ -55,30 +100,40 @@ export const freelancerDetails = createAsyncThunk(
         return rejectWithValue(error.response ? error.response.data : error.message);
       }
     } else {
-      return;
+      return projects.freelancer;
     }
   }
-)
+);
 
 const projects = createSlice({
   name: 'projects',
   initialState,
   reducers: {
     filterByRating: (state, action) => {
-      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.rating >= action.payload);
+      state.filters.rating = action.payload;
+      applyFilters(state);
     },
     filterByCategory: (state, action) => {
-      state.filteredFreelancer = state.freelancer.filter((freelancer) => freelancer.professionalTitle === action.payload);
+      state.filters.category = action.payload;
+      applyFilters(state);
     },
     filterBySearch: (state, action) => {
-      state.filteredFreelancer = state.freelancer.filter(freelancer =>
-        freelancer.fullname.toLowerCase().includes(action.payload.toLowerCase())
-      );
+      state.filters.search = action.payload;
+      applyFilters(state);
     },
-    modifyRefresh : (state) =>{
+    resetFilters: (state) => {
+      state.filters = {
+        search: '',
+        category: 'all',
+        rating: 'all',
+      };
+      state.filteredFreelancer = state.freelancer;
+    },
+    modifyRefresh: (state) => {
       state.refresh = true;
-    }
-  }, 
+      state.freelancerDetailsFetched = false;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchClientProjects.pending, (state) => {
@@ -88,10 +143,9 @@ const projects = createSlice({
         const projectsData = action.payload;
         state.refresh = false;
         if (Array.isArray(projectsData)) {
-          //console.log(projectsData);
           state.projects = projectsData;
-          state.completed = state.projects.filter(project => project.status === "Completed");
-          state.ongoing = state.projects.filter(project => project.status === "In Progress");
+          state.completed = state.projects.filter((project) => project.status === 'Completed');
+          state.ongoing = state.projects.filter((project) => project.status === 'In Progress');
           state.allProjects = projectsData.length;
           state.completedProjects = state.completed.length;
           state.ongoingProjects = state.ongoing.length;
@@ -114,17 +168,17 @@ const projects = createSlice({
         const freelancerData = action.payload;
         if (Array.isArray(freelancerData)) {
           state.freelancer = freelancerData;
-          state.filteredFreelancer = freelancerData;
           state.freelancerDetailsFetched = true;
-          state.status = 'succeeded'
+          state.status = 'succeeded';
+          applyFilters(state);
         }
       })
       .addCase(freelancerDetails.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      })
+      });
   },
 });
 
-export const { filterByRating, filterByCategory, filterBySearch, modifyRefresh } = projects.actions;
+export const { filterByRating, filterByCategory, filterBySearch, resetFilters, modifyRefresh } = projects.actions;
 export default projects.reducer;

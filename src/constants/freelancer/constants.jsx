@@ -39,12 +39,12 @@ export const SIDENAV_ITEMS = [
         icon: <Icon icon="lucide:mail" width="24" height="24" />,
 
     },
-    {
-        title: 'Reward',
-        path: '/fl/reward',
-        icon: <Icon icon="lucide:coins" width="24" height="24" />,
+    // {
+    //     title: 'Reward',
+    //     path: '/fl/reward',
+    //     icon: <Icon icon="lucide:coins" width="24" height="24" />,
 
-    },
+    // },
     {
         title: 'Analytics',
         path: '/fl/analytics',

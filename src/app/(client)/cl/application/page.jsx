@@ -16,6 +16,8 @@ import { setCurrentChat } from "@/app/(redux)/features/chatDataSlice";
 import Loader2 from "@/components/Loader2";
 import toast from "react-hot-toast";
 
+import { getActiveSocket, initGlobalSocket } from "@/services/socketService";
+
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,19 +28,11 @@ const ApplicationsPage = () => {
   const [senderId, setSenderId] = useState();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.chatData.userData);
-  //console.log("newuser: ", user)
-  // const receiverId = id;
-  // const senderId = user.id;
   useEffect(() => {
     setSenderId(user?.id);
-  }, [user])
+  }, [user]);
 
   const router = useRouter();
-
-  // useEffect(() => {
-  //   console.log(status);
-  // }, [status])
-
 
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
@@ -64,7 +58,7 @@ const ApplicationsPage = () => {
   };
 
   // Function to handle the accept/reject click
-  const handleStatus = async (appId, projectId, freelancerId, newStatus) => {
+  const handleStatus = async (appId, projectId, freelancerId, newStatus, appData) => {
     setProcessingAppId(appId);
     try {
       setStatus((prev) => ({ ...prev, [appId]: newStatus }));
@@ -84,6 +78,19 @@ const ApplicationsPage = () => {
       } else {
         setStatus((prev) => ({ ...prev, [appId]: newStatus }));
         toast.success(`Application ${newStatus === 'accepted' ? 'accepted' : 'rejected'} successfully!`);
+
+        // Emit live socket event to notify the freelancer immediately
+        const activeSocket = getActiveSocket() || initGlobalSocket(senderId);
+        if (activeSocket) {
+          activeSocket.emit("send-application-status", {
+            freelancerId: freelancerId,
+            clientName: user?.name || "Client",
+            projectTitle: appData?.project?.title || "Project",
+            projectId: projectId,
+            status: newStatus,
+          });
+        }
+
         handleRefresh();
       }
     } catch (error) {
@@ -186,62 +193,76 @@ const ApplicationsPage = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      {app.applicationStatus === "accepted" ? (
-                        <Button variant="success" className="bg-green-500 text-white" disabled>Accepted</Button>
-                      ) : app.applicationStatus === "rejected" ? (
-                        <Button variant="destructive" disabled>Rejected</Button>
-                      ) : (
-                        <>
-                          <Button
-                            variant="accept"
-                            disabled={processingAppId === app._id}
-                            className="flex items-center space-x-2 px-3 sm:px-4 disabled:opacity-60 disabled:cursor-not-allowed"
-                            onClick={() => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'accepted')}
-                            name="accept"
-                          >
-                            {processingAppId === app._id && status[app._id] === 'accepted' ? (
-                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                              </svg>
-                            ) : (
-                              <CheckIcon className="w-5 h-5" />
-                            )}
-                            <span>Accept</span>
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            name='reject'
-                            disabled={processingAppId === app._id}
-                            className="flex items-center space-x-2 px-3 sm:px-4 disabled:opacity-60 disabled:cursor-not-allowed"
-                            onClick={() => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'rejected')}
-                          >
-                            {processingAppId === app._id && status[app._id] === 'rejected' ? (
-                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                              </svg>
-                            ) : (
-                              <RxCross2 className="w-5 h-5" />
-                            )}
-                            <span>Reject</span>
-                          </Button>
-                        </>
-                      )}
+                    <div className="flex flex-wrap items-center gap-3 self-end sm:self-center">
+                      {(() => {
+                        const appStatus = (status[app._id] || app.applicationStatus || "Pending").toLowerCase();
+                        if (appStatus === "accepted") {
+                          return (
+                            <span className="px-3.5 py-1.5 rounded-lg bg-green-100 text-green-700 font-semibold text-xs sm:text-sm border border-green-200 flex items-center gap-1.5 shadow-xs">
+                              <CheckIcon className="w-4 h-4 stroke-[2.5]" />
+                              Accepted
+                            </span>
+                          );
+                        }
+                        if (appStatus === "rejected") {
+                          return (
+                            <span className="px-3.5 py-1.5 rounded-lg bg-red-100 text-red-700 font-semibold text-xs sm:text-sm border border-red-200 flex items-center gap-1.5 shadow-xs">
+                              <RxCross2 className="w-4 h-4" />
+                              Rejected
+                            </span>
+                          );
+                        }
+                        return (
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="default"
+                              disabled={processingAppId === app._id}
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-1.5 px-3.5 py-1.5 text-xs sm:text-sm rounded-lg shadow-xs disabled:opacity-60"
+                              onClick={() => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'accepted', app)}
+                            >
+                              {processingAppId === app._id && status[app._id] === 'accepted' ? (
+                                <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                              ) : (
+                                <CheckIcon className="w-4 h-4" />
+                              )}
+                              <span>Accept</span>
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              disabled={processingAppId === app._id}
+                              className="bg-red-500 hover:bg-red-600 text-white flex items-center space-x-1.5 px-3.5 py-1.5 text-xs sm:text-sm rounded-lg shadow-xs disabled:opacity-60"
+                              onClick={() => handleStatus(app._id, app.project?.id, app.freelancer?.id, 'rejected', app)}
+                            >
+                              {processingAppId === app._id && status[app._id] === 'rejected' ? (
+                                <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                              ) : (
+                                <RxCross2 className="w-4 h-4" />
+                              )}
+                              <span>Reject</span>
+                            </Button>
+                          </div>
+                        );
+                      })()}
+
                       <Button
                         variant="outline"
-                        disabled={chatLoadingId === app.clientId}
-                        className="flex items-center space-x-2 px-3 sm:px-4 disabled:opacity-60 disabled:cursor-not-allowed"
-                        onClick={() => handleCreateChat(app.clientId)}
+                        disabled={chatLoadingId === app.freelancer?.id}
+                        className="flex items-center space-x-1.5 px-3.5 py-1.5 text-xs sm:text-sm border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg shadow-xs disabled:opacity-60"
+                        onClick={() => handleCreateChat(app.freelancer?.id)}
                       >
-                        {chatLoadingId === app.clientId ? (
-                          <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        {chatLoadingId === app.freelancer?.id ? (
+                          <svg className="animate-spin h-3.5 w-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                           </svg>
                         ) : (
-                          <IoChatbubblesOutline className="w-5 h-5" />
+                          <IoChatbubblesOutline className="w-4 h-4 text-primary" />
                         )}
                         <span>Chat</span>
                       </Button>
