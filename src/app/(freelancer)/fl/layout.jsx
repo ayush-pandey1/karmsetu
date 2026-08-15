@@ -23,7 +23,7 @@ export default function RootLayout({ children, }) {
           <Provider store={store}>
             <ToasterContext />
             <SideNav />
-            <main className="flex-1">
+            <main className="flex-1 min-w-0 max-w-full overflow-x-hidden">
             <NextTopLoader color="#8b5cf6" />
               <MarginWidthWrapper>
                 <Header />

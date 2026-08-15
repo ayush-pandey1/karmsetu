@@ -3,8 +3,18 @@
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { IoIosArrowForward } from "react-icons/io";
-import { MdCurrencyRupee, MdOutlineAccessTime, MdLocationOn, MdBookmarkBorder, MdBookmark } from "react-icons/md";
-import { IoCalendarOutline, IoChatbubblesOutline, IoEyeOutline } from "react-icons/io5";
+import {
+  MdCurrencyRupee,
+  MdOutlineAccessTime,
+  MdLocationOn,
+  MdBookmarkBorder,
+  MdBookmark,
+} from "react-icons/md";
+import {
+  IoCalendarOutline,
+  IoChatbubblesOutline,
+  IoEyeOutline,
+} from "react-icons/io5";
 import { LuMilestone } from "react-icons/lu";
 import {
   Dialog,
@@ -22,12 +32,17 @@ import toast from "react-hot-toast";
 const getCategoryColor = (category = "") => {
   const cat = category.toLowerCase();
   if (cat.includes("web")) return "bg-blue-50 text-blue-700 border-blue-200";
-  if (cat.includes("app") || cat.includes("mobile")) return "bg-indigo-50 text-indigo-700 border-indigo-200";
-  if (cat.includes("design") || cat.includes("graphic") || cat.includes("ui")) return "bg-purple-50 text-purple-700 border-purple-200";
-  if (cat.includes("content") || cat.includes("writing")) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-  if (cat.includes("software")) return "bg-cyan-50 text-cyan-700 border-cyan-200";
+  if (cat.includes("app") || cat.includes("mobile"))
+    return "bg-indigo-50 text-indigo-700 border-indigo-200";
+  if (cat.includes("design") || cat.includes("graphic") || cat.includes("ui"))
+    return "bg-purple-50 text-purple-700 border-purple-200";
+  if (cat.includes("content") || cat.includes("writing"))
+    return "bg-emerald-50 text-emerald-700 border-emerald-200";
+  if (cat.includes("software"))
+    return "bg-cyan-50 text-cyan-700 border-cyan-200";
   if (cat.includes("video")) return "bg-rose-50 text-rose-700 border-rose-200";
-  if (cat.includes("marketing") || cat.includes("social")) return "bg-amber-50 text-amber-700 border-amber-200";
+  if (cat.includes("marketing") || cat.includes("social"))
+    return "bg-amber-50 text-amber-700 border-amber-200";
   return "bg-gray-100 text-gray-700 border-gray-200";
 };
 
@@ -46,7 +61,11 @@ const formatTimeAgo = (dateString) => {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 };
 
-const JobCardFreelancer = ({ project, distance = null, isListView = false }) => {
+const JobCardFreelancer = ({
+  project,
+  distance = null,
+  isListView = false,
+}) => {
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
@@ -66,7 +85,9 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
   const handleSaveToggle = (e) => {
     e.stopPropagation();
     setIsSaved(!isSaved);
-    toast.success(!isSaved ? "Gig saved to your bookmarks!" : "Removed from saved gigs.");
+    toast.success(
+      !isSaved ? "Gig saved to your bookmarks!" : "Removed from saved gigs.",
+    );
   };
 
   const handleCreateChat = async (e) => {
@@ -100,31 +121,70 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
       <>
         <div
           onClick={handleCardClick}
-          className="group relative bg-white rounded-2xl border border-gray-200/80 hover:border-primary/50 shadow-xs hover:shadow-xl transition-all duration-300 p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transform-gpu hover:-translate-y-0.5 w-full"
+          className="group relative bg-white rounded-2xl border border-gray-200/80 hover:border-primary/50 shadow-xs hover:shadow-xl transition-all duration-300 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 cursor-pointer transform-gpu hover:-translate-y-0.5 w-full min-w-0 overflow-hidden"
         >
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary/20 to-sky-100 text-primary font-bold text-sm flex items-center justify-center border border-primary/20 shrink-0">
-              {project?.clientName ? project.clientName.charAt(0).toUpperCase() : "C"}
+          {/* Left / Main Info */}
+          <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary/20 to-sky-100 text-primary font-bold text-sm flex items-center justify-center border border-primary/20 shrink-0 shadow-xs">
+              {project?.clientName
+                ? project.clientName.charAt(0).toUpperCase()
+                : "C"}
             </div>
-            <div className="flex flex-col gap-1 min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base font-bold text-gray-900 group-hover:text-primary transition-colors truncate">
+            <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <h3 className="text-base sm:text-lg font-bold text-gray-900 group-hover:text-primary transition-colors truncate max-w-full">
                   {project?.title || "Untitled Project"}
                 </h3>
-                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${categoryBadgeStyle}`}>
+                <span
+                  className={`text-[10px] sm:text-[11px] font-semibold px-2.5 py-0.5 rounded-full border shrink-0 ${categoryBadgeStyle}`}
+                >
                   {categoryLabel}
                 </span>
               </div>
-              <p className="text-xs text-gray-500 line-clamp-1">
+              <p className="text-xs sm:text-sm text-gray-500 line-clamp-2 leading-relaxed">
                 {project?.description || "No description provided."}
               </p>
-              <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-1">
-                <span>By {project?.clientName || "Client"}</span>
+
+              {/* Skills Tags */}
+              {skillsList.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  {skillsList.slice(0, 4).map((skill, idx) => (
+                    <span
+                      key={idx}
+                      className="text-[10px] sm:text-[11px] font-medium bg-gray-50 text-gray-600 border border-gray-200/80 px-2 py-0.5 rounded-md"
+                    >
+                      {typeof skill === "object"
+                        ? skill.label || skill.id
+                        : skill}
+                    </span>
+                  ))}
+                  {skillsList.length > 4 && (
+                    <span className="text-[10px] font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded-md border border-gray-100">
+                      +{skillsList.length - 4} more
+                    </span>
+                  )}
+                </div>
+              )}
+
+              {/* Meta Info */}
+              <div className="flex items-center gap-2 sm:gap-3 text-[11px] text-gray-400 mt-1 flex-wrap">
+                <span className="font-semibold text-gray-600">
+                  By {project?.clientName || "Client"}
+                </span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
                   <IoCalendarOutline />
                   {formatTimeAgo(project?.createdAt)}
                 </span>
+                {project?.duration && (
+                  <>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 text-gray-500">
+                      <MdOutlineAccessTime />
+                      {project.duration}
+                    </span>
+                  </>
+                )}
                 {distance !== null && distance !== undefined && (
                   <>
                     <span>•</span>
@@ -138,10 +198,15 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
             </div>
           </div>
 
-          <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-gray-100">
-            <div className="flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1 rounded-xl text-sm">
-              <MdCurrencyRupee className="text-sm -mr-0.5" />
-              <span>{project?.budget ? Number(project.budget).toLocaleString() : "Negotiable"}</span>
+          {/* Right / Actions & Budget */}
+          <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100 w-full lg:w-auto">
+            <div className="flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-3 py-1.5 rounded-xl text-sm sm:text-base">
+              <MdCurrencyRupee className="text-base -mr-0.5" />
+              <span>
+                {project?.budget
+                  ? Number(project.budget).toLocaleString()
+                  : "Negotiable"}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -153,11 +218,13 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
                   e.stopPropagation();
                   setIsQuickViewOpen(true);
                 }}
-                className="h-8 px-2.5 text-xs rounded-lg border-gray-200 text-gray-600 hover:text-primary"
+                className="h-9 px-2.5 text-xs rounded-xl border-gray-200 text-gray-600 hover:text-primary"
+                title="Quick View"
               >
-                <IoEyeOutline className="text-sm mr-1" />
-                Quick View
+                <IoEyeOutline className="text-base sm:mr-1" />
+                <span className="hidden sm:inline">Preview</span>
               </Button>
+
               <Button
                 type="button"
                 size="sm"
@@ -165,9 +232,45 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
                   e.stopPropagation();
                   handleCardClick();
                 }}
-                className="h-8 px-3 text-xs bg-primary hover:bg-primaryho text-white rounded-lg"
+                className="h-9 px-4 text-xs font-semibold bg-primary hover:bg-primaryho text-white rounded-xl shadow-xs flex items-center gap-1"
               >
-                Apply
+                <span>View & Apply</span>
+                <IoIosArrowForward className="text-xs" />
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isChatLoading}
+                onClick={handleCreateChat}
+                className="h-9 px-2.5 rounded-xl border-gray-200 text-gray-700 hover:text-primary hover:border-primary/40 hover:bg-primary/5 shadow-xs transition-colors disabled:opacity-60"
+                title="Chat with client"
+              >
+                {isChatLoading ? (
+                  <svg
+                    className="animate-spin h-4 w-4 text-primary"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <IoChatbubblesOutline className="text-base text-gray-600 hover:text-primary" />
+                )}
               </Button>
             </div>
           </div>
@@ -203,7 +306,9 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-primary/20 to-sky-100 text-primary font-bold text-xs flex items-center justify-center border border-primary/20 shrink-0 shadow-xs">
-                {project?.clientName ? project.clientName.charAt(0).toUpperCase() : "C"}
+                {project?.clientName
+                  ? project.clientName.charAt(0).toUpperCase()
+                  : "C"}
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-xs font-semibold text-gray-800 truncate">
@@ -217,7 +322,9 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
             </div>
 
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${categoryBadgeStyle}`}>
+              <span
+                className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${categoryBadgeStyle}`}
+              >
                 {categoryLabel}
               </span>
               <button
@@ -272,7 +379,11 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
             {/* Budget */}
             <div className="flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 rounded-lg">
               <MdCurrencyRupee className="text-sm -mr-0.5" />
-              <span>{project?.budget ? Number(project.budget).toLocaleString() : "Negotiable"}</span>
+              <span>
+                {project?.budget
+                  ? Number(project.budget).toLocaleString()
+                  : "Negotiable"}
+              </span>
             </div>
 
             {/* Duration or Distance */}
@@ -290,7 +401,8 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
               ) : milestonesList.length > 0 ? (
                 <span className="flex items-center gap-1 text-[11px] text-gray-500">
                   <LuMilestone className="text-xs text-primary" />
-                  {milestonesList.length} Milestone{milestonesList.length === 1 ? "" : "s"}
+                  {milestonesList.length} Milestone
+                  {milestonesList.length === 1 ? "" : "s"}
                 </span>
               ) : null}
             </div>
@@ -332,9 +444,25 @@ const JobCardFreelancer = ({ project, distance = null, isListView = false }) => 
               title="Chat with client"
             >
               {isChatLoading ? (
-                <svg className="animate-spin h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                <svg
+                  className="animate-spin h-4 w-4 text-primary"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
                 </svg>
               ) : (
                 <IoChatbubblesOutline className="text-base text-gray-600 group-hover:text-primary" />
@@ -377,7 +505,9 @@ const QuickViewDialog = ({
       <DialogContent className="sm:max-w-xl max-h-[85vh] overflow-y-auto rounded-2xl p-6">
         <DialogHeader>
           <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${categoryBadgeStyle}`}>
+            <span
+              className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${categoryBadgeStyle}`}
+            >
               {categoryLabel}
             </span>
             <span className="text-xs text-gray-400">
@@ -388,7 +518,10 @@ const QuickViewDialog = ({
             {project?.title || "Job Details"}
           </DialogTitle>
           <DialogDescription className="text-xs text-gray-500">
-            Client: <span className="font-semibold text-gray-800">{project?.clientName || "Verified Client"}</span>
+            Client:{" "}
+            <span className="font-semibold text-gray-800">
+              {project?.clientName || "Verified Client"}
+            </span>
           </DialogDescription>
         </DialogHeader>
 
@@ -396,14 +529,22 @@ const QuickViewDialog = ({
           {/* Budget & Timeline Box */}
           <div className="grid grid-cols-2 gap-3 bg-gray-50 p-3.5 rounded-xl border border-gray-200/80">
             <div>
-              <span className="text-[11px] font-medium text-gray-500 block">Total Budget</span>
+              <span className="text-[11px] font-medium text-gray-500 block">
+                Total Budget
+              </span>
               <div className="flex items-center font-extrabold text-lg text-emerald-700 mt-0.5">
                 <MdCurrencyRupee className="text-lg -mr-1" />
-                <span>{project?.budget ? Number(project.budget).toLocaleString() : "Negotiable"}</span>
+                <span>
+                  {project?.budget
+                    ? Number(project.budget).toLocaleString()
+                    : "Negotiable"}
+                </span>
               </div>
             </div>
             <div>
-              <span className="text-[11px] font-medium text-gray-500 block">Project Duration</span>
+              <span className="text-[11px] font-medium text-gray-500 block">
+                Project Duration
+              </span>
               <span className="text-sm font-bold text-gray-800 mt-0.5 block">
                 {project?.duration || "Flexible timeline"}
               </span>
@@ -432,7 +573,9 @@ const QuickViewDialog = ({
                     key={idx}
                     className="text-xs font-medium bg-primary/5 text-primary border border-primary/20 px-2.5 py-1 rounded-lg"
                   >
-                    {typeof skill === "object" ? skill.label || skill.id : skill}
+                    {typeof skill === "object"
+                      ? skill.label || skill.id
+                      : skill}
                   </span>
                 ))}
               </div>
@@ -455,9 +598,13 @@ const QuickViewDialog = ({
                       <div className="w-5 h-5 rounded-full bg-primary/10 text-primary font-bold text-[10px] flex items-center justify-center">
                         {idx + 1}
                       </div>
-                      <span className="font-semibold text-gray-800">{m.title || `Milestone ${idx + 1}`}</span>
+                      <span className="font-semibold text-gray-800">
+                        {m.title || `Milestone ${idx + 1}`}
+                      </span>
                     </div>
-                    <span className="font-bold text-emerald-700">₹{Number(m.amount || 0).toLocaleString()}</span>
+                    <span className="font-bold text-emerald-700">
+                      ₹{Number(m.amount || 0).toLocaleString()}
+                    </span>
                   </div>
                 ))}
               </div>
