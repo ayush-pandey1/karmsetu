@@ -20,7 +20,11 @@ const ApplicationSchema = new Schema({
     budget: { type: Number },
     status: { type: String }
   },
-  applicationStatus : {type: String, enum: ['Pending', 'Accepted', 'Rejected'], default: 'Pending'}
+  applicationStatus : {
+    type: String, 
+    enum: ['Pending', 'Accepted', 'Rejected', 'pending', 'accepted', 'rejected'], 
+    default: 'Pending'
+  }
 }, {
   timestamps: true                                        
 });

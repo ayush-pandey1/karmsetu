@@ -18,12 +18,12 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchClientProjects,
   freelancerDetails,
-} from "../../(redux)/features/projectDataSlice";
-import {
   filterByRating,
   filterByCategory,
   filterBySearch,
+  resetFilters,
 } from "../../(redux)/features/projectDataSlice";
+import { setUserData as setChatUserData } from "@/app/(redux)/features/chatDataSlice";
 import {
   Select,
   SelectContent,
@@ -39,39 +39,46 @@ import { MdWorkspacePremium } from "react-icons/md";
 import { TbAdjustmentsStar } from "react-icons/tb";
 import Loader from "@/components/Loader";
 import Loader2 from "@/components/Loader2";
-
+import Image from "next/image";
 
 const Home = () => {
   const dispatch = useDispatch();
   const [userData, setUserData] = useState();
-  const [filteredFreelancers, setFilteredFreelancer] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [coordinates, setCoordinates] = useState({
     latitude: 0,
     longitude: 0,
   });
-  const [freelancerDataLoading, setFreelancerDataLoading] = useState(true);
 
-  //To get user details from sessionStorage
+  const filteredFreelancers = useSelector(
+    (state) => state.projects.filteredFreelancer
+  );
+  const projectsStatus = useSelector((state) => state.projects.status);
+  const freelancerDetailsFetched = useSelector(
+    (state) => state.projects.freelancerDetailsFetched
+  );
+
+  // To get user details from sessionStorage and sync with Redux
   useEffect(() => {
     const data = sessionStorage.getItem("karmsetu");
     if (data) {
       try {
         console.log(data, "User data from session");
-        setUserData(JSON.parse(data));
+        const parsed = JSON.parse(data);
+        setUserData(parsed);
+        dispatch(setChatUserData(parsed));
       } catch (error) {
         console.error("Invalid session storage data", error);
       }
     }
-  }, []);
+  }, [dispatch]);
 
-  // const projects = useSelector((state) => state.projects.allProjects);
   const [projectCount, setProjectCount] = useState({
     completedProjects: 0,
     ongoingProjects: 0,
     allProjects: 0,
   });
-
 
   const handleFilterChange = (filterType, value) => {
     switch (filterType) {
@@ -89,18 +96,20 @@ const Home = () => {
     }
   };
 
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault();
+    dispatch(filterBySearch(searchQuery));
+  };
 
   const user = userData?.name;
   const clientId = userData?.id;
 
-  //To fetch freelancer details
+  // To fetch freelancer details
   useEffect(() => {
     dispatch(freelancerDetails());
   }, [dispatch]);
 
-
-
-  //Calling API to fetch client projects
+  // Calling API to fetch client projects
   useEffect(() => {
     if (clientId) {
       dispatch(fetchClientProjects(clientId));
@@ -115,7 +124,7 @@ const Home = () => {
   );
   const allProjects = useSelector((state) => state.projects.allProjects);
 
-  //Updating state variables to store number of projects on the basis of status
+  // Updating state variables to store number of projects on the basis of status
   useEffect(() => {
     setProjectCount({
       completedProjects: completedProjects,
@@ -124,21 +133,6 @@ const Home = () => {
     });
     setLoading(false);
   }, [completedProjects, ongoingProjects, allProjects]);
-
-  const filteredFreelancersData = useSelector(
-    (state) => state.projects.filteredFreelancer
-  );
-
-  useEffect(() => {
-    setFilteredFreelancer(filteredFreelancersData);
-
-    setFreelancerDataLoading(false);
-    //console.log(filteredFreelancersData);
-    // console.log(freelancers, "All freelancers State Variable")
-    // console.log(freelancerData, "All freelancers Redux Variable")
-    // console.log(filteredFreelancers, "After filtering the data");
-  }, [filteredFreelancersData]);
-
 
   //To get geolocation of the client
   useEffect(() => {
@@ -165,7 +159,7 @@ const Home = () => {
           },
           (error) => {
             console.error("Error getting geolocation:", error);
-          }
+          },
         );
       } else {
         console.error("Geolocation is not supported by this browser.");
@@ -181,7 +175,9 @@ const Home = () => {
   return (
     <>
       {loading ? (
-        <div><Loader2 /></div>
+        <div>
+          <Loader2 />
+        </div>
       ) : (
         <div className="flex flex-col gap-12 mx-3 sm:mx-8 mt-5">
           <div className="flex  flex-col sm:flex-row gap-4 sm:gap-0  sm:justify-between sm:items-center">
@@ -311,31 +307,40 @@ const Home = () => {
             </div>
 
             <div className="flex flex-col lg:flex-row gap-2 justify-between mb-4">
-              <div className="flex flex-row gap-2 items-center">
+              <form
+                onSubmit={handleSearchSubmit}
+                className="flex flex-row gap-2 items-center"
+              >
                 <div className="bg-white max-h-10 min-w-64 flex flex-row items-center gap-1 pl-2 rounded-md ">
-                  <HiMiniMagnifyingGlass className="text-xl" />
+                  <HiMiniMagnifyingGlass className="text-xl text-gray-500" />
                   <Input
                     type="text"
-                    placeholder="Search Freelancers"
-                    className="border-none px-1 rounded-md placeholder:font-medium bg-white w-full"
+                    placeholder="Search Freelancers (Name, Title, Skill)"
+                    className="border-none px-1 rounded-md placeholder:font-medium bg-white w-full focus-visible:ring-0"
                     name="searchInput"
-                    onChange={(e) => handleFilterChange("search", e.target.value)}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      handleFilterChange("search", e.target.value);
+                    }}
                   />
                 </div>
                 <div>
                   <Button
+                    type="submit"
                     className="bg-secondaryho hover:bg-secondary focus:bg-secondary"
                     name="searchButton"
                   >
                     Search
                   </Button>
                 </div>
-              </div>
+              </form>
 
               <div className="flex xl:flex-row xl:items-center items-start flex-col gap-2">
                 <div className="flex flex-col md:flex-row gap-2">
                   <Select
                     name="titleSelect"
+                    defaultValue="all"
                     onValueChange={(value) =>
                       handleFilterChange("category", value)
                     }
@@ -346,6 +351,7 @@ const Home = () => {
                     <SelectContent>
                       <SelectGroup className="max-h-40 overflow-y-scroll">
                         <SelectLabel>Titles</SelectLabel>
+                        <SelectItem value="all">All Titles</SelectItem>
                         <SelectItem value="Android Developer">
                           Android Developer
                         </SelectItem>
@@ -362,7 +368,9 @@ const Home = () => {
                         <SelectItem value="Software Engineer">
                           Software Engineer
                         </SelectItem>
-                        <SelectItem value="Videographer">Videographer</SelectItem>
+                        <SelectItem value="Videographer">
+                          Videographer
+                        </SelectItem>
                         <SelectItem value="Legal Advisor">
                           Legal Advisor
                         </SelectItem>
@@ -376,7 +384,10 @@ const Home = () => {
 
                   <Select
                     name="ratingSelect"
-                    onValueChange={(value) => handleFilterChange("rating", value)}
+                    defaultValue="all"
+                    onValueChange={(value) =>
+                      handleFilterChange("rating", value)
+                    }
                   >
                     <SelectTrigger className="w-[180px] border border-gray-200 bg-white pl-3 rounded-md text-black font-medium shadow-sm">
                       <SelectValue className="k" placeholder="Rating" />
@@ -384,6 +395,7 @@ const Home = () => {
                     <SelectContent>
                       <SelectGroup className="max-h-40">
                         <SelectLabel>Ratings</SelectLabel>
+                        <SelectItem value="all">All Ratings</SelectItem>
                         <SelectItem value="4.5">4.5+</SelectItem>
                         <SelectItem value="4">4+</SelectItem>
                         <SelectItem value="3">3+</SelectItem>
@@ -392,38 +404,49 @@ const Home = () => {
                     </SelectContent>
                   </Select>
                 </div>
-
               </div>
             </div>
 
-            <div className="inline-flex flex-col  justify-center gap-4">
-              {freelancerDataLoading ? (
+            <div className="inline-flex flex-col justify-center gap-4">
+              {!freelancerDetailsFetched && projectsStatus === "loading" ? (
                 <Loader2 />
+              ) : filteredFreelancers && filteredFreelancers.length > 0 ? (
+                filteredFreelancers
+                  .slice()
+                  .reverse()
+                  .map((freelancer) => (
+                    <FreelancerCard
+                      key={freelancer._id}
+                      fullname={freelancer.fullname}
+                      professionalTitle={freelancer.professionalTitle}
+                      skill={freelancer.skill}
+                      bio={freelancer.bio}
+                      id={freelancer._id}
+                      rating={freelancer.rating || "4"}
+                      cost={freelancer.Cost}
+                      connection={freelancer.connection}
+                      imageLink={freelancer.imageLink}
+                      portfolioDetails={
+                        freelancer.portfolioDetails || []
+                      }
+                    />
+                  ))
               ) : (
-                ((filteredFreelancers.length > 0)) ? (
-                  filteredFreelancers
-                    .slice()
-                    .reverse()
-                    .map((filteredFreelancer) => (
-                      <FreelancerCard
-                        key={filteredFreelancer._id}
-                        fullname={filteredFreelancer.fullname}
-                        professionalTitle={filteredFreelancer.professionalTitle}
-                        skill={filteredFreelancer.skill}
-                        bio={filteredFreelancer.bio}
-                        id={filteredFreelancer._id}
-                        rating={filteredFreelancer.rating || "4"}
-                        imageLink={filteredFreelancer.imageLink}
-                        portfolioDetails={filteredFreelancer.portfolioDetails || []}
-                      />
-                    ))
-                ) : (
-                  <div>No freelancers</div>
-                ))}
+                <div className="flex flex-col justify-center items-center">
+                  <Image
+                    src="/quiteplace.svg"
+                    alt="Nothing to display"
+                    width={100}
+                    height={100}
+                    className="size-60 mx-auto opacity-80"
+                  />
+                  <p className="text-gray-300 text-xl font-medium">
+                    Huh... pretty quiet place
+                  </p>
+                </div>
+              )}
             </div>
-
           </div>
-
         </div>
       )}
     </>

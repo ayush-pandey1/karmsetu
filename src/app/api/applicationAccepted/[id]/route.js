@@ -1,113 +1,109 @@
 import Project from "@/app/(models)/project";
 import { NextResponse } from "next/server";
 import Application from "@/app/(models)/application";
+import { connect } from "@/config/db";
+
+connect();
 
 export async function PUT(req, { params }) {
   try {
     const { id } = params;
-    const { freelancerId, newStatus } = await req.json();
+    const body = await req.json();
+    const { freelancerId, newStatus } = body;
 
     if (!id || !freelancerId) {
       return NextResponse.json(
         { message: "Project ID and Freelancer ID are required." },
-        { newStatus: 400 }
+        { status: 400 }
       );
     }
-    console.log("FreelancerId, id received in the backend");
-    console.log(freelancerId, id, newStatus, "From Backend API which would update the application newStatus");
+
+    const normalizedStatus =
+      (newStatus || "").toLowerCase() === "accepted" ? "Accepted" : "Rejected";
 
     const project = await Project.findById(id);
-
-    // const freelancerDetails = await axios.get(`/api/user?id=${freelancerId}`)
-    // const freelancerEmail = freelancerDetails.email;
-
     if (!project) {
-      console.log("Project not found");
       return NextResponse.json(
         { message: "Project not found." },
-        { newStatus: 404 }
+        { status: 404 }
       );
     }
 
+    // Check if project already has another freelancer assigned
+    if (
+      normalizedStatus === "Accepted" &&
+      project.freelancerId &&
+      project.freelancerId !== "none" &&
+      project.freelancerId !== freelancerId
+    ) {
+      return NextResponse.json(
+        { message: "A freelancer has already been assigned to this project." },
+        { status: 400 }
+      );
+    }
 
-    const updateApplicationStatus = async (newStatus) => {
-      console.log(newStatus, freelancerId, id, "Inside the updateApplicationStatus function in the API");
-      const application = await Application.findOneAndUpdate(
+    // Update target application status
+    const updatedApplication = await Application.findOneAndUpdate(
+      {
+        "freelancer.id": freelancerId,
+        "project.id": id,
+      },
+      { $set: { applicationStatus: normalizedStatus } },
+      { new: true }
+    );
+
+    if (normalizedStatus === "Accepted") {
+      // Reject other pending applications for this project
+      await Application.updateMany(
         {
-          "freelancer.id": freelancerId,
-          "project.id": id
+          "project.id": id,
+          applicationStatus: { $in: ["Pending", "pending"] },
+          "freelancer.id": { $ne: freelancerId },
         },
-        { $set: { applicationStatus: newStatus } },
-        { new: true }
+        { $set: { applicationStatus: "Rejected" } }
       );
-      if (newStatus === 'accepted') {
-        // Find and reject all other pending applications for the project
-        await Application.updateMany(
-          { id, status: 'pending', freelancerId: { $ne: freelancerId } },
-          { status: 'rejected' }
-        );
-      }
 
-
-
-      if (!application) {
-        return NextResponse.json(
-          { message: "Application not found." },
-          { newStatus: 404 }
-        );
-      }
-    };
-
-    if (project.freelancerId!=="none") {
-      await updateApplicationStatus("rejected");
-      throw new Error('A freelancer has already been accepted for this project.');
-    }
-    console.log("Project found");
-
-    // const freelancerName = project.freelancerName ? project.freelancerName : "Ayush";
-    // const clientName = project.clientName;
-    // const projectName = project.title;
-
-
-    if (newStatus === 'accepted') {
-      console.log("Application newStatus to be updated to Accepted");
-      //Update the freelancerId and set the newStatus to "In Progress"
-      console.log(freelancerId, "If Status is accepted in the Backend");
+      // Update project freelancer and status
       project.freelancerId = freelancerId;
       project.status = "In Progress";
-      console.log("Updated Project Status, and freelancerId when newStatus is accepted")
-      // Save the updated project
       await project.save();
-      console.log(newStatus, "if the application newStatus is accepted and after saving the changes in the project document");
-      await updateApplicationStatus(newStatus);
+
       return NextResponse.json(
         {
-          message: "Freelancer assigned, project newStatus updated to In Progress, and Updated Application Status.",
-          project, success: true
+          message: "Freelancer accepted and assigned to project.",
+          success: true,
+          project,
+          application: updatedApplication,
+          status: normalizedStatus,
         },
-        { newStatus: 200 }
+        { status: 200 }
       );
-    } else if (newStatus === 'rejected') {
-      const freelancerEmail = "lakshay12290@gmail.com";
-      console.log(newStatus);
-      console.log("Application newStatus to be updated to Rejected");
-      await updateApplicationStatus(newStatus);
+    } else {
+      // Remove freelancer from project.applied array upon rejection so they can reapply if desired
+      await Project.findByIdAndUpdate(id, {
+        $pull: { applied: freelancerId },
+      });
+
       return NextResponse.json(
         {
-          message: "Updated Application Status.",
-          project, success: true
+          message: "Application rejected.",
+          success: true,
+          project,
+          application: updatedApplication,
+          status: normalizedStatus,
         },
-        { newStatus: 200 }
+        { status: 200 }
       );
     }
   } catch (error) {
-    console.error("Error updating project:", error.message);
+    console.error("Error updating application status:", error);
     return NextResponse.json(
       {
-        message: "Error updating project.",
+        message: "Error updating application status.",
         error: error.message,
       },
-      { newStatus: 500 }
+      { status: 500 }
     );
   }
 }
+

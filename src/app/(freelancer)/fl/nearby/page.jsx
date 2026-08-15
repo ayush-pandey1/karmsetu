@@ -1,13 +1,18 @@
 "use client";
 import dynamic from "next/dynamic";
-const FmapComponent = dynamic(() => import("@/components/FmapComponent"), { ssr: false, });
+const FmapComponent = dynamic(() => import("@/components/FmapComponent"), {
+  ssr: false,
+});
 // import FmapComponent from "@/components/FmapComponent";
-const HeatMapComponent = dynamic(() => import("@/components/HeatMapComponent"), { ssr: false, });
+const HeatMapComponent = dynamic(
+  () => import("@/components/HeatMapComponent"),
+  { ssr: false },
+);
 import JobCardFreelancer from "@/components/JobCardFreelancer";
 import Loader2 from "@/components/Loader2";
 import React, { useEffect, useState } from "react";
 import { GrMap } from "react-icons/gr";
-import "../style.css"
+import "../style.css";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 
@@ -19,7 +24,6 @@ const NearbyFreelancersPage = () => {
   const [selectedDistance, setSelectedDistance] = useState(5);
   const distances = [2, 3, 4, 5, 6, 7, 8, 9, 10];
   const [heatmapStatus, setHeatmapStatus] = useState(false);
-
 
   const handleDistanceChange = (event) => {
     setSelectedDistance(Number(event.target.value));
@@ -35,7 +39,7 @@ const NearbyFreelancersPage = () => {
         // loading(true);
         try {
           const response = await fetch(
-            `/api/nearby/freelancer/${id}?distance=${selectedDistance}`
+            `/api/nearby/freelancer/${id}?distance=${selectedDistance}`,
           );
           if (response.ok) {
             const data = await response.json();
@@ -63,7 +67,7 @@ const NearbyFreelancersPage = () => {
         // loading(true);
         try {
           const response = await fetch(
-            `/api/nearby/freelancer/${id}?distance=2000`
+            `/api/nearby/freelancer/${id}?distance=2000`,
           );
           if (response.ok) {
             const data = await response.json();
@@ -82,7 +86,6 @@ const NearbyFreelancersPage = () => {
     fetchNearbyFreelancers();
   }, []);
 
-
   useEffect(() => {
     const getLocation = async () => {
       if (navigator.geolocation) {
@@ -94,7 +97,7 @@ const NearbyFreelancersPage = () => {
           (error) => {
             console.error("Error getting geolocation:", error);
           },
-          { enableHighAccuracy: true }
+          { enableHighAccuracy: true },
         );
       } else {
         console.error("Geolocation is not supported by this browser.");
@@ -105,8 +108,8 @@ const NearbyFreelancersPage = () => {
   }, []);
 
   const handelMapStatus = () => {
-    setHeatmapStatus(!heatmapStatus)
-  }
+    setHeatmapStatus(!heatmapStatus);
+  };
 
   if (loading) {
     return (
@@ -122,9 +125,7 @@ const NearbyFreelancersPage = () => {
         <div className="flex flex-col gap-2">
           <div className="text-black font-bold text-lg sm:text-2xl  border-l-4 border-l-sky-500 px-2 leading-none ">
             Discover Projects in{" "}
-            <span className="underline-nearby relative ">
-              Proximity
-            </span>
+            <span className="underline-nearby relative ">Proximity</span>
           </div>
           <div className=" font-medium text-xs sm:text-md  leading-none pl-[14px]">
             Find projects/gigs in your area.
@@ -185,9 +186,7 @@ const NearbyFreelancersPage = () => {
               </option>
             ))}
           </select>
-
         </div>
-
 
         <div
           style={{

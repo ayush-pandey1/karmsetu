@@ -39,22 +39,22 @@ export const SIDENAV_ITEMS = [
         path: '/cl/analytics',
         icon: <Icon icon="lucide:trending-up" width="24" height="24"/>,
     },
-    {
-        title: 'Transactions',
-        path: '/cl/transactions',
-        icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24"/>,
+    // {
+    //     title: 'Transactions',
+    //     path: '/cl/transactions',
+    //     icon: <Icon icon="lucide:receipt-indian-rupee" width="24" height="24"/>,
         
-    },
-    {
-        title: 'Settings',
-        path: '/cl/settings',
-        icon: <Icon icon="lucide:settings" width="24" height="24"/>,
-        submenu: true,
-        subMenuItems: [
-            { title: 'Profile', path: '/cl/settings/profile' },
-            { title: 'Privacy', path: '/cl/settings/privacy' },
-        ],
-    },
+    // },
+    // {
+    //     title: 'Settings',
+    //     path: '/cl/settings',
+    //     icon: <Icon icon="lucide:settings" width="24" height="24"/>,
+    //     submenu: true,
+    //     subMenuItems: [
+    //         { title: 'Profile', path: '/cl/settings/profile' },
+    //         { title: 'Privacy', path: '/cl/settings/privacy' },
+    //     ],
+    // },
     {
         title: 'Help',
         path: '/cl/help',

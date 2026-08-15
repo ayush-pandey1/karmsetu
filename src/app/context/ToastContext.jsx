@@ -4,10 +4,15 @@ import { Toaster } from "react-hot-toast";
 const ToasterContext = () => {
   return (
     <Toaster
-      position="top-center"
+      position="top-right"
       reverseOrder={false}
+      containerStyle={{
+        top: 24,
+        right: 24,
+        zIndex: 99999,
+      }}
       toastOptions={{
-        duration: 4000,
+        duration: 5000,
         style: {
           borderRadius: "12px",
           fontSize: "14px",

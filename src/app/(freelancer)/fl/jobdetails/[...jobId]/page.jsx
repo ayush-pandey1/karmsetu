@@ -25,6 +25,7 @@ import { FaEnvelopeOpenText } from "react-icons/fa";
 import { Separator } from "@/components/ui/separator";
 import toast from "react-hot-toast";
 import Loader2 from "@/components/Loader2";
+import { getActiveSocket, initGlobalSocket } from "@/services/socketService";
 
 const JobDetails = () => {
   const [jobData, setJobData] = useState({});
@@ -36,32 +37,58 @@ const JobDetails = () => {
   const [freelancer, setFreelancer] = useState();
   const [project, setProject] = useState();
   const [userData, setUserData] = useState();
-  const [isApplied, setisApplied] = useState(false);
   const [freelancerId, setFreelancerId] = useState("");
+  const [applicationStatus, setApplicationStatus] = useState("None"); // 'None' | 'Pending' | 'Accepted' | 'Rejected'
+  const [myApplication, setMyApplication] = useState(null);
 
   const { jobId } = useParams();
+  const currentProjectId = Array.isArray(jobId) ? jobId[0] : jobId;
+
   useEffect(() => {
     const data = JSON.parse(sessionStorage.getItem("karmsetu"));
     setUserData(data);
-    setFreelancerId(data?.id);
+    const id = data?.id || data?._id;
+    if (id) {
+      setFreelancerId(id);
+    }
   }, []);
 
-  //To fetch project data by projectId
+  // Fetch application status for this freelancer and project
+  const checkApplicationStatus = async (pId, fId) => {
+    if (!pId || !fId) return;
+    try {
+      const res = await fetch(`/api/applicationStore?projectId=${pId}&freelancerId=${fId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.hasApplied && data.application) {
+          setMyApplication(data.application);
+          const rawStatus = (data.application.applicationStatus || "Pending").toLowerCase();
+          if (rawStatus === "accepted") setApplicationStatus("Accepted");
+          else if (rawStatus === "rejected") setApplicationStatus("Rejected");
+          else setApplicationStatus("Pending");
+        } else {
+          setMyApplication(null);
+          setApplicationStatus("None");
+        }
+      }
+    } catch (err) {
+      console.error("Error checking application status:", err);
+    }
+  };
+
+  // Fetch project data by projectId
   useEffect(() => {
     const fetchJobData = async () => {
       try {
-        const id = Array.isArray(jobId) ? jobId[0] : jobId;
-        if (!id) return;
+        if (!currentProjectId) return;
 
-        const response = await fetch(`/api/project/${id}`);
+        const response = await fetch(`/api/project/${currentProjectId}`);
 
         if (response.ok) {
           const data = await response.json();
           setJobData(data.project || {});
-          return;
-        }
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+        } else {
+          throw new Error("Failed to load project details");
         }
       } catch (error) {
         console.error("Error fetching job:", error);
@@ -71,32 +98,45 @@ const JobDetails = () => {
       }
     };
 
-    if (jobId) {
+    if (currentProjectId) {
       fetchJobData();
     }
-  }, [jobId]);
+  }, [currentProjectId]);
 
-  const appliedArray = jobData?.applied || [];
-  const hasFreelancerApplied = appliedArray.includes(freelancerId);
-
+  // Check application status when both freelancerId and currentProjectId are available
   useEffect(() => {
-    if (appliedArray.length > 0 && hasFreelancerApplied) {
-      setisApplied(true);
+    if (currentProjectId && freelancerId) {
+      checkApplicationStatus(currentProjectId, freelancerId);
     }
-  }, [hasFreelancerApplied, appliedArray]);
-  // console.log(appliedArray, "It will contain freelancer id who have applied for this project");
-  // console.log(jobData, "Printing State Variable which holds project Details, Outiside UseEffect");
+  }, [currentProjectId, freelancerId]);
 
+  // Listen for live socket status updates if client accepts or rejects while freelancer is on this page
+  useEffect(() => {
+    const socket = getActiveSocket() || (freelancerId ? initGlobalSocket(freelancerId) : null);
+    if (!socket) return;
+
+    const handleLiveStatus = (data) => {
+      if (data?.projectId === currentProjectId) {
+        const rawStatus = (data.status || "").toLowerCase();
+        if (rawStatus === "accepted") setApplicationStatus("Accepted");
+        else if (rawStatus === "rejected") setApplicationStatus("Rejected");
+        else setApplicationStatus("Pending");
+      }
+    };
+
+    socket.on("recieve-application-status", handleLiveStatus);
+    return () => {
+      socket.off("recieve-application-status", handleLiveStatus);
+    };
+  }, [currentProjectId, freelancerId]);
 
   const role = "freelancer";
 
-  //To fetch freelancer details
+  // Fetch freelancer details on mount or apply
   const fetchUserData = async (id) => {
     try {
-      console.log("Freelancer Id", id);
       const response = await axios.get(`/api/user/${id}`);
-      console.log("Freelancer Details", response.data);
-      if (response.status === 200) {
+      if (response.status === 200 && response.data?.user) {
         setFreelancer(response.data.user);
         return response.data.user;
       }
@@ -109,23 +149,11 @@ const JobDetails = () => {
     }
   };
 
-  const fetchProjectData = async (id) => {
-    try {
-      const response = await axios.get(`/api/project/${id}`);
-      console.log(response);
-      if (response.status === 200) {
-        console.log(response.data.project, "Inside freelance Job Details Page");
-        setProject(response.data.project);
-        return response.data.project;
-      }
-    } catch (error) {
-      console.error(
-        "Error fetching project data:",
-        error.response ? error.response.data.message : error.message
-      );
-      return null;
+  useEffect(() => {
+    if (freelancerId) {
+      fetchUserData(freelancerId);
     }
-  };
+  }, [freelancerId]);
 
   async function submitApplication(applicationData) {
     try {
@@ -143,24 +171,42 @@ const JobDetails = () => {
       }
 
       const responseData = await response.json();
-      setisApplied(true);
+      setApplicationStatus("Pending");
       setMessage("");
-      toast.success("Application submitted successfully!");
+      toast.success(
+        applicationStatus === "Rejected"
+          ? "Re-application submitted successfully!"
+          : "Application submitted successfully!"
+      );
+
+      // Emit live socket event to notify the client in real-time
+      const activeSocket = getActiveSocket() || initGlobalSocket(freelancerId);
+      if (activeSocket) {
+        activeSocket.emit("send-application", {
+          clientId: applicationData.clientId,
+          freelancerId: applicationData.freelancer?._id || applicationData.freelancer?.id || freelancerId,
+          freelancerName: applicationData.freelancer?.fullname || userData?.name || "A freelancer",
+          freelancerImage: applicationData.freelancer?.imageLink || userData?.profileImage || "",
+          projectTitle: applicationData.project?.title || jobData?.title,
+          projectId: applicationData.project?._id || applicationData.project?.id || currentProjectId,
+          message: applicationData.message,
+        });
+      }
+
+      // Refresh application status
+      if (currentProjectId && freelancerId) {
+        checkApplicationStatus(currentProjectId, freelancerId);
+      }
+
       return responseData;
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error submitting application:", error);
       toast.error(error.message || "Failed to submit application");
       return { error: error.message };
     }
   }
 
-  const setData = async () => {
-    const data = JSON.parse(sessionStorage.getItem("karmsetu"));
-    setUserData(data);
-
-    await fetchUserData(data?.id);
-    await fetchProjectData(jobData?._id);
-  };
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
 
   const onSubmit = async () => {
     if (!message || message.trim() === "") {
@@ -170,14 +216,41 @@ const JobDetails = () => {
 
     setIsSubmitting(true);
     try {
-      const applicationData = {
-        clientId: jobData?.clientId,
-        message,
-        freelancer,
-        project,
+      let currentFreelancer = freelancer;
+      if (!currentFreelancer && freelancerId) {
+        currentFreelancer = await fetchUserData(freelancerId);
+      }
+
+      const freelancerPayload = currentFreelancer || {
+        _id: userData?.id,
+        id: userData?.id,
+        fullname: userData?.name || "Freelancer",
+        email: userData?.email || "",
+        phone: userData?.phone || "",
+        professionalTitle: userData?.professionalTitle || "Freelancer",
+        skill: userData?.skill || [],
+        imageLink: userData?.profileImage || "",
       };
 
-      await submitApplication(applicationData);
+      const projectPayload = jobData || {
+        _id: currentProjectId,
+        title: jobData?.title || "Project",
+        description: jobData?.description || "",
+        budget: jobData?.budget || 0,
+        status: jobData?.status || "Pending",
+      };
+
+      const applicationData = {
+        clientId: jobData?.clientId,
+        message: message.trim(),
+        freelancer: freelancerPayload,
+        project: projectPayload,
+      };
+
+      const res = await submitApplication(applicationData);
+      if (res && !res.error) {
+        setIsApplyDialogOpen(false);
+      }
     } catch (error) {
       console.error("Submit application error:", error);
     } finally {
@@ -198,90 +271,117 @@ const JobDetails = () => {
       <Card className="w-full max-w-5xl shadow-md bg-white border border-gray-200 rounded-xl h-fit">
         <CardHeader className="p-6 border-b border-gray-100">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-800">
-              {jobData?.title || "Job Details"}
-            </CardTitle>
-            {role === "freelancer" && !isApplied ? (
-              <Dialog>
-                <DialogTrigger asChild>
+            <div>
+              <CardTitle className="text-2xl sm:text-3xl font-bold text-gray-800">
+                {jobData?.title || "Job Details"}
+              </CardTitle>
+              {applicationStatus === "Rejected" && (
+                <p className="text-xs text-amber-700 font-medium mt-1 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md inline-block">
+                  Your previous application was rejected. You can submit a revised proposal.
+                </p>
+              )}
+            </div>
+
+            {role === "freelancer" && (
+              <div className="flex items-center gap-3">
+                {applicationStatus === "Accepted" ? (
+                  <div className="flex items-center gap-2">
+                    <span className="px-3.5 py-1.5 rounded-lg bg-green-100 text-green-700 font-semibold text-xs sm:text-sm border border-green-200 shadow-xs">
+                      Accepted 🎉
+                    </span>
+                    <a
+                      href={`/fl/projectDashboard/${currentProjectId}`}
+                      className="px-4 py-2 text-xs sm:text-sm font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors shadow-xs"
+                    >
+                      Project Dashboard
+                    </a>
+                  </div>
+                ) : applicationStatus === "Pending" ? (
+                  <Button
+                    className="bg-gray-100 hover:bg-gray-100 shadow-none text-gray-600 border border-gray-300 px-6 cursor-default"
+                    disabled
+                  >
+                    Applied (Under Review)
+                  </Button>
+                ) : (
                   <div>
                     <Button
-                      className="bg-primary px-6 hover:bg-primaryho"
-                      onClick={setData}
+                      className={
+                        applicationStatus === "Rejected"
+                          ? "bg-amber-600 hover:bg-amber-700 text-white px-6 shadow-sm"
+                          : "bg-primary px-6 hover:bg-primaryho shadow-sm"
+                      }
+                      onClick={() => setIsApplyDialogOpen(true)}
                     >
-                      Apply
+                      {applicationStatus === "Rejected" ? "Re-Apply for Job" : "Apply"}
                     </Button>
                   </div>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-black flex flex-row gap-1">
-                      <FaEnvelopeOpenText className="text-primary" />
-                      Submit Your Application
-                    </DialogTitle>
-                    <DialogDescription>
-                      Craft a personalized message to introduce yourself and
-                      highlight why you're the perfect fit for this project.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex items-center space-x-2">
-                    <div className="flex-1">
-                      <Label htmlFor="link" className="sr-only">
-                        Link
-                      </Label>
-                      <Textarea
-                        id="link"
-                        disabled={isSubmitting}
-                        placeholder="Write your application message here..."
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        className="disabled:opacity-60 disabled:cursor-not-allowed"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter className="sm:justify-start gap-2">
-                    <DialogClose asChild>
-                      <Button
-                        type="button"
-                        disabled={isSubmitting}
-                        className="bg-transparent pl-0 text-red-500 shadow-none hover:bg-transparent disabled:opacity-60"
-                      >
-                        Close
-                      </Button>
-                    </DialogClose>
-                    <Button
-                      type="button"
-                      disabled={isSubmitting}
-                      className="bg-green-500 focus:bg-green-500 hover:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
-                      onClick={onSubmit}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                          </svg>
-                          Submitting...
-                        </>
-                      ) : (
-                        "Submit"
-                      )}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            ) : role === "freelancer" && isApplied ? (
-              <div>
-                <Button
-                  className="bg-transparent hover:bg-transparent shadow-none text-green-500 border border-dashed border-green-500 px-6"
-                  disabled
-                >
-                  Applied
-                </Button>
+                )}
               </div>
-            ) : null}
+            )}
           </div>
         </CardHeader>
+
+        {/* Application Modal Dialog */}
+        <Dialog open={isApplyDialogOpen} onOpenChange={setIsApplyDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-black flex flex-row gap-1">
+                <FaEnvelopeOpenText className="text-primary" />
+                {applicationStatus === "Rejected" ? "Submit Revised Application" : "Submit Your Application"}
+              </DialogTitle>
+              <DialogDescription>
+                Craft a personalized message to introduce yourself and highlight why you&apos;re the perfect fit for this project.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center space-x-2">
+              <div className="flex-1">
+                <Label htmlFor="message" className="sr-only">
+                  Application Message
+                </Label>
+                <Textarea
+                  id="message"
+                  disabled={isSubmitting}
+                  placeholder="Write your application proposal and timeline here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="disabled:opacity-60 disabled:cursor-not-allowed min-h-[120px]"
+                />
+              </div>
+            </div>
+            <DialogFooter className="sm:justify-start gap-2">
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  disabled={isSubmitting}
+                  className="bg-transparent pl-0 text-red-500 shadow-none hover:bg-transparent disabled:opacity-60"
+                >
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button
+                type="button"
+                disabled={isSubmitting}
+                className="bg-green-500 focus:bg-green-500 hover:bg-green-600 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+                onClick={onSubmit}
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : applicationStatus === "Rejected" ? (
+                  "Submit Revised Application"
+                ) : (
+                  "Submit Application"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
         <CardContent className="p-6 space-y-6">
           {/* Description */}
           <div>
