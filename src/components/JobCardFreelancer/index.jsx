@@ -603,7 +603,10 @@ const QuickViewDialog = ({
                       </span>
                     </div>
                     <span className="font-bold text-emerald-700">
-                      ₹{Number(m.amount || 0).toLocaleString()}
+                      ₹
+                      {Number(
+                        (m.amount / 100) * project?.budget || 0,
+                      ).toLocaleString()}
                     </span>
                   </div>
                 ))}
