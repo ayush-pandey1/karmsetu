@@ -92,7 +92,6 @@ const AuthRedirectPage = () => {
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-white">
       <Loader2 />
-      <div className="text-lg text-black dark:text-white">Redirecting...</div>
     </div>
   );
 };
