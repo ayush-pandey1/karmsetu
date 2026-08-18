@@ -1,0 +1,63 @@
+import Image from "next/image";
+import Link from "next/link";
+import '@/app/globals.css';
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+
+export default function RootNotFound() {
+  return (
+    <html lang="en">
+      <body className={`min-h-screen bg-white dark:bg-black ${inter.className}`}>
+        <div className="flex min-h-screen items-center justify-center overflow-hidden px-5 py-10">
+          <div className="mx-auto w-full text-center">
+            <Image
+              src="/images/karmsetuLogo-cropped.svg"
+              alt="karmsetu"
+              className="mx-auto mb-7.5"
+              width={200}
+              height={200}
+              priority
+            />
+            <Image
+              src="/404.svg"
+              alt="404"
+              className="mx-auto mb-7.5"
+              width={400}
+              height={400}
+              priority
+            />
+
+            <h2 className="mb-5 text-xl font-semibold text-primary dark:text-white md:text-4xl">
+              Oops! Looks like you got lost
+            </h2>
+            <p className="mb-7.5 text-black dark:text-white">
+              The page you were looking for appears to have been moved, deleted or
+              does not exist.
+            </p>
+
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2.5 rounded-full bg-black px-6 py-3 font-medium text-white duration-300 ease-in-out hover:bg-blackho dark:bg-btndark dark:hover:bg-blackho"
+            >
+              Return to Home
+              <svg
+                className="fill-white"
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10.4767 6.16664L6.00668 1.69664L7.18501 0.518311L13.6667 6.99998L7.18501 13.4816L6.00668 12.3033L10.4767 7.83331H0.333344V6.16664H10.4767Z"
+                  fill=""
+                />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </body>
+    </html>
+  );
+}
