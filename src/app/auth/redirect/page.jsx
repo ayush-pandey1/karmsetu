@@ -1,5 +1,6 @@
 "use client";
 import Loader from "@/components/Loader";
+import Loader2 from "@/components/Loader2";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -90,9 +91,9 @@ const AuthRedirectPage = () => {
 
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-white">
-      <Loader />
+      <Loader2 />
     </div>
   );
 };
 
-export default AuthRedirectPage;
+export default AuthRedirectPage;
