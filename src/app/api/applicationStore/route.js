@@ -2,17 +2,21 @@ import Application from "@/app/(models)/application";
 import { NextResponse } from "next/server";
 import Project from "@/app/(models)/project";
 import { connect } from "@/config/db";
+import { applicationSubmissionSchema } from "@/validations/project";
+import { validateRequestBody } from "@/validations/middleware";
 
 connect();
 
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { clientId, message, freelancer, project } = body;
 
-    if (!clientId || !freelancer || !project) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const validation = validateRequestBody(applicationSubmissionSchema, body);
+    if (!validation.success) {
+      return validation.response;
     }
+
+    const { clientId, message, freelancer, project } = validation.data;
 
     const freelancerId = freelancer._id || freelancer.id;
     const projectId = project._id || project.id;
@@ -82,12 +86,12 @@ export async function POST(req) {
       applicationStatus: "Pending",
       freelancer: {
         id: freelancerId,
-        fullname: freelancer.fullname || freelancer.name || "Freelancer",
+        fullname: freelancer.fullname || "Freelancer",
         email: freelancer.email,
         phone: freelancer.phone || "",
         professionalTitle: freelancer.professionalTitle || "Freelancer",
         skill: freelancer.skill || [],
-        imageLink: freelancer.imageLink || freelancer.profileImage || "",
+        imageLink: freelancer.imageLink || "",
       },
       project: {
         id: projectId,
@@ -113,6 +117,7 @@ export async function POST(req) {
     return NextResponse.json({ error: error.message || "Failed to save application" }, { status: 500 });
   }
 }
+
 
 export async function GET(req) {
   try {

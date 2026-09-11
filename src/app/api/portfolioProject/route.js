@@ -1,41 +1,49 @@
 import { NextResponse } from "next/server";
-import User from "@/app/(models)/User"
+import User from "@/app/(models)/User";
+import { portfolioProjectSchema } from "@/validations/portfolio";
+import { validateRequestBody } from "@/validations/middleware";
 
 export async function PUT(req) {
     try {
-        const { freelancerId, newProject } = await req.json();
+        const body = await req.json();
+        const { freelancerId, newProject } = body || {};
 
-        if (!freelancerId || !newProject) {
+        if (!freelancerId || typeof freelancerId !== "string" || !freelancerId.trim()) {
             return NextResponse.json(
-                { message: "Project Details and Freelancer ID are required." },
-                { newStatus: 400 }
+                { message: "Freelancer ID is required." },
+                { status: 400 }
             );
         }
-        console.log(freelancerId, newProject, "From project creation API for the freelancer portfolio");
-        const freelancerDetails = await User.findOne({ _id: freelancerId });
+
+        const projectVal = validateRequestBody(portfolioProjectSchema, newProject);
+        if (!projectVal.success) {
+            return projectVal.response;
+        }
+
+        const freelancerDetails = await User.findById(freelancerId.trim());
         if (!freelancerDetails) {
             return NextResponse.json(
                 { message: "No freelancer found" },
                 { status: 404 }
-            )
+            );
         }
-        // Check if portfolioDetails exists and is an array
+
         if (!Array.isArray(freelancerDetails.portfolioDetails)) {
-            // Initialize portfolioDetails as an empty array if it doesn't exist
             freelancerDetails.portfolioDetails = [];
         }
-        await freelancerDetails.portfolioDetails.push(newProject);
+
+        freelancerDetails.portfolioDetails.push(projectVal.data);
         await freelancerDetails.save();
+
         return NextResponse.json(
-            { message: "Successfully created portfolio project" },
+            { message: "Successfully created portfolio project", project: projectVal.data },
             { status: 201 }
-        )
+        );
     } catch (error) {
-        console.log("Error in creating portfolio project", error.message);
+        console.error("Error in creating portfolio project:", error.message);
         return NextResponse.json(
-            { message: "Error in creating portfolio project" },
-            { status: 404 },
-            { error: error.message }
-        )
+            { message: "Error in creating portfolio project", error: error.message },
+            { status: 500 }
+        );
     }
 }

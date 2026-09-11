@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import toast from "react-hot-toast";
 import Loader2 from "@/components/Loader2";
 import { getActiveSocket, initGlobalSocket } from "@/services/socketService";
+import { applicationSubmissionSchema } from "@/validations/project";
 
 const JobDetails = () => {
   const [jobData, setJobData] = useState({});
@@ -209,8 +210,12 @@ const JobDetails = () => {
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
 
   const onSubmit = async () => {
-    if (!message || message.trim() === "") {
-      toast.error("Please enter an application message");
+    if (!message || message.trim().length < 5) {
+      toast.error("Application message must be at least 5 characters long");
+      return;
+    }
+    if (message.trim().length > 2000) {
+      toast.error("Application message cannot exceed 2000 characters");
       return;
     }
 
@@ -247,7 +252,15 @@ const JobDetails = () => {
         project: projectPayload,
       };
 
-      const res = await submitApplication(applicationData);
+      const parsed = applicationSubmissionSchema.safeParse(applicationData);
+      if (!parsed.success) {
+        const firstError = parsed.error.errors[0]?.message || "Invalid application details";
+        toast.error(firstError);
+        setIsSubmitting(false);
+        return;
+      }
+
+      const res = await submitApplication(parsed.data);
       if (res && !res.error) {
         setIsApplyDialogOpen(false);
       }

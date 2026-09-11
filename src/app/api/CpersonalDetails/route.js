@@ -1,36 +1,71 @@
 import User from "@/app/(models)/User";
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
+import { clientProfileSchema } from "@/validations/user";
+import { validateRequestBody } from "@/validations/middleware";
 
-mongoose.connect(process.env.MONGO_URL);
+if (!mongoose.connections[0].readyState) {
+  mongoose.connect(process.env.MONGO_URL);
+}
 mongoose.Promise = global.Promise;
 
 export async function PUT(req) {
   try {
-    const data = await req.json();
-    const { email, phoneNumber, age, gender, address, companyName, industry, bio, socialMedia, role, coordinates, photo } = data;
-    console.log(data);
+    const rawData = await req.json();
+
+    // Check if this is a coordinate-only update
+    if (rawData.email && rawData.coordinates && Object.keys(rawData).length === 2) {
+      const email = String(rawData.email).trim().toLowerCase();
+      const updatedUser = await User.findOneAndUpdate(
+        { email },
+        { coordinates: rawData.coordinates },
+        { new: true, runValidators: false }
+      );
+      if (!updatedUser) {
+        return NextResponse.json({ message: "User not found" }, { status: 404 });
+      }
+      return NextResponse.json({ message: "Coordinates updated", user: updatedUser }, { status: 200 });
+    }
+
+    const validation = validateRequestBody(clientProfileSchema, rawData);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const {
+      email,
+      phoneNumber,
+      age,
+      gender,
+      address,
+      companyName,
+      industry,
+      bio,
+      socialMedia,
+      photo,
+      coordinates
+    } = validation.data;
+
+    const updateFields = {
+      phone: phoneNumber,
+      age,
+      gender,
+      address,
+      companyName,
+      industry,
+      bio,
+      socialMedia: socialMedia || "",
+      imageLink: photo || "",
+      role: "client"
+    };
+
+    if (coordinates) {
+      updateFields.coordinates = coordinates;
+    }
+
     const updatedUser = await User.findOneAndUpdate(
       { email }, 
-      {
-        phone: phoneNumber,
-        age,
-        gender,
-        address,
-        companyName,
-        industry,
-        bio,
-        socialMedia,
-        role,
-        imageLink : photo,
-        // if (coordinates.latitude && coordinates.longitude){
-          coordinates:{
-            latitude:coordinates?.latitude,
-            longitude:coordinates?.longitude
-          } 
-          
-      // }
-      },
+      updateFields,
       { new: true, runValidators: true } 
     );
 
@@ -44,3 +79,4 @@ export async function PUT(req) {
     return NextResponse.json({ message: "Failed to update user", error: error.message }, { status: 500 });
   }
 }
+

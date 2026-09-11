@@ -89,13 +89,18 @@ export const options = {
             },
             async authorize(credentials) {
                 try {
-                    const foundUser = await User.findOne({ email: credentials.email }).lean().exec();
+                    const email = (credentials?.email || "").trim().toLowerCase();
+                    const password = credentials?.password || "";
 
-                    if (foundUser) {
-                        console.log("User exists");
-                        const match = await bcrypt.compare(credentials.password, foundUser.password);
+                    if (!email || !password) {
+                        throw new Error("Email and password are required");
+                    }
+
+                    const foundUser = await User.findOne({ email }).lean().exec();
+
+                    if (foundUser && foundUser.password) {
+                        const match = await bcrypt.compare(password, foundUser.password);
                         if (match) {
-                            console.log("Password match");
                             delete foundUser.password;
                             return foundUser;
                         } else {
@@ -105,7 +110,7 @@ export const options = {
                         throw new Error("Invalid credentials");
                     }
                 } catch (error) {
-                    console.error(error);
+                    console.error("Auth error:", error.message);
                     throw new Error(error.message || "Authorization failed");
                 }
             },

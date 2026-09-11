@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Loader2 from "../Loader2";
 import toast from "react-hot-toast";
+import { signupSchema } from "@/validations/auth";
 
 const Signup = () => {
   const router = useRouter();
@@ -35,6 +36,7 @@ const Signup = () => {
     role: "role",
   });
 
+  const [fieldErrors, setFieldErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
@@ -47,18 +49,41 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!data.firstName || !data.lastName || !data.email || !data.password) {
-      toast.error("Please fill in all required fields");
+    setErrorMessage("");
+    setFieldErrors({});
+
+    const signupPayload = {
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      email: data.email.trim(),
+      password: data.password,
+      fullname: `${data.firstName.trim()} ${data.lastName.trim()}`.trim(),
+      role: role === "client" || role === "freelancer" ? role : "client",
+    };
+
+    // Frontend Zod validation
+    const validation = signupSchema.safeParse(signupPayload);
+    if (!validation.success) {
+      const errors = {};
+      validation.error.issues.forEach((issue) => {
+        const fieldName = issue.path[0];
+        if (fieldName && !errors[fieldName]) {
+          errors[fieldName] = issue.message;
+        }
+      });
+      setFieldErrors(errors);
+      const firstError = validation.error.issues[0]?.message || "Please correct the form errors";
+      setErrorMessage(firstError);
+      toast.error(firstError);
       return;
     }
 
-    setErrorMessage("");
     setIsSubmitting(true);
 
     try {
       const res = await fetch("/api/Users", {
         method: "POST",
-        body: JSON.stringify({ data }),
+        body: JSON.stringify({ data: signupPayload }),
         headers: {
           "Content-Type": "application/json",
         },
@@ -66,15 +91,16 @@ const Signup = () => {
 
       if (!res.ok) {
         const response = await res.json();
-        const err = response.message || "Registration failed. Please try again.";
+        const err = response.message || response.error || "Registration failed. Please try again.";
+        if (response.errors) {
+          setFieldErrors(response.errors);
+        }
         setErrorMessage(err);
         toast.error(err);
       } else {
         const responseData = await res.json();
-        // Store the user data in sessionStorage
         sessionStorage.setItem('karmsetu', JSON.stringify(responseData.user));
         toast.success("Account created successfully!");
-
         router.refresh();
         router.push(`/onboarding/${role}`);
       }
@@ -92,7 +118,7 @@ const Signup = () => {
     const callbackUrl = `/onboarding/${role}`;
     signIn(provider, { callbackUrl });
   };
-  // if (!loading) return (<Loader2 />);
+
   return (
     <>
       {/* <!-- ===== SignUp Form Start ===== --> */}
@@ -165,47 +191,87 @@ const Signup = () => {
 
             <form onSubmit={handleSubmit} method="post">
               <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
-                <input
-                  name="firstName"
-                  type="text"
-                  placeholder="First name"
-                  disabled={isSubmitting}
-                  value={data.firstName}
-                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
-                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
-                />
+                <div className="w-full lg:w-1/2">
+                  <input
+                    name="firstName"
+                    type="text"
+                    placeholder="First name"
+                    disabled={isSubmitting}
+                    value={data.firstName}
+                    onChange={(e) => {
+                      setData({ ...data, [e.target.name]: e.target.value });
+                      if (fieldErrors.firstName) setFieldErrors({ ...fieldErrors, firstName: null });
+                    }}
+                    className={`w-full border-b bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:focus:border-manatee dark:focus:placeholder:text-white disabled:opacity-60 disabled:cursor-not-allowed ${
+                      fieldErrors.firstName ? "border-red-500" : "border-stroke dark:border-strokedark"
+                    }`}
+                  />
+                  {fieldErrors.firstName && (
+                    <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.firstName}</p>
+                  )}
+                </div>
 
-                <input
-                  name="lastName"
-                  type="text"
-                  placeholder="Last name"
-                  disabled={isSubmitting}
-                  value={data.lastName}
-                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
-                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
-                />
+                <div className="w-full lg:w-1/2">
+                  <input
+                    name="lastName"
+                    type="text"
+                    placeholder="Last name"
+                    disabled={isSubmitting}
+                    value={data.lastName}
+                    onChange={(e) => {
+                      setData({ ...data, [e.target.name]: e.target.value });
+                      if (fieldErrors.lastName) setFieldErrors({ ...fieldErrors, lastName: null });
+                    }}
+                    className={`w-full border-b bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:focus:border-manatee dark:focus:placeholder:text-white disabled:opacity-60 disabled:cursor-not-allowed ${
+                      fieldErrors.lastName ? "border-red-500" : "border-stroke dark:border-strokedark"
+                    }`}
+                  />
+                  {fieldErrors.lastName && (
+                    <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.lastName}</p>
+                  )}
+                </div>
               </div>
 
               <div className="mb-7.5 flex flex-col gap-7.5 lg:mb-12.5 lg:flex-row lg:justify-between lg:gap-14">
-                <input
-                  name="email"
-                  type="email"
-                  placeholder="Email address"
-                  disabled={isSubmitting}
-                  value={data.email}
-                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
-                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
-                />
+                <div className="w-full lg:w-1/2">
+                  <input
+                    name="email"
+                    type="email"
+                    placeholder="Email address"
+                    disabled={isSubmitting}
+                    value={data.email}
+                    onChange={(e) => {
+                      setData({ ...data, [e.target.name]: e.target.value });
+                      if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: null });
+                    }}
+                    className={`w-full border-b bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:focus:border-manatee dark:focus:placeholder:text-white disabled:opacity-60 disabled:cursor-not-allowed ${
+                      fieldErrors.email ? "border-red-500" : "border-stroke dark:border-strokedark"
+                    }`}
+                  />
+                  {fieldErrors.email && (
+                    <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.email}</p>
+                  )}
+                </div>
 
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  disabled={isSubmitting}
-                  value={data.password}
-                  onChange={(e) => setData({ ...data, [e.target.name]: e.target.value })}
-                  className="w-full border-b border-stroke bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:border-strokedark dark:focus:border-manatee dark:focus:placeholder:text-white lg:w-1/2 disabled:opacity-60 disabled:cursor-not-allowed"
-                />
+                <div className="w-full lg:w-1/2">
+                  <input
+                    name="password"
+                    type="password"
+                    placeholder="Password"
+                    disabled={isSubmitting}
+                    value={data.password}
+                    onChange={(e) => {
+                      setData({ ...data, [e.target.name]: e.target.value });
+                      if (fieldErrors.password) setFieldErrors({ ...fieldErrors, password: null });
+                    }}
+                    className={`w-full border-b bg-transparent pb-3.5 focus:border-waterloo focus:placeholder:text-black focus-visible:outline-none dark:focus:border-manatee dark:focus:placeholder:text-white disabled:opacity-60 disabled:cursor-not-allowed ${
+                      fieldErrors.password ? "border-red-500" : "border-stroke dark:border-strokedark"
+                    }`}
+                  />
+                  {fieldErrors.password && (
+                    <p className="mt-1 text-xs text-red-500 font-medium">{fieldErrors.password}</p>
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-10 md:justify-between xl:gap-15">
@@ -246,11 +312,11 @@ const Signup = () => {
                 </button>
               </div>
 
-              {errorMessage && (
-                <p className="mt-2 text-sm text-red-600">
+              {/* {errorMessage && (
+                <p className="mt-2 text-sm text-red-600 font-medium">
                   {errorMessage}
                 </p>
-              )}
+              )} */}
 
               <div className="mt-12.5 border-t border-stroke py-5 text-center dark:border-strokedark">
                 <p>
