@@ -1,25 +1,31 @@
 import Project from "@/app/(models)/project"; 
 import { NextResponse } from "next/server";
+import { freelancerMilestoneReviewSchema } from "@/validations/project";
+import { validateRequestBody } from "@/validations/middleware";
 
 export async function PATCH(req, { params }) {
   try {
     const { id } = params; 
-    const { status, milestoneId,message } = await req.json();
-    if (!id || !milestoneId || !status || !message) {
-      return NextResponse.json(
-        { message: "Project ID, Milestone ID, message, and status are required." },
-        { status: 400 }
-      );
+    const body = await req.json();
+
+    if (!id) {
+      return NextResponse.json({ message: "Project ID is required" }, { status: 400 });
     }
 
-    const project = await Project.findById(id);
+    const validation = validateRequestBody(freelancerMilestoneReviewSchema, body);
+    if (!validation.success) {
+      return validation.response;
+    }
 
+    const { status, milestoneId, message } = validation.data;
+
+    const project = await Project.findById(id);
     if (!project) {
       return NextResponse.json({ message: "Project not found." }, { status: 404 });
     }
 
     const milestone = project.milestones.find(
-      (milestone) => milestone._id.toString() === milestoneId
+      (m) => m._id.toString() === milestoneId
     );
 
     if (!milestone) {
@@ -30,7 +36,7 @@ export async function PATCH(req, { params }) {
     }
 
     milestone.status = status;
-    milestone.message=message;
+    milestone.message = message;
     milestone.statusDate = new Date();
     await project.save();
 
@@ -46,3 +52,4 @@ export async function PATCH(req, { params }) {
     );
   }
 }
+

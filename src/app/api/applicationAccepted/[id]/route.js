@@ -3,20 +3,38 @@ import { NextResponse } from "next/server";
 import Application from "@/app/(models)/application";
 import { connect } from "@/config/db";
 
+import { z } from "zod";
+import { safeTrimmedString } from "@/validations/common";
+import { validateRequestBody } from "@/validations/middleware";
+
+const acceptApplicationSchema = z.object({
+  freelancerId: safeTrimmedString(1, 100, "freelancerId"),
+  newStatus: z.enum(["accepted", "rejected", "Accepted", "Rejected"], {
+    errorMap: () => ({ message: "Status must be either 'accepted' or 'rejected'" }),
+  }),
+});
+
 connect();
 
 export async function PUT(req, { params }) {
   try {
     const { id } = params;
     const body = await req.json();
-    const { freelancerId, newStatus } = body;
 
-    if (!id || !freelancerId) {
+    if (!id || typeof id !== "string" || !id.trim()) {
       return NextResponse.json(
-        { message: "Project ID and Freelancer ID are required." },
+        { message: "Project ID is required." },
         { status: 400 }
       );
     }
+
+    const validation = validateRequestBody(acceptApplicationSchema, body);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const { freelancerId, newStatus } = validation.data;
+
 
     const normalizedStatus =
       (newStatus || "").toLowerCase() === "accepted" ? "Accepted" : "Rejected";

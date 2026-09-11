@@ -37,29 +37,8 @@ import {
   FaUpload,
 } from "react-icons/fa";
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  phoneNumber: z
-    .string()
-    .min(10, { message: "Phone number should be ten digits" })
-    .transform((val) => parseInt(val, 10)),
-  age: z
-    .string()
-    .min(1, { message: "Age is required" })
-    .transform((val) => parseInt(val, 10)),
-  gender: z.string().min(1, { message: "Gender is required" }),
-  companyName: z.string().min(1, { message: "Company name is required" }),
-  industry: z.string().min(1, { message: "Industry is required" }),
-  address: z.string().min(1, { message: "Address is required" }),
-  bio: z.string().min(10, { message: "Bio must be at least 10 characters" }),
-  socialMedia: z
-    .string()
-    .url({ message: "Invalid URL" })
-    .optional()
-    .or(z.literal("")),
-  role: z.string().min(1, { message: "Role is required" }),
-  photo: z.string().optional(), // New photo field in schema
-});
+import { clientProfileSchema } from "@/validations/user";
+
 
 const OnboardingClient = () => {
   const router = useRouter();
@@ -113,7 +92,7 @@ const OnboardingClient = () => {
   }, [session, role]);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(clientProfileSchema),
     defaultValues: {
       email: userEmail,
       address: "",
@@ -124,10 +103,11 @@ const OnboardingClient = () => {
       age: "",
       gender: "",
       industry: "",
-      role: role,
-      photo: profileImageUrl, // New photo default value
+      role: role || "client",
+      photo: profileImageUrl,
     },
   });
+
 
   useEffect(() => {
     if (role) {

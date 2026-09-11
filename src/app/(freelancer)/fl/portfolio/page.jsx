@@ -10,6 +10,7 @@ import React, { useState, useEffect } from "react";
 import { BsInfoCircle } from "react-icons/bs";
 import axios from 'axios';
 import toast from "react-hot-toast";
+import { portfolioProjectSchema } from "@/validations/portfolio";
 
 const ManagePortfolio = () => {
   const [previewImage, setPreviewImage] = useState("");
@@ -124,23 +125,27 @@ const ManagePortfolio = () => {
   };
 
   const handleProjectSubmit = async () => {
-    if (!newProject.title || !newProject.title.trim()) {
-      toast.error("Please enter a project title");
+    if (!freelancerId) {
+      toast.error("Freelancer ID missing. Please refresh.");
       return;
     }
-    if (!newProject.description || !newProject.description.trim()) {
-      toast.error("Please enter a project description");
+
+    const validationResult = portfolioProjectSchema.safeParse(newProject);
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0]?.message || "Invalid project details";
+      toast.error(firstError);
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const response = await axios.put("/api/portfolioProject", { newProject, freelancerId });
+      const sanitizedProject = validationResult.data;
+      const response = await axios.put("/api/portfolioProject", { newProject: sanitizedProject, freelancerId });
       setProjects((prevProjects) => [
         ...prevProjects,
         {
           id: prevProjects.length + 1,
-          ...newProject,
+          ...sanitizedProject,
         },
       ]);
       setSelectedFile(null);

@@ -1,17 +1,23 @@
 import Project from "@/app/(models)/project"; 
 import { NextResponse } from "next/server";
+import { clientMilestoneReviewSchema } from "@/validations/project";
+import { validateRequestBody } from "@/validations/middleware";
 
 export async function PATCH(req, { params }) {
   try {
     const { id } = params; 
-    const { milestoneId, status } = await req.json(); 
+    const body = await req.json(); 
 
-    if (!id || !milestoneId || !status) {
-      return NextResponse.json(
-        { message: "Project ID, milestone ID, and status are required." },
-        { status: 400 }
-      );
+    if (!id) {
+      return NextResponse.json({ message: "Project ID is required" }, { status: 400 });
     }
+
+    const validation = validateRequestBody(clientMilestoneReviewSchema, body);
+    if (!validation.success) {
+      return validation.response;
+    }
+
+    const { milestoneId, status } = validation.data;
 
     const project = await Project.findById(id);
 
@@ -20,7 +26,7 @@ export async function PATCH(req, { params }) {
     }
 
     const milestone = project.milestones.find(
-      (milestone) => milestone._id.toString() === milestoneId
+      (m) => m._id.toString() === milestoneId
     );
 
     if (!milestone) {
@@ -33,8 +39,6 @@ export async function PATCH(req, { params }) {
       milestone.status = "Approved";
       milestone.paymentStatus = "Completed";
       milestone.paymentDate = new Date(); 
-    } else {
-      return NextResponse.json({ message: "Invalid status provided." }, { status: 400 });
     }
 
     await project.save();
@@ -51,3 +55,4 @@ export async function PATCH(req, { params }) {
     );
   }
 }
+

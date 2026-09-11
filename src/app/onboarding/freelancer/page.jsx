@@ -51,34 +51,10 @@ import {
   copywriterSkills,
   socialMediaManagerSkills,
 } from "./skills";
+import { freelancerProfileSchema } from "@/validations/user";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import toast from "react-hot-toast";
-
-// Define the schema using Zod
-const formSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  phoneNumber: z
-    .string()
-    .min(10, { message: "Phone number should be ten digits" })
-    .transform((val) => parseInt(val, 10)),
-  age: z
-    .string({ required_error: "Please enter your age" })
-    .transform((val) => parseInt(val, 10)),
-  gender: z.enum(["male", "female"], { message: "Please select a gender" }),
-  address: z.string(),
-  professionalTitle: z
-    .string()
-    .min(1, { message: "Professional Title is required" }),
-  skills: z
-    .array(z.string())
-    .min(1, { message: "You have to select at least one skill." }),
-  portfolioLink: z.string(),
-  bio: z.string().min(10, { message: "Bio should be at least 10 words" }),
-  socialMedia: z.string(),
-  role: z.string(),
-  photo: z.any().optional(), // New photo field
-});
 
 const OnboardingFreelancer = () => {
   const [selectedSkills, setSelectedSkills] = useState([]); //This is the profesional title selected, I (Ayush) made this to only determine which profesional title is selected
@@ -133,7 +109,7 @@ const OnboardingFreelancer = () => {
   }, [session, role]);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(freelancerProfileSchema),
     defaultValues: {
       email: userEmail,
       address: "",
@@ -145,7 +121,7 @@ const OnboardingFreelancer = () => {
       gender: "",
       professionalTitle: "",
       skills: [],
-      role: role,
+      role: role || "freelancer",
       photo: profileImageUrl,
     },
   });
@@ -373,8 +349,9 @@ const OnboardingFreelancer = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your number"
-                        type="number"
+                        placeholder="Enter your 10-digit phone number"
+                        type="tel"
+                        maxLength={15}
                         {...field}
                       />
                     </FormControl>
@@ -394,8 +371,11 @@ const OnboardingFreelancer = () => {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Enter your age"
+                        placeholder="Enter your age (e.g. 25)"
                         type="number"
+                        min={16}
+                        max={100}
+                        step={1}
                         {...field}
                       />
                     </FormControl>

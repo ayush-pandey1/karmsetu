@@ -1,33 +1,38 @@
-import cloudinary from '@/lib/cloudinary';
 import User from "@/app/(models)/User";
-// import User from "../../(models)/User";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
+import { signupSchema } from "@/validations/auth";
+import { validateRequestBody } from "@/validations/middleware";
 
 export async function POST(req) {
     try {
         const body = await req.json();
-        const userData = body.data;
+        const userData = body?.data || body;
 
-        if (!userData?.email || !userData?.password || !userData?.fullname) {
-            return NextResponse.json({ message: "All fields are required." }, { status: 400 });
+        const validation = validateRequestBody(signupSchema, userData);
+        if (!validation.success) {
+            return validation.response;
         }
 
-        const duplicate = await User.findOne({ email: userData.email }).lean().exec();
+        const validData = validation.data;
+        const normalizedEmail = validData.email.toLowerCase().trim();
+
+        const duplicate = await User.findOne({ email: normalizedEmail }).lean().exec();
         if (duplicate) {
             return NextResponse.json({ message: "Email is already used!!!" }, { status: 409 });
         }
 
-        const hashPassword = await bcrypt.hash(userData.password, 10);
-        userData.password = hashPassword;
+        const hashPassword = await bcrypt.hash(validData.password, 10);
+        const fullname = validData.fullname || `${validData.firstName} ${validData.lastName}`.trim();
 
-        if (!userData.role) {
-            userData.role = "client";
-        }
+        const newUser = await User.create({
+            fullname,
+            email: normalizedEmail,
+            password: hashPassword,
+            role: validData.role,
+        });
 
-        const newUser = await User.create(userData);
-
-        return new NextResponse(JSON.stringify({
+        return NextResponse.json({
             message: "User created successfully!!",
             user: {
                 id: newUser._id,
@@ -35,15 +40,13 @@ export async function POST(req) {
                 fullname: newUser.fullname,
                 role: newUser.role
             }
-        }), {
-            status: 201,
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        }, {
+            status: 201
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Signup error:", error);
         return NextResponse.json({ message: "Error", error: error.message }, { status: 500 });
     }
 }
+

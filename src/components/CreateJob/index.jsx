@@ -53,23 +53,7 @@ import {
 } from "./skills.js";
 import toast from "react-hot-toast";
 
-const createJobSchema = z.object({
-  title: z
-    .string()
-    .min(5, { message: "Title should be at least 5 characters long" }),
-  description: z
-    .string()
-    .min(20, { message: "Description should be at least 20 characters long" }),
-  projectCategory: z.string().min(1, { message: "Category is required" }),
-  skills: z
-    .array(z.string())
-    .min(1, { message: "Please select or add at least one skill." }),
-  budget: z
-    .string({ message: "Budget is required" })
-    .transform((val) => parseInt(val, 10)),
-  duration: z.string().min(1, { message: "Duration is required" }),
-  clientId: z.string(),
-});
+import { createJobSchema } from "@/validations/project";
 
 // Component: Modern Tag / Chip / Autocomplete Input for Skills
 const SkillTagCombobox = ({ value = [], onChange, categorySkills = [], categoryName = "" }) => {
