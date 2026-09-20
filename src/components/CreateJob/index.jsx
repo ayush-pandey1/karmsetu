@@ -54,6 +54,7 @@ import {
 import toast from "react-hot-toast";
 
 import { createJobSchema } from "@/validations/project";
+import AIProjectGeneratorDialog from "./AIProjectGeneratorDialog";
 
 // Component: Modern Tag / Chip / Autocomplete Input for Skills
 const SkillTagCombobox = ({ value = [], onChange, categorySkills = [], categoryName = "" }) => {
@@ -271,6 +272,7 @@ const CreateJobForm = () => {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [sdkReady, setSdkReady] = useState(false);
+  const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(createJobSchema),
@@ -579,11 +581,66 @@ const CreateJobForm = () => {
     setMilestones(milestones.filter((_, i) => i !== index));
   };
 
+  const handleApplyAiProject = (aiData) => {
+    if (!aiData) return;
+
+    form.setValue("title", aiData.title, { shouldValidate: true, shouldDirty: true });
+    form.setValue("description", aiData.description, { shouldValidate: true, shouldDirty: true });
+    form.setValue("projectCategory", aiData.projectCategory, { shouldValidate: true, shouldDirty: true });
+    form.setValue("skills", aiData.skills, { shouldValidate: true, shouldDirty: true });
+    form.setValue("budget", String(aiData.budget), { shouldValidate: true, shouldDirty: true });
+    form.setValue("duration", aiData.duration, { shouldValidate: true, shouldDirty: true });
+
+    if (Array.isArray(aiData.milestones) && aiData.milestones.length > 0) {
+      setMilestones(
+        aiData.milestones.map((m) => ({
+          title: m.title,
+          description: m.description || "",
+          amount: m.amount,
+        }))
+      );
+    }
+  };
+
   const currentCategoryLabel =
     projectCategories.find((c) => c.value === selectedCategory)?.label || "";
 
   return (
     <div className="flex flex-col">
+      {/* AI Assistant Banner / Button */}
+      <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-primary/10 via-purple-50 to-indigo-50/50 border border-primary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-sm">
+            <LuSparkles className="w-5 h-5 animate-pulse" />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              Have project ideas in mind?
+              <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                AI Powered
+              </span>
+            </h3>
+            <p className="text-xs text-gray-600">
+              Enter your raw thoughts and let Gemini draft your title, scope, skills, and milestones instantly.
+            </p>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          onClick={() => setIsAiDialogOpen(true)}
+          className="bg-primary hover:bg-primaryho text-white font-medium text-xs sm:text-sm px-4 py-2 gap-2 shrink-0 shadow-sm transition-all hover:scale-[1.02]"
+        >
+          <LuSparkles className="w-4 h-4" />
+          Generate with AI
+        </Button>
+      </div>
+
+      <AIProjectGeneratorDialog
+        isOpen={isAiDialogOpen}
+        onOpenChange={setIsAiDialogOpen}
+        onApplyGeneratedProject={handleApplyAiProject}
+      />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-7 mb-4">
           {/* 1. Job Title */}
