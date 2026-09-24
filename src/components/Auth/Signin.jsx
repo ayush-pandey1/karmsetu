@@ -257,7 +257,7 @@ const Signin = () => {
 
               <div className="flex flex-wrap items-center gap-10 md:justify-between xl:gap-15">
                 <div className="flex flex-wrap gap-4 md:gap-10">
-                  <div className="mb-4 flex items-center">
+                  {/* <div className="mb-4 flex items-center">
                     <input
                       id="default-checkbox"
                       type="checkbox"
@@ -286,11 +286,11 @@ const Signin = () => {
                     >
                       Keep me signed in
                     </label>
-                  </div>
+                  </div> */}
 
-                  <a href="#" className="hover:text-primary">
+                  {/* <a href="#" className="hover:text-primary">
                     Forgot Password?
-                  </a>
+                  </a> */}
                 </div>
 
                 <button

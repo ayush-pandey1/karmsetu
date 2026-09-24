@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { MdCurrencyRupee, MdAccessTime } from "react-icons/md";
 import { FaClipboardList } from "react-icons/fa";
 import { GiSkills } from "react-icons/gi";
+import { LuSparkles } from "react-icons/lu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
@@ -208,6 +209,149 @@ const JobDetails = () => {
   }
 
   const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  // AI Proposal generation states
+  const [isAiGenerating, setIsAiGenerating] = useState(false);
+  const [showOverwriteConfirm, setShowOverwriteConfirm] = useState(false);
+  const [pendingAiProposal, setPendingAiProposal] = useState("");
+  const [isTypingAnimation, setIsTypingAnimation] = useState(false);
+  const typingTimerRef = useRef(null);
+
+  // Cleanup typing interval on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimerRef.current) {
+        clearInterval(typingTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Textarea typing/stream animation - snappy and non-blocking
+  const animateProposalText = (fullText) => {
+    if (typingTimerRef.current) {
+      clearInterval(typingTimerRef.current);
+    }
+
+    setIsTypingAnimation(true);
+    let currentIndex = 0;
+    setMessage("");
+
+    // Chunk size calculate karte hain taaki animation 0.8s-1.2s me wrap ho jaye
+    const totalLength = fullText.length;
+    const stepInterval = 18;
+    const totalSteps = Math.min(50, Math.max(20, Math.floor(totalLength / 14)));
+    const chunkSize = Math.max(4, Math.ceil(totalLength / totalSteps));
+
+    typingTimerRef.current = setInterval(() => {
+      currentIndex += chunkSize;
+      if (currentIndex >= totalLength) {
+        setMessage(fullText);
+        clearInterval(typingTimerRef.current);
+        typingTimerRef.current = null;
+        setIsTypingAnimation(false);
+      } else {
+        setMessage(fullText.slice(0, currentIndex));
+      }
+    }, stepInterval);
+  };
+
+  // User click karke typing animation skip kar sakta hai
+  const handleSkipTyping = () => {
+    if (isTypingAnimation && typingTimerRef.current) {
+      clearInterval(typingTimerRef.current);
+      typingTimerRef.current = null;
+      if (pendingAiProposal) {
+        setMessage(pendingAiProposal);
+      }
+      setIsTypingAnimation(false);
+    }
+  };
+
+  // AI button click handler
+  const handleGenerateProposalClick = async () => {
+    if (isAiGenerating || isSubmitting) return;
+
+    const fId = freelancerId || userData?.id || userData?._id;
+    if (!currentProjectId || !fId) {
+      toast.error("Missing project or freelancer details");
+      return;
+    }
+
+    setIsAiGenerating(true);
+    try {
+      const response = await axios.post("/api/ai/generate-proposal", {
+        projectId: currentProjectId,
+        freelancerId: fId,
+      });
+
+      if (response.data?.success && response.data?.proposal) {
+        const generatedText = response.data.proposal;
+        const remaining = response.data.remaining;
+        setPendingAiProposal(generatedText);
+
+        const successNotice =
+          remaining !== undefined
+            ? `AI proposal drafted! (${remaining} generations left today)`
+            : "AI proposal drafted!";
+
+        // Agar user ne pehle se kuch likha hai to bina confirm kiye overwrite mat karo
+        if (message && message.trim().length > 0) {
+          setShowOverwriteConfirm(true);
+          toast("AI proposal generated. Please confirm before replacing your existing text.", {
+            icon: "💡",
+          });
+        } else {
+          animateProposalText(generatedText);
+          toast.success(successNotice);
+        }
+      } else {
+        throw new Error(response.data?.message || "Failed to generate proposal");
+      }
+    } catch (err) {
+      console.error("AI Proposal Error:", err);
+      const rawMsg = err.response?.data?.message || err.message || "";
+      let cleanMsg = "Could not generate proposal with AI. Please try again.";
+
+      if (err.response?.status === 429) {
+        cleanMsg =
+          err.response?.data?.message ||
+          "Aapka aaj ka AI generation limit (3/3) pura ho chuka hai. Kripya kal dobara koshish karein.";
+      } else if (
+        rawMsg.includes("503") ||
+        rawMsg.includes("high demand") ||
+        rawMsg.includes("Service Unavailable") ||
+        rawMsg.includes("overloaded")
+      ) {
+        cleanMsg = "AI service is currently experiencing high demand. Please try again in a few moments.";
+      } else if (
+        rawMsg.includes("rate limit") ||
+        rawMsg.includes("RESOURCE_EXHAUSTED")
+      ) {
+        cleanMsg = "AI rate limit reached. Please wait a moment before trying again.";
+      } else if (
+        rawMsg &&
+        !rawMsg.includes("[GoogleGenerativeAI Error]") &&
+        !rawMsg.includes("http")
+      ) {
+        cleanMsg = rawMsg;
+      }
+
+      toast.error(cleanMsg);
+    } finally {
+      setIsAiGenerating(false);
+    }
+  };
+
+  const handleConfirmOverwrite = () => {
+    setShowOverwriteConfirm(false);
+    if (pendingAiProposal) {
+      animateProposalText(pendingAiProposal);
+    }
+  };
+
+  const handleCancelOverwrite = () => {
+    setShowOverwriteConfirm(false);
+    setPendingAiProposal("");
+  };
 
   const onSubmit = async () => {
     if (!message || message.trim().length < 5) {
@@ -337,7 +481,7 @@ const JobDetails = () => {
 
         {/* Application Modal Dialog */}
         <Dialog open={isApplyDialogOpen} onOpenChange={setIsApplyDialogOpen}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg">
             <DialogHeader>
               <DialogTitle className="text-black flex flex-row gap-1">
                 <FaEnvelopeOpenText className="text-primary" />
@@ -347,19 +491,108 @@ const JobDetails = () => {
                 Craft a personalized message to introduce yourself and highlight why you&apos;re the perfect fit for this project.
               </DialogDescription>
             </DialogHeader>
+
+            {/* AI Generator Action Row */}
+            <div className="flex items-center justify-between pt-1">
+              <Label htmlFor="message" className="text-xs font-semibold text-gray-700 flex items-center gap-1.5">
+                <span>Application Message</span>
+                <span className="text-[11px] text-gray-400 font-normal">
+                  ({message.length}/2000)
+                </span>
+              </Label>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isAiGenerating || isSubmitting}
+                onClick={handleGenerateProposalClick}
+                className="h-8 px-3 text-xs font-medium text-primary hover:text-white hover:bg-primary border-primary/30 gap-1.5 transition-all shadow-2xs group"
+              >
+                {isAiGenerating ? (
+                  <>
+                    <svg
+                      className="animate-spin h-3.5 w-3.5 text-primary"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8H4z"
+                      ></path>
+                    </svg>
+                    <span>Generating with AI...</span>
+                  </>
+                ) : (
+                  <>
+                    <LuSparkles className="w-3.5 h-3.5 text-primary group-hover:text-white transition-colors" />
+                    <span>Generate with AI</span>
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Overwrite Confirmation Alert */}
+            {showOverwriteConfirm && (
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-900 animate-in fade-in-50">
+                <div>
+                  <p className="font-semibold flex items-center gap-1">
+                    <span>⚠️ Replace current text with AI proposal?</span>
+                  </p>
+                  <p className="text-[11px] text-amber-700 mt-0.5">
+                    Your existing proposal text will be overwritten.
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancelOverwrite}
+                    className="h-7 px-2.5 text-xs text-gray-600 hover:bg-amber-100/70"
+                  >
+                    Keep Existing
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleConfirmOverwrite}
+                    className="h-7 px-3 text-xs bg-amber-600 hover:bg-amber-700 text-white font-medium shadow-2xs"
+                  >
+                    Replace Text
+                  </Button>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center space-x-2">
-              <div className="flex-1">
-                <Label htmlFor="message" className="sr-only">
-                  Application Message
-                </Label>
+              <div className="flex-1 relative">
                 <Textarea
                   id="message"
-                  disabled={isSubmitting}
-                  placeholder="Write your application proposal and timeline here..."
+                  disabled={isSubmitting || isAiGenerating}
+                  placeholder="Write your application proposal and timeline here, or click 'Generate with AI' above..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="disabled:opacity-60 disabled:cursor-not-allowed min-h-[120px]"
+                  onClick={handleSkipTyping}
+                  className={`disabled:opacity-60 disabled:cursor-not-allowed min-h-[140px] text-sm leading-relaxed transition-all ${
+                    isTypingAnimation ? "ring-2 ring-primary/30 border-primary" : ""
+                  }`}
                 />
+                {isTypingAnimation && (
+                  <span className="text-[10px] text-primary/80 italic mt-1 block">
+                    ✨ AI typing... (click box to skip animation and edit)
+                  </span>
+                )}
               </div>
             </div>
             <DialogFooter className="sm:justify-start gap-2">

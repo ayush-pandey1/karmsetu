@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { generateProjectWithGemini } from "@/lib/ai/gemini";
+import {
+  checkAndIncrementAiLimit,
+  decrementAiLimit,
+} from "@/lib/ai/rateLimiter";
 
 export async function POST(req) {
+  let activeClientId = null;
+
   try {
     const body = await req.json();
-    const { prompt } = body || {};
+    const { prompt, clientId } = body || {};
 
     if (!prompt || typeof prompt !== "string" || prompt.trim().length < 5) {
       return NextResponse.json(
@@ -26,25 +32,59 @@ export async function POST(req) {
       );
     }
 
-    const generatedProject = await generateProjectWithGemini(prompt);
+    if (!clientId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please log in to use AI project generation.",
+        },
+        { status: 401 }
+      );
+    }
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Project generated successfully",
-        data: generatedProject,
-      },
-      { status: 200 }
-    );
+    activeClientId = clientId;
+
+    // Daily rate limit check karo (Max 3 per day)
+    const limitCheck = await checkAndIncrementAiLimit(clientId, "project", 3);
+    if (!limitCheck.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: limitCheck.message,
+          remaining: 0,
+        },
+        { status: 429 }
+      );
+    }
+
+    try {
+      const generatedProject = await generateProjectWithGemini(prompt);
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Project generated successfully",
+          data: generatedProject,
+          remaining: limitCheck.remaining,
+        },
+        { status: 200 }
+      );
+    } catch (genError) {
+      // Agar AI call fail ho jaye to user ka daily quota waste na ho, decrement kar do
+      await decrementAiLimit(activeClientId, "project");
+      throw genError;
+    }
   } catch (error) {
     console.error("AI Project Generation API Route Error:", error.message);
 
     const isApiKeyError =
-      error.message?.includes("GEMINI_API_KEY") ||
+      error.message?.includes("API_KEY") ||
       error.message?.includes("API key");
     const isRateLimit = error.message?.includes("rate limit");
+    const isHighDemand =
+      error.message?.includes("high demand") || error.message?.includes("503");
 
-    const statusCode = isApiKeyError ? 503 : isRateLimit ? 429 : 500;
+    const statusCode = isHighDemand ? 503 : isApiKeyError ? 503 : isRateLimit ? 429 : 500;
 
     return NextResponse.json(
       {
