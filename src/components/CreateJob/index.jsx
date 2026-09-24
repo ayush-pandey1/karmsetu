@@ -640,6 +640,7 @@ const CreateJobForm = () => {
         isOpen={isAiDialogOpen}
         onOpenChange={setIsAiDialogOpen}
         onApplyGeneratedProject={handleApplyAiProject}
+        clientId={userData?.id || userData?._id}
       />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-7 mb-4">

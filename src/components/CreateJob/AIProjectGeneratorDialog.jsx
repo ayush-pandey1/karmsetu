@@ -35,11 +35,13 @@ export const AIProjectGeneratorDialog = ({
   isOpen,
   onOpenChange,
   onApplyGeneratedProject,
+  clientId,
 }) => {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [generatedData, setGeneratedData] = useState(null);
+  const [remainingGenerations, setRemainingGenerations] = useState(null);
 
   const handleGenerate = async () => {
     const trimmed = prompt.trim();
@@ -50,28 +52,75 @@ export const AIProjectGeneratorDialog = ({
       return;
     }
 
+    // Client ID prop se lo ya session storage se extract karo
+    let activeClientId = clientId;
+    if (!activeClientId && typeof window !== "undefined") {
+      try {
+        const raw = sessionStorage.getItem("karmsetu");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          activeClientId = parsed?.id || parsed?._id;
+        }
+      } catch (e) {
+        console.error("Session parse error", e);
+      }
+    }
+
+    if (!activeClientId) {
+      setErrorMessage("Please log in to use AI project generation.");
+      toast.error("Please log in to use AI project generation.");
+      return;
+    }
+
     setErrorMessage("");
     setIsGenerating(true);
 
     try {
       const response = await axios.post("/api/ai/generate-project", {
         prompt: trimmed,
+        clientId: activeClientId,
       });
 
       if (response.data?.success && response.data?.data) {
         setGeneratedData(response.data.data);
+        if (response.data?.remaining !== undefined) {
+          setRemainingGenerations(response.data.remaining);
+        }
         toast.success("Project generated successfully!");
       } else {
         throw new Error(response.data?.message || "Failed to generate project");
       }
     } catch (err) {
       console.error("AI Generation Error:", err);
-      const msg =
-        err.response?.data?.message ||
-        err.message ||
-        "An unexpected error occurred while communicating with AI.";
-      setErrorMessage(msg);
-      toast.error(msg);
+      const rawMsg = err.response?.data?.message || err.message || "";
+      let cleanMsg = "An unexpected error occurred while communicating with AI.";
+
+      if (err.response?.status === 429) {
+        cleanMsg =
+          err.response?.data?.message ||
+          "Daily limit reached (3/3). Please try again tomorrow.";
+      } else if (
+        rawMsg.includes("503") ||
+        rawMsg.includes("high demand") ||
+        rawMsg.includes("Service Unavailable") ||
+        rawMsg.includes("overloaded")
+      ) {
+        cleanMsg = "AI service is currently experiencing high demand. Please try again in a few moments.";
+      } else if (
+        rawMsg.includes("rate limit") ||
+        rawMsg.includes("RESOURCE_EXHAUSTED")
+      ) {
+        cleanMsg = "AI rate limit reached. Please wait a moment before trying again.";
+      } else if (
+        rawMsg &&
+        !rawMsg.includes("[GoogleGenerativeAI Error]") &&
+        !rawMsg.includes("http")
+      ) {
+        cleanMsg = rawMsg;
+      }
+
+      setErrorMessage(cleanMsg);
+      toast.error(cleanMsg);
     } finally {
       setIsGenerating(false);
     }
@@ -97,7 +146,7 @@ export const AIProjectGeneratorDialog = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 bg-white border border-gray-200 shadow-xl rounded-2xl">
         <DialogHeader className="gap-1 border-b border-gray-100 pb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
             <div>
               <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 Generate Project with AI
@@ -110,6 +159,14 @@ export const AIProjectGeneratorDialog = ({
                 convert your thoughts into a structured project draft.
               </DialogDescription>
             </div>
+            <Badge
+              variant="outline"
+              className="text-xs font-medium text-amber-700 bg-amber-50 border-amber-200 shrink-0 self-start sm:self-center"
+            >
+              {remainingGenerations !== null
+                ? `${remainingGenerations}/3 left today`
+                : "Max 3 tries/day"}
+            </Badge>
           </div>
         </DialogHeader>
 
